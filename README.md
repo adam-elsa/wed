@@ -11,7 +11,7 @@ Plain HTML/CSS/JS, no build step. See [PLAN.md](PLAN.md) for design decisions.
 - The 3D venue (the walk up to the hotel, the lobby, the ballroom): https://adam-elsa.github.io/wed/?to=NamaTamu&venue
 - Straight into the ballroom: https://adam-elsa.github.io/wed/?to=NamaTamu&ballroom
 
-Guest names need no "+" for spaces: write each word with a capital and leave the spaces out — `?to=BudiSantoso` shows "Budi Santoso", `?to=BapakDanIbuHasan` shows "Bapak Dan Ibu Hasan", and a run of capitals stays together (`?to=KeluargaPTABCIndonesia` → "Keluarga PTABC Indonesia"). Links with "+" (`?to=Budi+Santoso`) still work and are kept exactly as written, so use "+" for a name that must not be split, such as `?to=Ronald+McDonald` or `?to=Dr.+Budi+Santoso,+S.H.` (without spaces those would read "Mc Donald" and "Dr.Budi").
+Guest names need no "+" for spaces: write each word with a capital and leave the spaces out — `?to=BudiSantoso` shows "Budi Santoso", `?to=BapakDanIbuHasan` shows "Bapak Dan Ibu Hasan", and a run of capitals stays together (`?to=KeluargaPTABCIndonesia` → "Keluarga PTABC Indonesia"). An "&" gets a space either side; in a link it has to be written `%26`, since a bare "&" starts the next setting and cuts the name off there (`?to=BapakJokoWibowo%26Istri` → "Bapak Joko Wibowo & Istri"). Links with "+" (`?to=Budi+Santoso`) still work and are kept exactly as written, so use "+" for a name that must not be split, such as `?to=Ronald+McDonald` or `?to=Dr.+Budi+Santoso,+S.H.` (without spaces those would read "Mc Donald" and "Dr.Budi").
 
 This repository is the **virtual event**. The invitation for the live event lives separately at
 [adamvirtualspace-lab/adamelsaweddingsite](https://adamvirtualspace-lab.github.io/adamelsaweddingsite/).
