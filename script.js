@@ -23,13 +23,17 @@
   // Spaces can be "+" (?to=Budi+Santoso) or, shorter to share, left out with each word
   // capitalised (?to=BudiSantoso, ?to=BapakDanIbuHasan): a name with no space in it is split
   // where a capital follows a small letter, and before the last capital of a run of them
-  // (?to=KeluargaPTABCIndonesia -> "Keluarga PTABC Indonesia").
+  // (?to=KeluargaPTABCIndonesia -> "Keluarga PTABC Indonesia"). An "&", written %26 in a link,
+  // always gets a space either side (?to=BapakJokoWibowo%26Istri -> "Bapak Joko Wibowo & Istri").
   const params = new URLSearchParams(window.location.search);
   const guest = spaceOut(params.get('to') || params.get('nama'));
   function spaceOut(name) {
-    name = (name || '').trim();
-    if (/\s/.test(name)) return name; // spaces given: keep it exactly as written
-    return name.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/([A-Z])([A-Z][a-z])/g, '$1 $2');
+    // each side of an "&" on its own: split only if written without spaces, else keep as written
+    return (name || '').split('&').map((part) => {
+      part = part.trim();
+      if (/\s/.test(part)) return part;
+      return part.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/([A-Z])([A-Z][a-z])/g, '$1 $2');
+    }).join(' & ').trim();
   }
   if (guest) {
     // the 3D opener's greeting and "Dear, <name>" on the hero
