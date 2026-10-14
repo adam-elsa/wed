@@ -8,7 +8,7 @@ Plain HTML/CSS/JS, no build step. See [PLAN.md](PLAN.md) for design decisions.
 **Live site:** https://adam-elsa.github.io/virtualwedding/ (GitHub Pages, deployed from `main` by [.github/workflows/deploy.yml](.github/workflows/deploy.yml))
 
 - With a guest's name: https://adam-elsa.github.io/virtualwedding/?to=Nama+Tamu
-- Without the 3D opener (2D cover instead): https://adam-elsa.github.io/virtualwedding/?to=Nama+Tamu&simple
+- Without the 3D opener (straight onto the invitation, lighter for older phones): https://adam-elsa.github.io/virtualwedding/?to=Nama+Tamu&simple
 - Straight into the ballroom: https://adam-elsa.github.io/virtualwedding/?to=Nama+Tamu&ballroom
 
 This repository is the **virtual event**. The invitation for the live event lives separately at
@@ -56,7 +56,7 @@ python -m http.server 8000
 
 Then visit `http://localhost:8000/?to=Nama+Tamu` — the `to` query param personalizes the greeting on the cover screen (and prefills the RSVP name).
 
-Add `simple` to skip the 3D opener and use the original template's 2D cover instead ("Dear, Nama Tamu — You Are Invited! … Open Invitation"), e.g. `?to=Nama+Tamu&simple` (or just `?simple`). Tapping the cover slides it up and starts the music.
+Add `simple` to skip the 3D opener and land straight on the invitation page ("Dear, Nama Tamu" on the hero photo), e.g. `?to=Nama+Tamu&simple` (or just `?simple`). Browsers only let music start after a tap, so it starts on the guest's first tap (or right away, if the browser allows it). A "Scroll" hint runs down the hero's left edge (arrows sliding down a line from under the greeting to the word "Scroll"); it is only a hint (taps go straight through it) and fades once the guest scrolls.
 
 The Claude Code preview (`.claude/launch.json`) serves on port 8811 with `Cache-Control: no-store`, so edits always show on reload.
 

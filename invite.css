@@ -7,8 +7,7 @@
    Fonts: Urbanist, Allison and Quicksand stand in for the template's
    paid Batusa, Brighton Signature and Monday.
    ================================================================ */
-.site-main,
-.welcome-gate{
+.site-main{
   --font-body:'Urbanist', Helvetica, Arial, sans-serif;     /* Batusa */
   --font-sign:'Allison', cursive;                            /* Brighton Signature */
   --font-round:'Quicksand', Helvetica, Arial, sans-serif;   /* Monday */
@@ -80,57 +79,6 @@
 .is-visible.anim-up, .is-visible.anim-left, .is-visible.anim-fade, .is-visible.anim-zoom, .is-visible.anim-draw{opacity:1;transform:none;}
 .is-visible.anim-draw path, .is-visible.anim-draw line{stroke-dashoffset:0;}
 
-/* ============ 2D cover (?simple) ============ */
-.welcome-gate{
-  position:fixed;top:0;left:0;z-index:55;
-  width:100%;height:100vh;height:100dvh;
-  display:flex;flex-direction:column;justify-content:space-between;
-  padding:6vh 0 15vh;
-  overflow-y:auto;
-  background:
-    linear-gradient(180deg,rgba(0,4,10,0.36) 68%,#000c0f 100%),
-    url('assets/img/inv/cover.jpg') center/cover no-repeat;
-  color:#ffffff;
-  text-align:center;
-  transition:top 1s;
-  cursor:pointer;
-}
-.welcome-gate[hidden]{display:none;}
-.welcome-gate.move-gate{top:-100vh;}
-.wg-top, .wg-bottom{width:80%;margin:0 auto;padding:30px 0;}
-.wg-dear, .wg-invited{
-  margin:0;color:#ffffff;font-family:'Caudex', Georgia, serif;font-weight:500;font-size:16px;
-}
-.wg-dear{line-height:1.4em;padding-bottom:10px;}
-.wg-invited{line-height:2.5em;}
-.wg-celebration{margin:0 0 6px;font-family:'Caudex', Georgia, serif;font-size:16px;line-height:1.7em;}
-.wg-names{
-  margin:0 0 12px;padding-bottom:10px;color:#ffffff;
-  font-family:var(--font-play);font-weight:500;font-size:30px;line-height:1em;
-}
-.wg-btn{
-  --border-width:1px;
-  position:relative;display:block;width:100%;
-  padding:.3em .7em .3em .7em;
-  border:0;border-radius:3px;
-  background:#ffffff;color:#000000;
-  font-family:var(--font-play);font-size:16px;line-height:1.7em;
-  cursor:pointer;
-}
-.wg-btn-icon{width:1em;height:1em;vertical-align:-0.12em;margin-right:.3em;}
-/* "border pulse": a white outline that breathes out and back */
-.wg-btn::after{
-  content:'';position:absolute;inset:0;z-index:-1;
-  border:var(--border-width) solid #ffffff;border-radius:inherit;
-  animation:border-pulse 1.2s infinite;
-}
-.wg-btn:hover::after{opacity:0;}
-@keyframes border-pulse{
-  0%,100%{inset:0;}
-  50%{inset:calc(var(--border-width) * -4);}
-}
-.wg-bottom{position:relative;z-index:0;}
-
 /* ============ hero ============ */
 .inv-hero{
   height:100vh;height:100svh;
@@ -167,6 +115,41 @@
 .inv-hero p{color:#ffffff;}
 .inv-hero-of, .inv-hero-date{font-family:var(--font-body);font-size:16px;letter-spacing:2px;}
 .inv-hero-names{font-family:var(--font-play);font-size:35px;line-height:0.9em;}
+/* "Scroll" hint down the hero's left edge: a faint line from under the greeting to the word
+   "Scroll", with arrows sliding down it one after another; it fades in after the hero text
+   and out once the guest scrolls */
+.inv-scroll-hint{
+  position:absolute;z-index:2;left:max(10px, env(safe-area-inset-left));
+  top:clamp(150px, 22vh, 220px);bottom:56px;
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+  padding:6px;color:#ffffff;pointer-events:none;
+  font-family:var(--font-body);font-size:12px;font-weight:700;letter-spacing:4px;text-transform:uppercase;
+  text-shadow:0 0 6px rgba(0,0,0,0.6);filter:drop-shadow(0 0 3px rgba(0,0,0,0.45));
+  opacity:0;animation:scroll-hint-in 1s 1.2s forwards;transition:opacity .5s;
+}
+.inv-scroll-label{writing-mode:vertical-rl;}
+.inv-scroll-trail{position:relative;flex:1;width:14px;}
+.inv-scroll-trail::before{
+  content:'';position:absolute;left:50%;top:0;bottom:0;width:2px;margin-left:-1px;
+  background:linear-gradient(180deg,rgba(255,255,255,0) 0%,rgba(255,255,255,0.6) 25%,rgba(255,255,255,0.6) 100%);
+}
+.inv-scroll-trail i{
+  position:absolute;left:1px;top:0;width:12px;height:12px;
+  border-right:2.5px solid #ffffff;border-bottom:2.5px solid #ffffff;
+  transform:rotate(45deg);opacity:0;
+  filter:drop-shadow(0 0 2px rgba(0,0,0,0.6));
+  animation:scroll-hint-slide 2.7s cubic-bezier(.45,0,.55,1) infinite;
+}
+.inv-scroll-trail i:nth-child(2){animation-delay:.9s;}
+.inv-scroll-trail i:nth-child(3){animation-delay:1.8s;}
+.inv-scroll-hint.is-gone{opacity:0 !important;}
+@keyframes scroll-hint-in{to{opacity:1;}}
+@keyframes scroll-hint-slide{
+  0%{top:0;opacity:0;}
+  15%{opacity:1;}
+  80%{opacity:1;}
+  100%{top:calc(100% - 14px);opacity:0;}
+}
 
 /* ============ verse + photo ============ */
 .inv-verse .inv-verse-card{
@@ -428,14 +411,7 @@
    our own full-screen layout instead: full-width sections and photos (landscape versions of the
    same shots where we have them), with the content centred at a readable width. */
 @media (min-width:981px){
-  .site-main, .welcome-gate{--sec-pad:70px;--row-pad:30px;--mod-gap:24px;}
-  .welcome-gate{
-    padding:10vh 0 12vh;
-    background-image:linear-gradient(180deg,rgba(0,4,10,0.36) 60%,#000c0f 100%),url('assets/img/09_Galery_1.jpg');
-    background-position:center 35%;
-  }
-  .wg-top, .wg-bottom{max-width:520px;}
-  .wg-names{font-size:52px;}
+  .site-main{--sec-pad:70px;--row-pad:30px;--mod-gap:24px;}
 
   .inv-row{max-width:620px;}
 
@@ -449,6 +425,7 @@
   .inv-hero .inv-row{max-width:none;padding-bottom:20px;}
   .inv-hero-of, .inv-hero-date{font-size:18px;letter-spacing:4px;}
   .inv-hero-names{font-size:clamp(56px,6vw,84px);line-height:1em;}
+  .inv-scroll-hint{left:40px;bottom:80px;font-size:14px;gap:14px;}
   .inv-divider-bottom, .inv-divider-top{background-size:100% 60px;height:60px;}
   .inv-divider-44{background-size:100% 70px;height:70px;}
 
@@ -494,11 +471,4 @@
   .inv-couple-text{font-size:14px;}
   .inv-bank-card{width:50%;}
   .inv-bank-logo{max-width:15%;}
-}
-
-@media (prefers-reduced-motion: reduce){
-  .anim-up, .anim-left, .anim-fade, .anim-zoom, .anim-draw{opacity:1;transform:none;transition:none;}
-  .anim-draw path, .anim-draw line{stroke-dashoffset:0;transition:none;}
-  .wg-btn::after{animation:none;}
-  .welcome-gate{transition:none;}
 }

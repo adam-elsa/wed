@@ -23,8 +23,8 @@
   const params = new URLSearchParams(window.location.search);
   const guest = params.get('to') || params.get('nama');
   if (guest) {
-    // the 3D opener's greeting, and "Dear, <name>" on the 2D cover
-    document.querySelectorAll('[data-guest], [data-guest-dear]').forEach((el) => { el.textContent = guest; });
+    // the 3D opener's greeting and "Dear, <name>" on the hero
+    document.querySelectorAll('[data-guest]').forEach((el) => { el.textContent = guest; });
   }
 
   // ---------- guest name on the hero: big, but never wider than the screen ----------
@@ -49,7 +49,6 @@
   // ---------- opening ----------
   const gate = document.getElementById('gate');
   const openBtn = document.getElementById('openBtn');
-  const welcomeGate = document.getElementById('welcomeGate');
   const siteMain = document.getElementById('siteMain');
   const musicToggle = document.getElementById('musicToggle');
   const musicIcon = musicToggle.querySelector('.music-icon');
@@ -514,29 +513,34 @@
     if (!lightbox.hidden) lightbox.click();
   });
 
+  // ---------- scroll hint on the hero ----------
+  const scrollHint = document.querySelector('.inv-scroll-hint');
+  const hideScrollHint = () => {
+    if (window.scrollY < 40) return;
+    scrollHint.classList.add('is-gone');
+    window.removeEventListener('scroll', hideScrollHint);
+  };
+  window.addEventListener('scroll', hideScrollHint, { passive: true });
+
   // ---------- which cover ----------
   if (params.has('simple')) {
-    // ?simple (e.g. ?to=Nama+Tamu&simple): no 3D opener; the template's own 2D cover instead
-    // (runs before gate3d.js, which then finds no gate). Tapping anywhere on it slides it up
-    // and starts the music.
+    // ?simple (e.g. ?to=Nama+Tamu&simple): no opener at all, straight onto the invitation
+    // (runs before gate3d.js, which then finds no gate). Browsers only let sound start inside
+    // a tap, so if the music is blocked now it starts on the guest's first tap or key press
+    // (a tap on the music disc is left to the disc itself).
     gate.remove();
     siteMain.hidden = false;
     fitGuestName();
-    welcomeGate.hidden = false;
-    document.body.style.overflow = 'hidden';
-    let opened = false;
-    welcomeGate.addEventListener('click', () => {
-      if (opened) return;
-      opened = true;
-      window.scrollTo(0, 0);
-      welcomeGate.classList.add('move-gate');
-      document.body.style.overflow = '';
-      startMusic();
-      initReveal();
-      setTimeout(() => welcomeGate.remove(), 1100);
-    });
+    initReveal();
+    startMusic();
+    const events = ['pointerdown', 'touchend', 'keydown'];
+    const stopWaiting = () => events.forEach((t) => document.removeEventListener(t, playOnFirstTap, true));
+    function playOnFirstTap(e) {
+      if (!bgm.paused || musicToggle.contains(e.target)) return stopWaiting();
+      bgm.play().then(() => { musicIcon.classList.remove('paused'); stopWaiting(); }, () => {});
+    }
+    events.forEach((t) => document.addEventListener(t, playOnFirstTap, true));
   } else {
-    welcomeGate.remove();
     document.body.style.overflow = 'hidden';
     openBtn.addEventListener('click', openInvitation);
     // if the 3D scene never shows up (no WebGL / CDN blocked), drop the loader
