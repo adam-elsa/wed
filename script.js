@@ -20,8 +20,17 @@
   const WEDDING_DATE = new Date('2026-10-24T12:30:00+07:00'); // Akad time, used for countdown
 
   // ---------- guest name from URL ----------
+  // Spaces can be "+" (?to=Budi+Santoso) or, shorter to share, left out with each word
+  // capitalised (?to=BudiSantoso, ?to=BapakDanIbuHasan): a name with no space in it is split
+  // where a capital follows a small letter, and before the last capital of a run of them
+  // (?to=KeluargaPTABCIndonesia -> "Keluarga PTABC Indonesia").
   const params = new URLSearchParams(window.location.search);
-  const guest = params.get('to') || params.get('nama');
+  const guest = spaceOut(params.get('to') || params.get('nama'));
+  function spaceOut(name) {
+    name = (name || '').trim();
+    if (/\s/.test(name)) return name; // spaces given: keep it exactly as written
+    return name.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/([A-Z])([A-Z][a-z])/g, '$1 $2');
+  }
   if (guest) {
     // the 3D opener's greeting and "Dear, <name>" on the hero
     document.querySelectorAll('[data-guest]').forEach((el) => { el.textContent = guest; });

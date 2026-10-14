@@ -7,9 +7,11 @@ Plain HTML/CSS/JS, no build step. See [PLAN.md](PLAN.md) for design decisions.
 
 **Live site:** https://adam-elsa.github.io/wed/ (GitHub Pages, deployed from `main` by [.github/workflows/deploy.yml](.github/workflows/deploy.yml))
 
-- With a guest's name (the 2D invitation): https://adam-elsa.github.io/wed/?to=Nama+Tamu
-- The 3D venue (the walk up to the hotel, the lobby, the ballroom): https://adam-elsa.github.io/wed/?to=Nama+Tamu&venue
-- Straight into the ballroom: https://adam-elsa.github.io/wed/?to=Nama+Tamu&ballroom
+- With a guest's name (the 2D invitation): https://adam-elsa.github.io/wed/?to=NamaTamu
+- The 3D venue (the walk up to the hotel, the lobby, the ballroom): https://adam-elsa.github.io/wed/?to=NamaTamu&venue
+- Straight into the ballroom: https://adam-elsa.github.io/wed/?to=NamaTamu&ballroom
+
+Guest names need no "+" for spaces: write each word with a capital and leave the spaces out — `?to=BudiSantoso` shows "Budi Santoso", `?to=BapakDanIbuHasan` shows "Bapak Dan Ibu Hasan", and a run of capitals stays together (`?to=KeluargaPTABCIndonesia` → "Keluarga PTABC Indonesia"). Links with "+" (`?to=Budi+Santoso`) still work and are kept exactly as written, so use "+" for a name that must not be split, such as `?to=Ronald+McDonald` or `?to=Dr.+Budi+Santoso,+S.H.` (without spaces those would read "Mc Donald" and "Dr.Budi").
 
 This repository is the **virtual event**. The invitation for the live event lives separately at
 [adamvirtualspace-lab/adamelsaweddingsite](https://adamvirtualspace-lab.github.io/adamelsaweddingsite/).
