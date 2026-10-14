@@ -521,6 +521,10 @@
   "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.169.0/examples/jsm/"
 } }
 </script>
-<script type="module" src="gate3d.js"></script>
+<!-- the 3D venue only with ?venue / ?ballroom: script.js has already removed the gate
+     otherwise, so the 2D invitation never downloads Three.js -->
+<script type="module">
+  if (document.getElementById('gate')) import('./gate3d.js');
+</script>
 </body>
 </html>

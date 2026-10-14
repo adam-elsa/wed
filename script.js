@@ -522,12 +522,14 @@
   };
   window.addEventListener('scroll', hideScrollHint, { passive: true });
 
-  // ---------- which cover ----------
-  if (params.has('simple')) {
-    // ?simple (e.g. ?to=Nama+Tamu&simple): no opener at all, straight onto the invitation
-    // (runs before gate3d.js, which then finds no gate). Browsers only let sound start inside
-    // a tap, so if the music is blocked now it starts on the guest's first tap or key press
-    // (a tap on the music disc is left to the disc itself).
+  // ---------- 2D or 3D ----------
+  // The 3D venue (the walk up to the hotel, the lobby, the ballroom) only with ?venue, e.g.
+  // ?to=Nama+Tamu&venue, or ?ballroom to go straight to the ballroom.
+  if (!params.has('venue') && !params.has('ballroom')) {
+    // the default: no opener at all, straight onto the invitation (runs before gate3d.js is
+    // loaded, which index.html then skips). Browsers only let sound start inside a tap, so if
+    // the music is blocked now it starts on the guest's first tap or key press (a tap on the
+    // music disc is left to the disc itself).
     gate.remove();
     siteMain.hidden = false;
     fitGuestName();
