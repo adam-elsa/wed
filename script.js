@@ -522,14 +522,18 @@
     if (!lightbox.hidden) lightbox.click();
   });
 
-  // ---------- scroll hint on the hero ----------
+  // ---------- scroll hint down the left edge ----------
+  // Stays until the guest scrolls into the RSVP section (its top a third of the way up the
+  // screen), and comes back if they scroll up above it again. While the invitation is hidden
+  // (the 3D venue) the section has no size, which counts as not there yet.
   const scrollHint = document.querySelector('.inv-scroll-hint');
-  const hideScrollHint = () => {
-    if (window.scrollY < 40) return;
-    scrollHint.classList.add('is-gone');
-    window.removeEventListener('scroll', hideScrollHint);
+  const rsvpSection = document.querySelector('.inv-rsvp');
+  const syncScrollHint = () => {
+    const r = rsvpSection.getBoundingClientRect();
+    scrollHint.classList.toggle('is-gone', r.height > 0 && r.top < window.innerHeight * 0.66);
   };
-  window.addEventListener('scroll', hideScrollHint, { passive: true });
+  window.addEventListener('scroll', syncScrollHint, { passive: true });
+  window.addEventListener('resize', syncScrollHint);
 
   // ---------- 2D or 3D ----------
   // The 3D venue (the walk up to the hotel, the lobby, the ballroom) only with ?venue, e.g.

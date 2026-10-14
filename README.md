@@ -58,7 +58,7 @@ Open `index.html` directly, or serve it (recommended, so relative fetches behave
 python -m http.server 8000
 ```
 
-Then visit `http://localhost:8000/?to=Nama+Tamu` — the invitation page, with the `to` query param personalizing the greeting ("Dear, Nama Tamu" on the hero photo) and prefilling the RSVP name. Browsers only let music start after a tap, so it starts on the guest's first tap (or right away, if the browser allows it). A "Scroll" hint runs down the hero's left edge (arrows sliding down a line from under the greeting to the word "Scroll"); it is only a hint (taps go straight through it) and fades once the guest scrolls.
+Then visit `http://localhost:8000/?to=Nama+Tamu` — the invitation page, with the `to` query param personalizing the greeting ("Dear, Nama Tamu" on the hero photo) and prefilling the RSVP name. Browsers only let music start after a tap, so it starts on the guest's first tap (or right away, if the browser allows it). A "Scroll" hint runs down the left edge of the screen (arrows sliding down a line from under the greeting to the word "Scroll"); it is only a hint (taps go straight through it). It stays on screen while the guest scrolls down, fades once they reach the RSVP section, and comes back if they scroll up above it again.
 
 Add `venue` for the 3D venue, e.g. `?to=Nama+Tamu&venue` (or just `?venue`): the opener with "Masuk Venue", then the lobby and the ballroom. `ballroom` (e.g. `?to=Nama+Tamu&ballroom`) skips the walk and goes straight to the ballroom. Older links with `simple` still work: they open the invitation page, as a plain link now does.
 
