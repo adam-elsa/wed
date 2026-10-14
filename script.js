@@ -20,8 +20,17 @@
   const WEDDING_DATE = new Date('2026-10-24T12:30:00+07:00'); // Akad time, used for countdown
 
   // ---------- guest name from URL ----------
+  // Spaces can be "+" (?to=Budi+Santoso) or, shorter to share, left out with each word
+  // capitalised (?to=BudiSantoso, ?to=BapakDanIbuHasan): a name with no space in it is split
+  // where a capital follows a small letter, and before the last capital of a run of them
+  // (?to=KeluargaPTABCIndonesia -> "Keluarga PTABC Indonesia").
   const params = new URLSearchParams(window.location.search);
-  const guest = params.get('to') || params.get('nama');
+  const guest = spaceOut(params.get('to') || params.get('nama'));
+  function spaceOut(name) {
+    name = (name || '').trim();
+    if (/\s/.test(name)) return name; // spaces given: keep it exactly as written
+    return name.replace(/([a-z])([A-Z])/g, '$1 $2').replace(/([A-Z])([A-Z][a-z])/g, '$1 $2');
+  }
   if (guest) {
     // the 3D opener's greeting and "Dear, <name>" on the hero
     document.querySelectorAll('[data-guest]').forEach((el) => { el.textContent = guest; });
@@ -513,14 +522,18 @@
     if (!lightbox.hidden) lightbox.click();
   });
 
-  // ---------- scroll hint on the hero ----------
+  // ---------- scroll hint down the left edge ----------
+  // Stays until the guest scrolls into the RSVP section (its top a third of the way up the
+  // screen), and comes back if they scroll up above it again. While the invitation is hidden
+  // (the 3D venue) the section has no size, which counts as not there yet.
   const scrollHint = document.querySelector('.inv-scroll-hint');
-  const hideScrollHint = () => {
-    if (window.scrollY < 40) return;
-    scrollHint.classList.add('is-gone');
-    window.removeEventListener('scroll', hideScrollHint);
+  const rsvpSection = document.querySelector('.inv-rsvp');
+  const syncScrollHint = () => {
+    const r = rsvpSection.getBoundingClientRect();
+    scrollHint.classList.toggle('is-gone', r.height > 0 && r.top < window.innerHeight * 0.66);
   };
-  window.addEventListener('scroll', hideScrollHint, { passive: true });
+  window.addEventListener('scroll', syncScrollHint, { passive: true });
+  window.addEventListener('resize', syncScrollHint);
 
   // ---------- 2D or 3D ----------
   // The 3D venue (the walk up to the hotel, the lobby, the ballroom) only with ?venue, e.g.

@@ -5,11 +5,13 @@ Akad 12.30 WIB · Resepsi 16.00 WIB.
 
 Plain HTML/CSS/JS, no build step. See [PLAN.md](PLAN.md) for design decisions.
 
-**Live site:** https://adam-elsa.github.io/virtualwedding/ (GitHub Pages, deployed from `main` by [.github/workflows/deploy.yml](.github/workflows/deploy.yml))
+**Live site:** https://adam-elsa.github.io/wed/ (GitHub Pages, deployed from `main` by [.github/workflows/deploy.yml](.github/workflows/deploy.yml))
 
-- With a guest's name (the 2D invitation): https://adam-elsa.github.io/virtualwedding/?to=Nama+Tamu
-- The 3D venue (the walk up to the hotel, the lobby, the ballroom): https://adam-elsa.github.io/virtualwedding/?to=Nama+Tamu&venue
-- Straight into the ballroom: https://adam-elsa.github.io/virtualwedding/?to=Nama+Tamu&ballroom
+- With a guest's name (the 2D invitation): https://adam-elsa.github.io/wed/?to=NamaTamu
+- The 3D venue (the walk up to the hotel, the lobby, the ballroom): https://adam-elsa.github.io/wed/?to=NamaTamu&venue
+- Straight into the ballroom: https://adam-elsa.github.io/wed/?to=NamaTamu&ballroom
+
+Guest names need no "+" for spaces: write each word with a capital and leave the spaces out — `?to=BudiSantoso` shows "Budi Santoso", `?to=BapakDanIbuHasan` shows "Bapak Dan Ibu Hasan", and a run of capitals stays together (`?to=KeluargaPTABCIndonesia` → "Keluarga PTABC Indonesia"). Links with "+" (`?to=Budi+Santoso`) still work and are kept exactly as written, so use "+" for a name that must not be split, such as `?to=Ronald+McDonald` or `?to=Dr.+Budi+Santoso,+S.H.` (without spaces those would read "Mc Donald" and "Dr.Budi").
 
 This repository is the **virtual event**. The invitation for the live event lives separately at
 [adamvirtualspace-lab/adamelsaweddingsite](https://adamvirtualspace-lab.github.io/adamelsaweddingsite/).
@@ -56,7 +58,7 @@ Open `index.html` directly, or serve it (recommended, so relative fetches behave
 python -m http.server 8000
 ```
 
-Then visit `http://localhost:8000/?to=Nama+Tamu` — the invitation page, with the `to` query param personalizing the greeting ("Dear, Nama Tamu" on the hero photo) and prefilling the RSVP name. Browsers only let music start after a tap, so it starts on the guest's first tap (or right away, if the browser allows it). A "Scroll" hint runs down the hero's left edge (arrows sliding down a line from under the greeting to the word "Scroll"); it is only a hint (taps go straight through it) and fades once the guest scrolls.
+Then visit `http://localhost:8000/?to=Nama+Tamu` — the invitation page, with the `to` query param personalizing the greeting ("Dear, Nama Tamu" on the hero photo) and prefilling the RSVP name. Browsers only let music start after a tap, so it starts on the guest's first tap (or right away, if the browser allows it). A "Scroll" hint runs down the left edge of the screen (arrows sliding down a line from under the greeting to the word "Scroll"); it is only a hint (taps go straight through it). It stays on screen while the guest scrolls down, fades once they reach the RSVP section, and comes back if they scroll up above it again.
 
 Add `venue` for the 3D venue, e.g. `?to=Nama+Tamu&venue` (or just `?venue`): the opener with "Masuk Venue", then the lobby and the ballroom. `ballroom` (e.g. `?to=Nama+Tamu&ballroom`) skips the walk and goes straight to the ballroom. Older links with `simple` still work: they open the invitation page, as a plain link now does.
 

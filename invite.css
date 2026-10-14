@@ -115,17 +115,20 @@
 .inv-hero p{color:#ffffff;}
 .inv-hero-of, .inv-hero-date{font-family:var(--font-body);font-size:16px;letter-spacing:2px;}
 .inv-hero-names{font-family:var(--font-play);font-size:35px;line-height:0.9em;}
-/* "Scroll" hint down the hero's left edge: a faint line from under the greeting to the word
-   "Scroll", with arrows sliding down it one after another; it fades in after the hero text
-   and out once the guest scrolls */
+/* "Scroll" hint down the left edge of the screen: a faint line from under the greeting to the
+   word "Scroll", with arrows sliding down it one after another; it fades in after the hero
+   text, stays while the guest scrolls down to the RSVP section, and comes back if they
+   scroll up above it again (script.js). Fixed, so it sits over each section in turn; the
+   hero is one screen tall, so on the hero it is where it was. Below the popups and the music
+   disc. */
 .inv-scroll-hint{
-  position:absolute;z-index:2;left:max(10px, env(safe-area-inset-left));
+  position:fixed;z-index:20;left:max(10px, env(safe-area-inset-left));
   top:clamp(150px, 22vh, 220px);bottom:56px;
   display:flex;flex-direction:column;align-items:center;gap:12px;
   padding:6px;color:#ffffff;pointer-events:none;
   font-family:var(--font-body);font-size:12px;font-weight:700;letter-spacing:4px;text-transform:uppercase;
   text-shadow:0 0 6px rgba(0,0,0,0.6);filter:drop-shadow(0 0 3px rgba(0,0,0,0.45));
-  opacity:0;animation:scroll-hint-in 1s 1.2s forwards;transition:opacity .5s;
+  animation:scroll-hint-in 1s 1.2s backwards;transition:opacity .5s;
 }
 .inv-scroll-label{writing-mode:vertical-rl;}
 .inv-scroll-trail{position:relative;flex:1;width:14px;}
@@ -143,7 +146,7 @@
 .inv-scroll-trail i:nth-child(2){animation-delay:.9s;}
 .inv-scroll-trail i:nth-child(3){animation-delay:1.8s;}
 .inv-scroll-hint.is-gone{opacity:0 !important;}
-@keyframes scroll-hint-in{to{opacity:1;}}
+@keyframes scroll-hint-in{from{opacity:0;}}
 @keyframes scroll-hint-slide{
   0%{top:0;opacity:0;}
   15%{opacity:1;}
