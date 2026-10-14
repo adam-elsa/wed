@@ -5,11 +5,11 @@ Akad 12.30 WIB · Resepsi 16.00 WIB.
 
 Plain HTML/CSS/JS, no build step. See [PLAN.md](PLAN.md) for design decisions.
 
-**Live site:** https://adam-elsa.github.io/virtualwedding/ (GitHub Pages, deployed from `main` by [.github/workflows/deploy.yml](.github/workflows/deploy.yml))
+**Live site:** https://adam-elsa.github.io/wed/ (GitHub Pages, deployed from `main` by [.github/workflows/deploy.yml](.github/workflows/deploy.yml))
 
-- With a guest's name (the 2D invitation): https://adam-elsa.github.io/virtualwedding/?to=Nama+Tamu
-- The 3D venue (the walk up to the hotel, the lobby, the ballroom): https://adam-elsa.github.io/virtualwedding/?to=Nama+Tamu&venue
-- Straight into the ballroom: https://adam-elsa.github.io/virtualwedding/?to=Nama+Tamu&ballroom
+- With a guest's name (the 2D invitation): https://adam-elsa.github.io/wed/?to=Nama+Tamu
+- The 3D venue (the walk up to the hotel, the lobby, the ballroom): https://adam-elsa.github.io/wed/?to=Nama+Tamu&venue
+- Straight into the ballroom: https://adam-elsa.github.io/wed/?to=Nama+Tamu&ballroom
 
 This repository is the **virtual event**. The invitation for the live event lives separately at
 [adamvirtualspace-lab/adamelsaweddingsite](https://adamvirtualspace-lab.github.io/adamelsaweddingsite/).
