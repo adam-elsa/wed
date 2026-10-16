@@ -460,8 +460,8 @@ export function createLobby() {
   // and their cushions sit forward of the middle of the chair: `fwd` puts the hips over the cushion.
   const lounge = (x, z, yaw, y, fwd) => ({ x: x + Math.sin(yaw) * fwd, z: z + Math.cos(yaw) * fwd, y, yaw, pose: 'sit' });
   const crowd = [
-    lounge(-5.4, -4.6, Math.atan2(-7.4 + 5.4, -2 + 4.6), 0.245, 0.04),
-    lounge(-5.4, 0.6, Math.atan2(-7.4 + 5.4, -2 - 0.6), 0.245, 0.04),
+    lounge(-5.4, -4.6, Math.atan2(-7.4 + 5.4, -2 + 4.6), 0.245, 0.17),
+    lounge(-5.4, 0.6, Math.atan2(-7.4 + 5.4, -2 - 0.6), 0.245, 0.17),
     lounge(-9.3, -2 + 0.78, Math.PI / 2, 0.265, 0.06),     // the sofa's left-hand cushion
     { x: DESK_X + 2.9, z: -8.5, yaw: -Math.PI / 2 - 0.5, pose: 'stand', anim: 'Talk' },
     { x: 4.3, z: 3.6, yaw: Math.atan2(0.9, -0.5), pose: 'stand', anim: 'Talk' },

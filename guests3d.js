@@ -145,6 +145,18 @@ export function addGuests(scene, crowd, seed = 1) {
       action.timeScale = 0.9 + rnd() * 0.2;
       action.play();
       group.add(root);
+      if (c.pose === 'sit') {
+        // the pack's sitting poses lean the hips about 10 cm to one side: slide the person
+        // back across so they sit in the middle of the seat
+        mixer.update(0);
+        root.updateMatrixWorld(true);
+        const hips = byName.Hips || byName.mixamorigHips;
+        if (hips) {
+          const off = root.worldToLocal(v.setFromMatrixPosition(hips.matrixWorld)).x;
+          root.position.x -= Math.cos(root.rotation.y) * off;
+          root.position.z += Math.sin(root.rotation.y) * off;
+        }
+      }
       const p = { root, mixer, acc: 0 };
       if (c.pose === 'walk' && c.to) {
         p.walk = { a: new THREE.Vector2(c.x, c.z), b: new THREE.Vector2(c.to[0], c.to[1]), k: rnd(), dir: 1, turn: 0 };
