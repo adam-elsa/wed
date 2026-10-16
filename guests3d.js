@@ -14,6 +14,10 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 const URL_GLB = 'assets/chars/guests.glb';
 const URL_JSON = 'assets/chars/guests.json';
 const FAR = 16;      // metres: further than this, animate every third frame
+// The pack's sitting poses slump back 6-22 degrees, which on a straight-backed banquet chair
+// pushes the shoulders through the chair back. Seated guests are tilted upright at the waist
+// (to UPRIGHT, a touch forward), keeping the rest of the animation.
+const UPRIGHT = THREE.MathUtils.degToRad(-2);
 const KEEP = ['position', 'normal', 'uv', 'skinIndex', 'skinWeight'];
 
 let loading = null;
@@ -158,6 +162,7 @@ export function addGuests(scene, crowd, seed = 1) {
         }
       }
       const p = { root, mixer, acc: 0 };
+      if (c.pose === 'sit') Object.assign(p, { spine: byName.Spine, hips: byName.Hips, neck: byName.Neck });
       if (c.pose === 'walk' && c.to) {
         p.walk = { a: new THREE.Vector2(c.x, c.z), b: new THREE.Vector2(c.to[0], c.to[1]), k: rnd(), dir: 1, turn: 0 };
         p.walk.len = p.walk.a.distanceTo(p.walk.b);
@@ -182,6 +187,7 @@ export function addGuests(scene, crowd, seed = 1) {
         }
         p.mixer.update(p.acc);
         p.acc = 0;
+        if (p.spine) straighten(p);
       }
     },
     dispose() {
@@ -190,6 +196,31 @@ export function addGuests(scene, crowd, seed = 1) {
       group.removeFromParent();
     },
   };
+}
+
+// tilt a seated guest's spine forward at the waist until hips -> neck stands (nearly) upright
+const _h = new THREE.Vector3(), _n = new THREE.Vector3(), _axis = new THREE.Vector3(), _q = new THREE.Quaternion(), _pq = new THREE.Quaternion();
+function straighten(p) {
+  if (!p.hips || !p.neck) return;
+  p.root.updateMatrixWorld(true);
+  p.root.worldToLocal(_h.setFromMatrixPosition(p.hips.matrixWorld));
+  p.root.worldToLocal(_n.setFromMatrixPosition(p.neck.matrixWorld));
+  const back = Math.atan2(_h.z - _n.z, _n.y - _h.y); // leaning back is positive (the guest faces +z)
+  const fix = Math.max(0, back - UPRIGHT);
+  // the men's poses also slump to one side by up to 20 cm: take most of that out too
+  const roll = Math.atan2(_n.x - _h.x, _n.y - _h.y) * 0.75;
+  const yaw = p.root.rotation.y;
+  p.spine.parent.getWorldQuaternion(_pq).invert();
+  // forward about the guest's own left-right axis, then upright about their forward axis,
+  // both expressed in the frame the spine bone turns in
+  if (fix > 0) {
+    _axis.set(Math.cos(yaw), 0, -Math.sin(yaw)).applyQuaternion(_pq).normalize();
+    p.spine.quaternion.premultiply(_q.setFromAxisAngle(_axis, fix));
+  }
+  if (Math.abs(roll) > 0.01) {
+    _axis.set(Math.sin(yaw), 0, Math.cos(yaw)).applyQuaternion(_pq).normalize();
+    p.spine.quaternion.premultiply(_q.setFromAxisAngle(_axis, roll));
+  }
 }
 
 const SPEED = 0.9; // m/s, an unhurried stroll

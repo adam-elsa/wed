@@ -692,7 +692,8 @@ export function createBallroom() {
   const vipSeats = VIP.tables.length * 8, tableSeats = GUEST_TABLES.length * 6;
   seats.forEach(([x, z, yaw], i) => {
     const fill = i < vipSeats ? 0.35 : i < vipSeats + tableSeats ? 0.55 : 0.25;
-    if (crowdRnd() < fill) crowd.push({ x: x - Math.sin(yaw) * 0.04, z: z - Math.cos(yaw) * 0.04, y: SIT_Y, yaw, pose: 'sit' });
+    // a little forward of the middle of the seat, so they sit clear of the chair back
+    if (crowdRnd() < fill) crowd.push({ x: x + Math.sin(yaw) * 0.03, z: z + Math.cos(yaw) * 0.03, y: SIT_Y, yaw, pose: 'sit' });
   });
   // a little circle of people, all facing its middle
   const huddle = (cx, cz, n, r = 0.62, a0 = 0) => {
