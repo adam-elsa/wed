@@ -62,7 +62,8 @@ function prepare(gltf, outfits) {
         m.map.minFilter = m.map.magFilter = THREE.NearestFilter;
         m.map.generateMipmaps = false;
       }
-      mats.set(m, new THREE.MeshLambertMaterial({ map: m.map, color: m.color }));
+      // two-sided: a hijab or a skirt is a single sheet, and its inside shows from below or behind
+      mats.set(m, new THREE.MeshLambertMaterial({ map: m.map, color: m.color, side: THREE.DoubleSide }));
     }
     return mats.get(m);
   };
