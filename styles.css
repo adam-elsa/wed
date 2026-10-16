@@ -352,6 +352,28 @@ a{color:inherit;}
 .plan-flower{fill:#e7a4ae;}
 .plan-rope{fill:none;stroke:var(--gold);stroke-width:0.25;stroke-dasharray:0.8 0.6;}
 .plan-dot{fill:var(--gold);stroke:#15131a;stroke-width:0.3;}
+/* live chat link: bottom-right, just above the music disc */
+.venue-chat{
+  position:absolute;
+  right:max(14px, env(safe-area-inset-right));
+  bottom:calc(max(18px, env(safe-area-inset-bottom)) + 58px);
+  display:flex;align-items:center;gap:7px;
+  font-family:var(--font-sans);
+  font-size:10.5px;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  padding:8px 13px;
+  border-radius:999px;
+  border:1px solid rgba(226,199,138,0.45);
+  background:rgba(21,17,14,0.72);
+  backdrop-filter:blur(4px);
+  color:var(--gold-soft);
+  text-decoration:none;
+  pointer-events:auto;
+}
+.venue-chat:hover{border-color:var(--gold);}
+.venue-chat-dot{width:7px;height:7px;border-radius:50%;background:#e5484d;box-shadow:0 0 0 0 rgba(229,72,77,0.6);animation:chat-pulse 1.8s infinite;}
+@keyframes chat-pulse{70%{box-shadow:0 0 0 7px rgba(229,72,77,0);}100%{box-shadow:0 0 0 0 rgba(229,72,77,0);}}
 .plan-spot{fill:transparent;cursor:pointer;}
 .plan-you{fill:#fff;stroke:#15131a;stroke-width:0.35;}
 /* phones: above the buttons, out of their way */

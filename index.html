@@ -51,7 +51,6 @@
   <div class="lobby-ui" id="lobbyUi">
     <div class="lobby-top">
       <p class="eyebrow">Selamat Datang</p>
-      <h2 class="lobby-title">Momen Kami</h2>
       <p class="lobby-hint" id="lobbyHint"></p>
     </div>
     <div class="lobby-story-head">
@@ -134,14 +133,17 @@
        gate3d.js adds the floating labels and draws the floor plan -->
   <div class="venue-ui" id="venueUi">
     <div class="lobby-top">
-      <p class="eyebrow">Golden Ballroom</p>
-      <h2 class="lobby-title" id="venueTitle">Hari Bahagia Kami</h2>
+      <p class="eyebrow" id="venueTitle">Selamat Datang di Hari Bahagia Kami</p>
       <p class="lobby-hint" id="venueHint"></p>
     </div>
     <div class="venue-plan" id="venuePlan"></div>
     <div class="lobby-bottom">
       <button class="btn-outline" id="venueBack" type="button">← Lobi</button>
     </div>
+    <!-- live chat during the event: change the href to swap Discord for a YouTube livestream -->
+    <a class="venue-chat" id="venueChat" href="https://discord.gg/pTdb6Fwn4" target="_blank" rel="noopener">
+      <span class="venue-chat-dot" aria-hidden="true"></span>Join Live Chat
+    </a>
   </div>
   <!-- asked once, on arriving in the lobby: some people find a view tied to the phone's
        movement makes them queasy, so moving with the thumbstick alone is the default -->

@@ -1232,7 +1232,7 @@ function init() {
     if (arrived && here !== shownSpot) {
       shownSpot = here;
       // walking around freely, between the named spots: the room's own name instead
-      if (venueTitle) venueTitle.textContent = here ? SPOTS[here].title : 'Golden Ballroom';
+      if (venueTitle) venueTitle.textContent = here ? SPOTS[here].title : 'Selamat Datang di Hari Bahagia Kami';
       if (venueHint) venueHint.textContent = (here && SPOTS[here].desc) || VENUE_HINT;
     }
     // float each spot's label over it: nearest first, dropping any that would overlap
