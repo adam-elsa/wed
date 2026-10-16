@@ -814,6 +814,21 @@ function init() {
   let hovered = null;
   let cardTimer = 0;
 
+  // The guest book comes first: until the guest has written their name, the way into the
+  // ballroom (the door, its label, the angpao card's button) opens the guest book at the desk
+  // instead. Once it is signed: on to the kotak angpao, and from its card into the ballroom.
+  const SIGNED_KEY = 'ae-guestbook-signed';
+  let signed = false;
+  try { signed = localStorage.getItem(SIGNED_KEY) === '1'; } catch (err) { /* private mode: ask again */ }
+  window.addEventListener('guestbook:signed', () => {
+    signed = true;
+    try { localStorage.setItem(SIGNED_KEY, '1'); } catch (err) { /* fine: remembered for this visit */ }
+    // let the thank-you show for a moment, then turn to the angpao
+    setTimeout(() => { if (state === 'lobby' && view.name === 'rsvp') openGroup('gift'); }, 1400);
+  });
+  const toBallroom = document.getElementById('lobbyToBallroom');
+  if (toBallroom) toBallroom.addEventListener('click', () => { if (state === 'lobby') openGroup('venue'); });
+
   function showCard(name, delay) {
     clearTimeout(cardTimer);
     // the RSVP card sits centred over the door; the others beside/below the photo
@@ -851,6 +866,7 @@ function init() {
 
   function openGroup(group, entry) {
     if (group === 'venue') {
+      if (!signed) return openGroup('rsvp');
       enterVenue();
     } else if (group === 'couple') {
       setView({ name: 'couple', card: 'groom' });

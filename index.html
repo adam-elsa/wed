@@ -60,7 +60,7 @@
     <!-- labels floating over each photo group (positioned by gate3d.js) -->
     <button class="lobby-tag" data-group="couple" type="button">Kedua Mempelai</button>
     <button class="lobby-tag" data-group="map" type="button">Lokasi &amp; Tempat</button>
-    <button class="lobby-tag lobby-tag--cta" data-group="rsvp" type="button">RSVP</button>
+    <button class="lobby-tag lobby-tag--cta" data-group="rsvp" type="button">Buku Tamu</button>
     <!-- on the door: walks through into the ballroom -->
     <button class="lobby-tag lobby-tag--cta" data-group="venue" type="button">Masuk Ballroom</button>
     <button class="lobby-tag" data-group="story" type="button">Cerita Kami</button>
@@ -95,19 +95,16 @@
           <p class="gift-holder">a.n. Elsa</p>
         </div>
         <button class="btn-solid card-btn" id="lobbyCopyGift" type="button">Salin Nomor Rekening</button>
+        <button class="btn-outline card-btn card-next" id="lobbyToBallroom" type="button">Masuk Ballroom →</button>
       </section>
+      <!-- the guest book at the reception desk: written before going on to the angpao and the ballroom -->
       <section data-card="rsvp">
-        <p class="eyebrow">RSVP</p>
-        <h3 class="card-title">Konfirmasi Kehadiran</h3>
-        <form class="card-form" id="lobbyRsvpForm">
+        <p class="eyebrow">Buku Tamu</p>
+        <h3 class="card-title">Selamat Datang</h3>
+        <p class="card-sub">Sebelum masuk ke ballroom, silakan tuliskan nama Bapak/Ibu/Saudara/i di buku tamu kami.</p>
+        <form class="card-form" id="lobbyGuestbookForm">
           <input type="text" name="name" placeholder="Nama" aria-label="Nama" required autocomplete="name">
-          <select name="attendance" aria-label="Kehadiran" required>
-            <option value="">Kehadiran...</option>
-            <option value="Hadir">Saya akan hadir</option>
-            <option value="Tidak Hadir">Maaf, tidak bisa hadir</option>
-          </select>
-          <label class="card-row">Jumlah tamu <input type="number" name="guests" min="1" max="6" value="1"></label>
-          <button type="submit" class="btn-solid">Kirim</button>
+          <button type="submit" class="btn-solid">Tulis di Buku Tamu</button>
           <p class="rsvp-status" role="status"></p>
         </form>
       </section>
