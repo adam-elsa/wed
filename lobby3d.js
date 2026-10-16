@@ -454,15 +454,18 @@ export function createLobby() {
   gift.traverse((m) => { if (m.isMesh) { m.userData.entry = entries.gift; pickables.push(m); } });
 
   // ---------- a few other guests (guests3d.js) ----------
-  // Two in the armchairs and one on the sofa, one checking in at the desk, two chatting on the
-  // right. The left of the room stays clear: the walk to the ballroom door runs along x = DOOR.x.
+  // Two in the armchairs and one on the sofa, two keeping the guest book behind the desk, one
+  // checking in at it, two chatting on the right. The left of the room stays clear: the walk to the ballroom door runs along x = DOOR.x.
   // The lounge seats are a little higher than the ballroom's chairs (the pose is made for those),
   // and their cushions sit forward of the middle of the chair: `fwd` puts the hips over the cushion.
-  const lounge = (x, z, yaw, y, fwd) => ({ x: x + Math.sin(yaw) * fwd, z: z + Math.cos(yaw) * fwd, y, yaw, pose: 'sit' });
+  const lounge = (x, z, yaw, y, fwd) => ({ x: x + Math.sin(yaw) * fwd, z: z + Math.cos(yaw) * fwd, y, yaw, pose: 'sit', lounge: true });
   const crowd = [
     lounge(-5.4, -4.6, Math.atan2(-7.4 + 5.4, -2 + 4.6), 0.245, 0.17),
     lounge(-5.4, 0.6, Math.atan2(-7.4 + 5.4, -2 - 0.6), 0.245, 0.17),
     lounge(-9.3, -2 + 0.78, Math.PI / 2, 0.265, 0.06),     // the sofa's left-hand cushion
+    // two at the guest book, behind the reception desk, facing the room: one in a hijab, one not
+    { x: DESK_X - 0.9, z: -9.95, yaw: 0.08, pose: 'stand', anim: 'Idle', outfit: 'hijab_kebaya' },
+    { x: DESK_X + 0.35, z: -9.95, yaw: Math.atan2(2.55, 1.45), pose: 'stand', anim: 'Listen', outfit: 'vest' }, // turned to the guest checking in
     { x: DESK_X + 2.9, z: -8.5, yaw: -Math.PI / 2 - 0.5, pose: 'stand', anim: 'Talk' },
     { x: 4.3, z: 3.6, yaw: Math.atan2(0.9, -0.5), pose: 'stand', anim: 'Talk' },
     { x: 5.2, z: 3.1, yaw: Math.atan2(-0.9, 0.5), pose: 'stand', anim: 'Listen' },

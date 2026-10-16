@@ -14,6 +14,14 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 const URL_GLB = 'assets/chars/guests.glb';
 const URL_JSON = 'assets/chars/guests.json';
 const FAR = 16;      // metres: further than this, animate every third frame
+// The pack's sitting poses slump back 6-22 degrees, which on a straight-backed banquet chair
+// pushes the shoulders through the chair back, and the head hangs. Guests on those chairs sit up
+// properly: the lower back, the upper back and the neck are each turned to stand upright (the
+// lower back a touch forward, UPRIGHT, so it stays clear of the chair), and the head is brought
+// most of the way (HEAD_LEVEL) to how it sits when standing: level, looking ahead. Arms, legs
+// and the talking gestures are left as the animation has them.
+const UPRIGHT = THREE.MathUtils.degToRad(-2);
+const HEAD_LEVEL = 0.8;
 const KEEP = ['position', 'normal', 'uv', 'skinIndex', 'skinWeight'];
 
 let loading = null;
@@ -100,7 +108,8 @@ function prepare(gltf, outfits) {
   };
 }
 
-// crowd: [{ x, z, yaw, pose: 'sit' | 'stand' | 'walk', y?, anim?, outfit?, to?: [x, z] }]
+// crowd: [{ x, z, yaw, pose: 'sit' | 'stand' | 'walk', y?, anim?, outfit?, to?: [x, z], lounge? }]
+// `lounge`: sitting on a sofa or an armchair, so the pack's relaxed pose is kept as it is.
 // yaw 0 faces +z (the same way the ballroom's chairs are turned). A walker strolls from (x, z)
 // to `to` and back.
 export function addGuests(scene, crowd, seed = 1) {
@@ -145,7 +154,11 @@ export function addGuests(scene, crowd, seed = 1) {
       action.timeScale = 0.9 + rnd() * 0.2;
       action.play();
       group.add(root);
+      let headRest = null;
       if (c.pose === 'sit') {
+        // the head as it sits when standing (the bind pose), relative to the guest: level, ahead
+        root.updateMatrixWorld(true);
+        if (byName.Head) headRest = root.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(byName.Head.getWorldQuaternion(new THREE.Quaternion()));
         // the pack's sitting poses lean the hips about 10 cm to one side: slide the person
         // back across so they sit in the middle of the seat
         mixer.update(0);
@@ -158,6 +171,10 @@ export function addGuests(scene, crowd, seed = 1) {
         }
       }
       const p = { root, mixer, acc: 0 };
+      // straight-backed chairs only: a sofa or an armchair is for lounging in (`lounge: true`)
+      if (c.pose === 'sit' && !c.lounge && byName.Spine1 && byName.Neck && byName.Head) {
+        p.posture = { segs: [[byName.Spine, byName.Spine1, UPRIGHT], [byName.Spine1, byName.Neck, 0], [byName.Neck, byName.Head, 0]], head: byName.Head, headRest };
+      }
       if (c.pose === 'walk' && c.to) {
         p.walk = { a: new THREE.Vector2(c.x, c.z), b: new THREE.Vector2(c.to[0], c.to[1]), k: rnd(), dir: 1, turn: 0 };
         p.walk.len = p.walk.a.distanceTo(p.walk.b);
@@ -182,6 +199,7 @@ export function addGuests(scene, crowd, seed = 1) {
         }
         p.mixer.update(p.acc);
         p.acc = 0;
+        if (p.posture) sitUp(p);
       }
     },
     dispose() {
@@ -190,6 +208,36 @@ export function addGuests(scene, crowd, seed = 1) {
       group.removeFromParent();
     },
   };
+}
+
+// sit a seated guest up: each piece of the back and the neck turned to stand upright, the head levelled
+const _a = new THREE.Vector3(), _b = new THREE.Vector3(), _up = new THREE.Vector3(), _q = new THREE.Quaternion(), _w = new THREE.Quaternion(), _pq = new THREE.Quaternion(), _rq = new THREE.Quaternion();
+// turn `bone` (in world space, the shortest way) so the line from it to `child` points along `dir`
+function aim(bone, child, dir) {
+  _a.setFromMatrixPosition(bone.matrixWorld);
+  _b.setFromMatrixPosition(child.matrixWorld).sub(_a).normalize();
+  _q.setFromUnitVectors(_b, dir);
+  bone.getWorldQuaternion(_w).premultiply(_q);
+  bone.parent.getWorldQuaternion(_pq).invert();
+  bone.quaternion.copy(_pq.multiply(_w));
+  bone.updateWorldMatrix(false, true);
+}
+function sitUp(p) {
+  const { segs, head, headRest } = p.posture;
+  p.root.updateMatrixWorld(true);
+  const yaw = p.root.rotation.y, fx = Math.sin(yaw), fz = Math.cos(yaw);
+  for (const [bone, child, lean] of segs) {
+    // straight up, tipped `lean` toward the back (negative: a touch forward)
+    _up.set(-fx * Math.sin(lean), Math.cos(lean), -fz * Math.sin(lean));
+    aim(bone, child, _up);
+  }
+  if (headRest) {
+    // most of the way to the standing head: level and looking ahead, a little of the talking left
+    p.root.getWorldQuaternion(_rq).multiply(headRest);
+    head.getWorldQuaternion(_w).slerp(_rq, HEAD_LEVEL);
+    head.parent.getWorldQuaternion(_pq).invert();
+    head.quaternion.copy(_pq.multiply(_w));
+  }
 }
 
 const SPEED = 0.9; // m/s, an unhurried stroll
