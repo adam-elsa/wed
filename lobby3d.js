@@ -465,7 +465,7 @@ export function createLobby() {
     lounge(-9.3, -2 + 0.78, Math.PI / 2, 0.265, 0.06),     // the sofa's left-hand cushion
     // two at the guest book, behind the reception desk, facing the room: one in a hijab, one not
     { x: DESK_X - 0.9, z: -9.95, yaw: 0.08, pose: 'stand', anim: 'Idle', outfit: 'hijab_kebaya' },
-    { x: DESK_X + 0.35, z: -9.95, yaw: -0.08, pose: 'stand', anim: 'Listen', outfit: 'vest' },
+    { x: DESK_X + 0.35, z: -9.95, yaw: Math.atan2(2.55, 1.45), pose: 'stand', anim: 'Listen', outfit: 'vest' }, // turned to the guest checking in
     { x: DESK_X + 2.9, z: -8.5, yaw: -Math.PI / 2 - 0.5, pose: 'stand', anim: 'Talk' },
     { x: 4.3, z: 3.6, yaw: Math.atan2(0.9, -0.5), pose: 'stand', anim: 'Talk' },
     { x: 5.2, z: 3.1, yaw: Math.atan2(-0.9, 0.5), pose: 'stand', anim: 'Listen' },
