@@ -25,3 +25,7 @@ replay_pid*
 /media
 # full-quality music sources; the site uses the re-encoded copies in assets/audio
 /music
+
+# 50 MB working file for the guests (rebuild with tools/guests/build.py)
+tools/guests/*.blend
+tools/guests/*.blend1

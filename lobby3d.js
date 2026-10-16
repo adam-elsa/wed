@@ -6,6 +6,7 @@
 // Left wall: lounge. Photos hang on the front, left and right walls.
 import * as THREE from 'three';
 import { buildBlockers, slide, EYE_H } from './fps.js';
+import { addGuests } from './guests3d.js';
 
 const W = 20, D = 24, H = 5.2;
 const SLAT_H = H - 0.4; // leave a gap at the top for the warm cove light
@@ -452,6 +453,22 @@ export function createLobby() {
   };
   gift.traverse((m) => { if (m.isMesh) { m.userData.entry = entries.gift; pickables.push(m); } });
 
+  // ---------- a few other guests (guests3d.js) ----------
+  // Two in the armchairs and one on the sofa, one checking in at the desk, two chatting on the
+  // right. The left of the room stays clear: the walk to the ballroom door runs along x = DOOR.x.
+  // The lounge seats are a little higher than the ballroom's chairs (the pose is made for those).
+  const lounge = (x, z, yaw, y) => ({ x: x - Math.sin(yaw) * 0.08, z: z - Math.cos(yaw) * 0.08, y, yaw, pose: 'sit' });
+  const crowd = [
+    lounge(-5.4, -4.6, Math.atan2(-7.4 + 5.4, -2 + 4.6), 0.245),
+    lounge(-5.4, 0.6, Math.atan2(-7.4 + 5.4, -2 - 0.6), 0.245),
+    lounge(-9.3, -2 + 0.78, Math.PI / 2, 0.265),
+    { x: DESK_X + 2.9, z: -8.5, yaw: -Math.PI / 2 - 0.5, pose: 'stand', anim: 'Talk' },
+    { x: 4.3, z: 3.6, yaw: Math.atan2(0.9, -0.5), pose: 'stand', anim: 'Talk' },
+    { x: 5.2, z: 3.1, yaw: Math.atan2(-0.9, 0.5), pose: 'stand', anim: 'Listen' },
+  ];
+  const guests = addGuests(scene, crowd, 5);
+  guests.ready.then(() => { blockers = null; });
+
   // ---------- camera ----------
   const UP = new THREE.Vector3(0, 1, 0);
   const cam = {
@@ -520,6 +537,7 @@ export function createLobby() {
     roam.vx += (wantX - roam.vx) * k;
     roam.vz += (wantZ - roam.vz) * k;
     if (Math.abs(roam.vx) > 1e-4 || Math.abs(roam.vz) > 1e-4) {
+      if (!blockers) blockers = buildBlockers(scene, { w: W, d: D }); // rebuilt once the guests arrive
       slide(roam.pos, roam.vx * dt, roam.vz * dt, blockers, BOUNDS);
       roam.pos.y = EYE_H;
     }
@@ -674,6 +692,7 @@ export function createLobby() {
     },
     update(camera, t, dt, pointer, controls) {
       fitCamera(camera);
+      guests.update(dt, camera);
       if (roam.on) {
         stepRoam(dt, controls);
         const a = raw.snap ? 1 : 1 - Math.exp(-dt / SMOOTH);

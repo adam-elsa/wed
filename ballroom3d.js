@@ -17,6 +17,7 @@ import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { canvasTex, rng } from './lobby3d.js';
 import { buildBlockers, slide } from './fps.js';
+import { addGuests } from './guests3d.js';
 
 const W = 26, D = 36, H = 5.4;
 const EYE = 1.65;
@@ -49,7 +50,7 @@ const PAL = {
 
 // Where the guest can stand. `look`: what they face on arriving; `tag`: where the label floats.
 export const SPOTS = {
-  south: { title: 'Hari Bahagia Kami', look: [0, 1.9, -6] },
+  south: { title: 'Selamat Datang di Hari Bahagia Kami', look: [0, 1.9, -6] },
   gazebo: { title: 'Gazebo', desc: 'Gazebo bunga di tengah jalan menuju pelaminan.', look: [0, 2.0, GAZEBO.z], tag: [0, 3.9, GAZEBO.z] },
   sabit: { title: 'Gate Bunga', desc: 'Dua pasang gate sabit penuh bunga, dengan lampu kristal.', look: [0, 2.1, -9], tag: [0, 3.75, -4.65] },
   stage: { title: 'Pelaminan', desc: 'Tempat kami menyambut Bapak/Ibu/Saudara/i.', look: [0, 2.2, NORTH + 1.4], tag: [0, 4.75, NORTH + 1.4] },
@@ -680,6 +681,37 @@ export function createBallroom() {
   lights.frustumCulled = false;
   scene.add(lights);
 
+  // ---------- the other guests (guests3d.js; they arrive once their models have loaded) ----------
+  // Seats: some chairs at every table, the VIP area and the rows. Standing: little groups by the
+  // drinks and the food, and in the corners, clear of the paths the walk-to spots follow. Two stroll.
+  const crowdRnd = rng(77);
+  const crowd = [];
+  const SIT_Y = 0.1; // the pack's sitting pose has the hips at 0.54 m; the seats here are a touch higher
+  const seats = [];
+  for (let i = 0; i < chairs.length; i += 3) seats.push([chairs[i], chairs[i + 1], chairs[i + 2]]);
+  const vipSeats = VIP.tables.length * 8, tableSeats = GUEST_TABLES.length * 6;
+  seats.forEach(([x, z, yaw], i) => {
+    const fill = i < vipSeats ? 0.35 : i < vipSeats + tableSeats ? 0.55 : 0.25;
+    if (crowdRnd() < fill) crowd.push({ x: x - Math.sin(yaw) * 0.04, z: z - Math.cos(yaw) * 0.04, y: SIT_Y, yaw, pose: 'sit' });
+  });
+  // a little circle of people, all facing its middle
+  const huddle = (cx, cz, n, r = 0.62, a0 = 0) => {
+    for (let i = 0; i < n; i++) {
+      const a = a0 + (i / n) * Math.PI * 2;
+      const x = cx + Math.sin(a) * r, z = cz + Math.cos(a) * r;
+      crowd.push({ x, z, yaw: Math.atan2(cx - x, cz - z), pose: 'stand', anim: i % 2 ? 'Listen' : 'Talk' });
+    }
+  };
+  huddle(-7.9, -0.6, 3, 0.62, 0.4);          // by the west drinks table
+  huddle(8.3, 0.0, 2, 0.5, 1.2);             // by the east drinks table
+  huddle(-4.6, 10.1, 2, 0.5, 0.9);           // near the way in
+  huddle(6.3, -12.9, 3, 0.62, 0.3);          // by the band, looking on
+  for (const z of [STALLS_Z[0], STALLS_Z[2]]) crowd.push({ x: WEST + 2.7, z, yaw: -Math.PI / 2, pose: 'stand', anim: 'Idle' }); // at the food
+  crowd.push({ x: 3.7, z: -11.4, yaw: Math.PI, pose: 'stand', anim: 'Clap' }, { x: -3.7, z: -11.6, yaw: Math.PI, pose: 'stand', anim: 'Happy' }); // either side of the stage, out of the way of the view
+  crowd.push({ x: -8.9, z: 1.4, to: [-8.9, 9.4], pose: 'walk' }, { x: 3.8, z: -1.6, to: [10.2, -1.6], pose: 'walk' });
+  const guests = addGuests(scene, crowd, 11);
+  guests.ready.then(() => { blockers = null; }); // the standing guests are now something to walk round
+
   // ---------- what can be clicked: a box around each spot's subject ----------
   const proxies = [];
   const proxy = (spot, x, y, z, w, h, d) => {
@@ -867,6 +899,7 @@ export function createBallroom() {
       nav.camPitch += (pitch - nav.camPitch) * a;
       camera.rotation.set(nav.camPitch, nav.camYaw, 0, 'YXZ');
       lights.material.opacity = 0.75 + Math.sin(t * 2.3) * 0.25;
+      guests.update(dt, camera);
     },
     go,
     spot() { return nav.spot; },
