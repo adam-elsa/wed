@@ -458,7 +458,7 @@ export function createLobby() {
   // right. The left of the room stays clear: the walk to the ballroom door runs along x = DOOR.x.
   // The lounge seats are a little higher than the ballroom's chairs (the pose is made for those),
   // and their cushions sit forward of the middle of the chair: `fwd` puts the hips over the cushion.
-  const lounge = (x, z, yaw, y, fwd) => ({ x: x + Math.sin(yaw) * fwd, z: z + Math.cos(yaw) * fwd, y, yaw, pose: 'sit' });
+  const lounge = (x, z, yaw, y, fwd) => ({ x: x + Math.sin(yaw) * fwd, z: z + Math.cos(yaw) * fwd, y, yaw, pose: 'sit', lounge: true });
   const crowd = [
     lounge(-5.4, -4.6, Math.atan2(-7.4 + 5.4, -2 + 4.6), 0.245, 0.17),
     lounge(-5.4, 0.6, Math.atan2(-7.4 + 5.4, -2 - 0.6), 0.245, 0.17),

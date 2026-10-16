@@ -107,7 +107,8 @@ function prepare(gltf, outfits) {
   };
 }
 
-// crowd: [{ x, z, yaw, pose: 'sit' | 'stand' | 'walk', y?, anim?, outfit?, to?: [x, z] }]
+// crowd: [{ x, z, yaw, pose: 'sit' | 'stand' | 'walk', y?, anim?, outfit?, to?: [x, z], lounge? }]
+// `lounge`: sitting on a sofa or an armchair, so the pack's relaxed pose is kept as it is.
 // yaw 0 faces +z (the same way the ballroom's chairs are turned). A walker strolls from (x, z)
 // to `to` and back.
 export function addGuests(scene, crowd, seed = 1) {
@@ -165,7 +166,8 @@ export function addGuests(scene, crowd, seed = 1) {
         }
       }
       const p = { root, mixer, acc: 0 };
-      if (c.pose === 'sit') Object.assign(p, { spine: byName.Spine, chest: byName.Spine1, hips: byName.Hips, neck: byName.Neck, head: byName.Head });
+      // straight-backed chairs only: a sofa or an armchair is for lounging in (`lounge: true`)
+      if (c.pose === 'sit' && !c.lounge) Object.assign(p, { spine: byName.Spine, chest: byName.Spine1, hips: byName.Hips, neck: byName.Neck, head: byName.Head });
       if (c.pose === 'walk' && c.to) {
         p.walk = { a: new THREE.Vector2(c.x, c.z), b: new THREE.Vector2(c.to[0], c.to[1]), k: rnd(), dir: 1, turn: 0 };
         p.walk.len = p.walk.a.distanceTo(p.walk.b);
