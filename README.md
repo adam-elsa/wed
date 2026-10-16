@@ -30,7 +30,7 @@ With `?venue`, the opening screen is a low-poly 3D model of the Golden Boutique 
   - *Lokasi & Tempat* — the map board by the door, with an embedded Google map (loaded only when opened) and the Akad/Resepsi times.
   - *Cerita Kami* — steps back to see the photo corner; tapping a photo zooms into it.
   - *Amplop Digital* — the gift box on its draped table, with the BCA number and a copy button.
-  - *RSVP* (the button on the reception desk) — faces the door with the confirmation form over it; it posts to the same places as the invitation's own form, and prefills the guest name from `?to=`.
+  - *Buku Tamu* (the button on the reception desk) — the guest book: faces the door with a card asking for the guest's name (prefilled from `?to=`). It comes first: until a guest has written their name, the way into the ballroom (the door, its label) opens the guest book instead. Once it is written, the camera turns to the kotak angpao, whose card now ends with **Masuk Ballroom →**, and that walks on into the ballroom. A guest who has signed is remembered on that device and goes straight through next time. Names go to the guest book's own Google Sheet (below), not to the RSVPs.
 - **Into the ballroom:** the door at the left of the lobby's front wall carries a **Masuk Ballroom** button. Clicking it (or the door, or the photo beside it) walks up to the door; its two leaves swing open and the camera steps through.
 - **The ballroom** ([ballroom3d.js](ballroom3d.js)): the Golden Ballroom, dressed the way it is planned for the day. The room itself (navy carpet with a gold trellis, cream walls with gilt frames, tray ceiling with chandeliers) follows photos of the real ballroom; the layout follows our floor-plan sketch and the decoration follows Dazzling Dekorasi's technical-meeting brief:
   - *Pelaminan* — 7 m backdrop of ivory panels with wavy tops in front of an 8 m black curtain with fairy lights, white-to-blush flower cascades, our names on the centre panel, one set of sofas, standing flowers, light grey stage carpet and a mini garden in front.
@@ -96,6 +96,18 @@ The RSVP form (name, attendance, number of guests) and the guestbook form (name,
 If you deployed the Apps Script before October 2026, paste the new [gas/rsvp-endpoint.gs](gas/rsvp-endpoint.gs) and re-deploy (Deploy > Manage deployments > edit > new version), and change **Ringkasan!B3** to `=COUNTIF(RSVP!C2:C5000,"Hadir")+COUNTIF(RSVP!C2:C5000,"Tidak Hadir")` so guestbook messages don't count as RSVP replies.
 
 Don't type rows into the RSVP tab by hand: every row with a message is served publicly to the guestbook.
+
+## Wiring up the 3D guest book (its own Google Sheet)
+
+The guest book at the lobby's reception desk is the list of who came to the virtual wedding. It has its own Sheet, separate from the RSVP one above, and nothing on the 2D invitation uses it. Until it is set up it works in preview mode: the guest is thanked and carries on to the angpao and the ballroom, but the name isn't saved.
+
+1. Create a new, blank Google Sheet (e.g. "Buku Tamu Virtual Adam & Elsa"). File > Settings > Time zone: Jakarta (GMT+7).
+2. Extensions > Apps Script: delete the starter code, paste [gas/guestbook-endpoint.gs](gas/guestbook-endpoint.gs), save.
+3. Deploy > New deployment > Web app. Execute as: **Me**. Who has access: **Anyone**. Authorise it when Google asks.
+4. Copy the deployment's `/exec` URL into `GUESTBOOK_ENDPOINT_URL` near the top of [script.js](script.js), commit and push.
+5. Sign the guest book once on the live site and check the row appears. The first entry creates a **Buku Tamu** tab: Waktu | Nama | Nama di Undangan (the name the `?to=` link was made out to).
+
+Names are never served back to the public (the script has no `doGet`).
 
 ## Deploying
 

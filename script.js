@@ -4,6 +4,9 @@
   // ---------- CONFIG ----------
   // TODO: paste your deployed Google Apps Script Web App URL here (see gas/rsvp-endpoint.gs + README).
   const RSVP_ENDPOINT_URL = '';
+  // The 3D venue's guest book (the reception desk in the lobby) has its own Sheet, separate from
+  // the RSVPs: paste its Apps Script Web App URL here (see gas/guestbook-endpoint.gs + README).
+  const GUESTBOOK_ENDPOINT_URL = '';
   // RSVPs also go to the RSVP form (Fluent Forms #705) on our NgantenStory invitation,
   // inv.nstory.id/adam-elsa, so they land in the same entries list as RSVPs made there.
   // Set to '' to stop sending there.
@@ -293,6 +296,18 @@
   }
   loadWishes();
 
+  // a name written in the 3D venue's guest book, to its own Sheet
+  async function sendGuestbook(name) {
+    if (!GUESTBOOK_ENDPOINT_URL) return 'preview';
+    await fetch(GUESTBOOK_ENDPOINT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ name, invited: guest || '' }),
+    });
+    return 'sent';
+  }
+
   async function send(payload) {
     if (!RSVP_ENDPOINT_URL) return 'preview';
     await fetch(RSVP_ENDPOINT_URL, {
@@ -443,39 +458,32 @@
   });
 
   // ---------- the lobby's reception desk (gate3d.js) ----------
-  // The RSVP card at the 3D reception desk and the gift box's "salin" button; both go to the
-  // same places as the invitation's own form and account number below.
-  const lobbyRsvp = document.getElementById('lobbyRsvpForm');
-  if (lobbyRsvp) {
-    if (guest && !lobbyRsvp.elements.name.value) lobbyRsvp.elements.name.value = guest;
-    lobbyRsvp.addEventListener('submit', async (e) => {
+  // The guest book at the 3D reception desk: the list of who came to the virtual wedding. A name
+  // goes to the guest book's own Google Sheet (GUESTBOOK_ENDPOINT_URL), not the RSVP one nor
+  // NgantenStory, alongside the name the invitation link was made out to. Then gate3d.js is
+  // told, and takes the guest on to the kotak angpao and the ballroom.
+  const lobbyBook = document.getElementById('lobbyGuestbookForm');
+  if (lobbyBook) {
+    if (guest && !lobbyBook.elements.name.value) lobbyBook.elements.name.value = guest;
+    lobbyBook.addEventListener('submit', async (e) => {
       e.preventDefault();
-      const status = lobbyRsvp.querySelector('.rsvp-status');
-      const name = lobbyRsvp.elements.name.value.trim();
+      const status = lobbyBook.querySelector('.rsvp-status');
+      const name = lobbyBook.elements.name.value.trim();
       if (!name) {
         status.textContent = 'Mohon isi nama Anda.';
         status.className = 'rsvp-status err';
-        lobbyRsvp.elements.name.focus();
+        lobbyBook.elements.name.focus();
         return;
       }
       status.textContent = 'Mengirim...';
       status.className = 'rsvp-status';
-      const rsvp = {
-        name,
-        attendance: lobbyRsvp.elements.attendance.value,
-        guests: lobbyRsvp.elements.attendance.value === 'Hadir' ? lobbyRsvp.elements.guests.value : '',
-        message: '',
-      };
       try {
-        const [toSheet] = await Promise.all([send(rsvp), sendToNstory(rsvp)]);
-        status.textContent = toSheet === 'preview' && !NSTORY_AJAX_URL
+        const toSheet = await sendGuestbook(name);
+        status.textContent = toSheet === 'preview'
           ? 'Terima kasih! (mode pratinjau — belum tersambung ke Google Sheet)'
-          : 'Terima kasih atas konfirmasinya!';
+          : 'Terima kasih, nama Anda sudah tercatat!';
         status.className = 'rsvp-status ok';
-        // the invitation's own form shows the same answer when the guest gets there
-        rsvpForm.elements.name.value = name;
-        rsvpForm.elements.attendance.value = rsvp.attendance;
-        syncGuests();
+        window.dispatchEvent(new CustomEvent('guestbook:signed', { detail: { name } }));
       } catch (err) {
         status.textContent = 'Gagal mengirim. Silakan coba lagi.';
         status.className = 'rsvp-status err';
