@@ -15,9 +15,12 @@ const URL_GLB = 'assets/chars/guests.glb';
 const URL_JSON = 'assets/chars/guests.json';
 const FAR = 16;      // metres: further than this, animate every third frame
 // The pack's sitting poses slump back 6-22 degrees, which on a straight-backed banquet chair
-// pushes the shoulders through the chair back. Seated guests are tilted upright at the waist
-// (to UPRIGHT, a touch forward), keeping the rest of the animation.
+// pushes the shoulders through the chair back. Seated guests have the lower back set upright at
+// the waist (to UPRIGHT, a touch forward) so they sit clear of it, then the upper back eases
+// back by RELAX of that, and the head keeps the angle the animation gives it: relaxed, not
+// bowed. The rest of the animation (talking, gestures, legs) is untouched.
 const UPRIGHT = THREE.MathUtils.degToRad(-2);
+const RELAX = 0.4;
 const KEEP = ['position', 'normal', 'uv', 'skinIndex', 'skinWeight'];
 
 let loading = null;
@@ -162,7 +165,7 @@ export function addGuests(scene, crowd, seed = 1) {
         }
       }
       const p = { root, mixer, acc: 0 };
-      if (c.pose === 'sit') Object.assign(p, { spine: byName.Spine, hips: byName.Hips, neck: byName.Neck });
+      if (c.pose === 'sit') Object.assign(p, { spine: byName.Spine, chest: byName.Spine1, hips: byName.Hips, neck: byName.Neck, head: byName.Head });
       if (c.pose === 'walk' && c.to) {
         p.walk = { a: new THREE.Vector2(c.x, c.z), b: new THREE.Vector2(c.to[0], c.to[1]), k: rnd(), dir: 1, turn: 0 };
         p.walk.len = p.walk.a.distanceTo(p.walk.b);
@@ -198,8 +201,15 @@ export function addGuests(scene, crowd, seed = 1) {
   };
 }
 
-// tilt a seated guest's spine forward at the waist until hips -> neck stands (nearly) upright
-const _h = new THREE.Vector3(), _n = new THREE.Vector3(), _axis = new THREE.Vector3(), _q = new THREE.Quaternion(), _pq = new THREE.Quaternion();
+// sit a seated guest up: lower back upright, upper back relaxed, head as the animation has it
+const _h = new THREE.Vector3(), _n = new THREE.Vector3(), _axis = new THREE.Vector3(), _q = new THREE.Quaternion(), _pq = new THREE.Quaternion(), _head = new THREE.Quaternion();
+// turn `bone` by `angle` about a world-space axis, in the frame it turns in (its parent's)
+function turnBone(bone, ax, ay, az, angle) {
+  bone.parent.updateWorldMatrix(true, false);
+  bone.parent.getWorldQuaternion(_pq).invert();
+  _axis.set(ax, ay, az).applyQuaternion(_pq).normalize();
+  bone.quaternion.premultiply(_q.setFromAxisAngle(_axis, angle));
+}
 function straighten(p) {
   if (!p.hips || !p.neck) return;
   p.root.updateMatrixWorld(true);
@@ -210,16 +220,19 @@ function straighten(p) {
   // the men's poses also slump to one side by up to 20 cm: take most of that out too
   const roll = Math.atan2(_n.x - _h.x, _n.y - _h.y) * 0.75;
   const yaw = p.root.rotation.y;
-  p.spine.parent.getWorldQuaternion(_pq).invert();
-  // forward about the guest's own left-right axis, then upright about their forward axis,
-  // both expressed in the frame the spine bone turns in
-  if (fix > 0) {
-    _axis.set(Math.cos(yaw), 0, -Math.sin(yaw)).applyQuaternion(_pq).normalize();
-    p.spine.quaternion.premultiply(_q.setFromAxisAngle(_axis, fix));
-  }
-  if (Math.abs(roll) > 0.01) {
-    _axis.set(Math.sin(yaw), 0, Math.cos(yaw)).applyQuaternion(_pq).normalize();
-    p.spine.quaternion.premultiply(_q.setFromAxisAngle(_axis, roll));
+  const rx = Math.cos(yaw), rz = -Math.sin(yaw);   // the guest's left-right axis
+  const fx = Math.sin(yaw), fz = Math.cos(yaw);    // their forward axis
+  if (p.head) p.head.getWorldQuaternion(_head);    // where the animation points the head
+  // lower back: forward about left-right, upright about forward
+  if (fix > 0) turnBone(p.spine, rx, 0, rz, fix);
+  if (Math.abs(roll) > 0.01) turnBone(p.spine, fx, 0, fz, roll);
+  // upper back: let it ease back again a little, as people sit
+  if (p.chest && fix > 0) turnBone(p.chest, rx, 0, rz, -fix * RELAX);
+  // head: back to the animation's own angle, so it isn't bowed by the turns below it
+  if (p.head) {
+    p.head.parent.updateWorldMatrix(true, false);
+    p.head.parent.getWorldQuaternion(_pq).invert();
+    p.head.quaternion.copy(_pq.multiply(_head));
   }
 }
 
