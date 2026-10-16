@@ -1,0 +1,98 @@
+{
+ "vest": [
+  "Body_F_light",
+  "Face_F",
+  "Hair_F_bob",
+  "Top_vest",
+  "Pants_F_black",
+  "Shoes_F_black"
+ ],
+ "suit": [
+  "Body_M_med",
+  "Face_M",
+  "Hair_M_brown",
+  "Top_suit",
+  "Pants_M_black",
+  "Shoes_M_black"
+ ],
+ "purple": [
+  "Body_M_light",
+  "Face_M",
+  "Hair_M_side",
+  "Top_purple",
+  "Pants_purple",
+  "Shoes_purple"
+ ],
+ "hijab_kebaya": [
+  "Body_F_light",
+  "Face_F",
+  "Hijab_beige",
+  "Top_kebaya",
+  "Pants_F_wide_white",
+  "Shoes_F_cream"
+ ],
+ "vest_batik": [
+  "Body_F_med",
+  "Face_F",
+  "Hair_F_long",
+  "Top_vest_black",
+  "Skirt_batik_kawung",
+  "Heels_blue"
+ ],
+ "white_mini": [
+  "Body_F_light",
+  "Face_F",
+  "Hair_F_bob_brown",
+  "Top_white",
+  "Skirt_mini_check",
+  "Shoes_F_white"
+ ],
+ "pashmina_batik": [
+  "Body_F_med",
+  "Face_F",
+  "Hijab_pink",
+  "Top_white_b",
+  "Skirt_batik_maroon",
+  "Heels_cream"
+ ],
+ "batik_long": [
+  "Body_M_med",
+  "Face_M",
+  "Hair_M_black",
+  "Top_batik_long",
+  "Pants_M_cream",
+  "Shoes_M_brown"
+ ],
+ "black_short": [
+  "Body_M_deep",
+  "Face_M",
+  "Hair_M_quiff",
+  "Top_black_short",
+  "Pants_M_navy",
+  "Sneakers_white"
+ ],
+ "white_trim": [
+  "Body_M_light",
+  "Face_M",
+  "Hair_M_dark",
+  "Top_white_trim",
+  "Pants_M_olive",
+  "Sneakers_grey"
+ ],
+ "navy_blazer": [
+  "Body_M_med",
+  "Face_M",
+  "Hair_M_brown2",
+  "Top_navy_blazer",
+  "Pants_navy",
+  "Sneakers_white"
+ ],
+ "suit_orange": [
+  "Body_M_light",
+  "Face_M",
+  "Hair_M_quiff_b",
+  "Top_black_orange",
+  "Pants_black",
+  "Shoes_black"
+ ]
+}

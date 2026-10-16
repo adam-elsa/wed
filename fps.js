@@ -343,7 +343,7 @@ export function buildBlockers(scene, { w, d, skip } = {}) {
   // bigger than what they stand for — the one around the gazebo spans the whole aisle.
   const seen = (o) => { for (let n = o; n; n = n.parent) if (!n.visible) return false; return true; };
   scene.traverse((o) => {
-    if (!o.isMesh || !seen(o) || (skip && skip(o))) return;
+    if (!o.isMesh || o.userData.noBlock || !seen(o) || (skip && skip(o))) return; // noBlock: a guest strolling about
     if (!o.geometry.boundingBox) o.geometry.computeBoundingBox();
     // an instanced mesh's own box covers every copy at once (every wall slat as one
     // slab across the room), so take each instance's box on its own
