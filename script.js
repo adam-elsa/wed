@@ -6,7 +6,7 @@
   const RSVP_ENDPOINT_URL = '';
   // The 3D venue's guest book (the reception desk in the lobby) has its own Sheet, separate from
   // the RSVPs: paste its Apps Script Web App URL here (see gas/guestbook-endpoint.gs + README).
-  const GUESTBOOK_ENDPOINT_URL = '';
+  const GUESTBOOK_ENDPOINT_URL = 'https://script.google.com/macros/s/AKfycbyyLTP3vnzeN11Oa455YiInu4KgoXLdUv0_gaORvR4golKUNzIqi23M0liF4oyVBuXN/exec';
   // RSVPs also go to the RSVP form (Fluent Forms #705) on our NgantenStory invitation,
   // inv.nstory.id/adam-elsa, so they land in the same entries list as RSVPs made there.
   // Set to '' to stop sending there.
