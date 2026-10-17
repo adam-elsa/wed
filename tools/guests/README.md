@@ -32,7 +32,7 @@ overwrite them, so re-export from `guests.blend` (step 4) instead. The .blend fi
 
 The guest's own character is put together from parts instead of fixed outfits. They live in two modular files,
 `assets/chars/blenderfilesmodular/female.blend` and `male.blend` (not in git, about 8 MB each): the skeleton with all 12 animations,
-and one collection per creator step: Skin, Face, Hair, Hijab (female only), Top, Bottom, Shoes. Every mesh in a collection is one
+and one collection per creator step: Skin, Face, Hair, Hijab (female only), Hat (male only, optional), Top, Bottom, Shoes. Every mesh in a collection is one
 choice; its `label` custom property is the name the guest sees and `order` sorts the list. The choice left showing in each
 collection is the default. Any top goes with any bottom (checked for clipping at the waist).
 
@@ -41,6 +41,19 @@ collection is the default. Any top goes with any bottom (checked for clipping at
   Re-running it overwrites hand edits in the modular files, so after editing them only run the export.
 - `blender -b -P export_modular.py -- <repo>/assets/chars/blenderfilesmodular <repo>/assets/chars`: writes `avatar_female.glb`,
   `avatar_male.glb` and `avatar.json` (each choice's id, label and colour dot, and the defaults).
+
+Three more scripts add to the modular files in place (each can be run again: it replaces what it added before). Run them after
+`build_modular.py`, then export:
+
+- `python peci_textures.py tex`, then `blender -b -P add_peci.py -- <repo>/assets/chars/blenderfilesmodular/male.blend tex`: a Hat
+  collection for the men (songkok with a gold embroidered band, a plain one, and peci rajut in four colours), fitted round the
+  head and every hairstyle above the ears. Hair that would poke through gets a shape key (`Tuck_peci`, `Tuck_rajut`) that the
+  page turns on while that cap is worn.
+- `blender -b -P add_suits.py -- <repo>/assets/chars/blenderfilesmodular`: blazers over a plain V-neck tee for both genders (the
+  pack's jacket with its shirt and collar taken out; the tee is cut from the body's own chest; the women's blazer is refitted
+  to the female body).
+- `python batik_textures.py tex`, then `blender -b -P add_batik.py -- <repo>/assets/chars/blenderfilesmodular tex`: more batik
+  (mega mendung, truntum, parang, kawung, sidomukti, buketan) on men's long- and short-sleeved shirts, women's blouses and long skirts.
 
 To add a choice: in the modular file, duplicate a mesh inside its collection, keep it parented to Guest_Rig with its Armature
 modifier, recolour or reshape it, rename it (the name prefix, e.g. `Top_`, `Skirt_`, `Hijab_`, is how the page knows the slot

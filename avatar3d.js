@@ -2,8 +2,9 @@
 // .blend files in assets/chars/blenderfilesmodular via tools/guests/export_modular.py) all on one
 // skeleton, with only the chosen part showing in each slot. avatar.json lists each slot's choices.
 //
-// A look is { gender: 'female' | 'male', parts: { Skin, Head, Top, Bottom, Shoes } }: Head is a
-// hair or (for women) a hijab. The creator (creator3d.js) makes one; the venue keeps it in
+// A look is { gender: 'female' | 'male', parts: { Skin, Head, Hat, Top, Bottom, Shoes } }: Head is a
+// hair or (for women) a hijab; Hat is a peci (men) or null. A peci switches on its hair's tuck shape
+// key, which keeps the hair under the cap. The creator (creator3d.js) makes one; the venue keeps it in
 // localStorage (LOOK_KEY) for whatever walks the guest about.
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -12,7 +13,8 @@ import { clone as cloneSkinned } from 'three/addons/utils/SkeletonUtils.js';
 const URL_JSON = 'assets/chars/avatar.json';
 const BASE = 'assets/chars/';
 export const LOOK_KEY = 'ae-character';
-export const SLOTS = ['Skin', 'Head', 'Top', 'Bottom', 'Shoes'];
+export const SLOTS = ['Skin', 'Head', 'Hat', 'Top', 'Bottom', 'Shoes'];
+const OPTIONAL = new Set(['Hat']);
 
 let manifest = null;
 export function loadManifest() {
@@ -32,7 +34,7 @@ export function choices(M, gender, slot) {
 
 export function defaultLook(M, gender) {
   const d = M[gender].default;
-  return { gender, parts: { Skin: d.Skin, Head: gender === 'female' ? d.Hijab || d.Hair : d.Hair, Top: d.Top, Bottom: d.Bottom, Shoes: d.Shoes } };
+  return { gender, parts: { Skin: d.Skin, Head: gender === 'female' ? d.Hijab || d.Hair : d.Hair, Hat: d.Hat || null, Top: d.Top, Bottom: d.Bottom, Shoes: d.Shoes } };
 }
 
 // a saved look, checked against what the parts files have now (anything gone falls back to the default)
@@ -42,6 +44,7 @@ export function tidyLook(M, look) {
   for (const slot of SLOTS) {
     const id = look && look.parts && look.parts[slot];
     if (id && choices(M, gender, slot).some((c) => c.id === id)) out.parts[slot] = id;
+    else if (OPTIONAL.has(slot) && look && look.gender === gender && look.parts && 'Hat' in look.parts && !id) out.parts[slot] = null;
   }
   return out;
 }
@@ -81,7 +84,7 @@ export function loadKit(gender) {
 }
 
 // one dressed character. wear(look) swaps parts; play(name) crossfades to an animation.
-export function createAvatar(kit) {
+export function createAvatar(kit, M) {
   const root = cloneSkinned(kit.gltf.scene);
   const parts = {};
   root.traverse((o) => {
@@ -96,11 +99,19 @@ export function createAvatar(kit) {
     root,
     wear(next) {
       look = next;
-      const on = new Set([...Object.values(next.parts), ...faces]);
+      const on = new Set([...Object.values(next.parts).filter(Boolean), ...faces]);
       for (const [name, o] of Object.entries(parts)) {
         if (o.parent && parts[o.parent.name] === o.parent) continue; // a piece of a part: goes with it
-        if (/^(Body|Face|Hair|Hijab|Pashmina|Top|Pants|Skirt|Shoes|Heels|Sneakers)_/.test(name)) o.visible = on.has(name);
+        if (/^(Body|Face|Hair|Hijab|Pashmina|Peci|Rajut|Top|Pants|Skirt|Shoes|Heels|Sneakers)_/.test(name)) o.visible = on.has(name);
       }
+      // under a peci, the hair is tucked in (its shape key for that kind of cap)
+      const hat = M && next.parts.Hat && (M[next.gender].slots.Hat || []).find((c) => c.id === next.parts.Hat);
+      const tuck = hat && hat.tuck;
+      const hair = parts[next.parts.Head];
+      if (hair) hair.traverse((o) => {
+        if (!o.morphTargetDictionary) return;
+        for (const [k, i] of Object.entries(o.morphTargetDictionary)) o.morphTargetInfluences[i] = k === tuck ? 1 : 0;
+      });
     },
     get skirt() { return !!look && /^Skirt/.test(look.parts.Bottom); },
     play(name, fade = 0.3) {

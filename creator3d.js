@@ -7,7 +7,7 @@ import { loadManifest, loadKit, createAvatar, choices, defaultLook, tidyLook, sa
 
 const STEPS = [
   { key: 'gender', title: 'Kamu datang sebagai', short: 'Gender' },
-  { key: 'Head', title: 'Rambut atau hijab', titleMale: 'Gaya rambut', short: 'Rambut' },
+  { key: 'Head', title: 'Rambut atau hijab', titleMale: 'Rambut & peci', short: 'Rambut' },
   { key: 'Top', title: 'Atasan', short: 'Atasan' },
   { key: 'Bottom', title: 'Bawahan', short: 'Bawahan' },
   { key: 'Shoes', title: 'Sepatu', short: 'Sepatu' },
@@ -63,7 +63,7 @@ export function openCreator() {
     function avatarFor(g) {
       if (!avatars[g]) {
         avatars[g] = loadKit(g).then((kit) => {
-          const a = createAvatar(kit);
+          const a = createAvatar(kit, M);
           a.play('Idle');
           return a;
         });
@@ -187,6 +187,14 @@ export function openCreator() {
         const pick = (c) => option(c.label, c.swatch, look.parts.Head === c.id, () => { look.parts.Head = c.id; });
         group('Hijab', all.filter((c) => c.kind === 'hijab').map(pick));
         group('Rambut', all.filter((c) => c.kind === 'hair').map(pick));
+      } else if (s.key === 'Head') {
+        // men: the hair, then a peci (or none) over it
+        group(null, choices(M, gender, 'Head').map((c) => option(c.label, c.swatch, look.parts.Head === c.id, () => { look.parts.Head = c.id; })));
+        const hats = choices(M, gender, 'Hat');
+        if (hats.length) {
+          group('Peci', [option('Tanpa peci', null, !look.parts.Hat, () => { look.parts.Hat = null; }),
+            ...hats.map((c) => option(c.label, c.swatch, look.parts.Hat === c.id, () => { look.parts.Hat = c.id; }))]);
+        }
       } else {
         group(null, choices(M, gender, s.key).map((c) => option(c.label, c.swatch, look.parts[s.key] === c.id, () => { look.parts[s.key] = c.id; })));
       }

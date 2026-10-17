@@ -6,7 +6,10 @@
 import bpy, sys, os, json, numpy as np
 
 src, dst = sys.argv[sys.argv.index('--') + 1:][:2]
-SLOTS = ["Skin", "Face", "Hair", "Hijab", "Top", "Bottom", "Shoes"]
+SLOTS = ["Skin", "Face", "Hair", "Hijab", "Hat", "Top", "Bottom", "Shoes"]
+OPTIONAL = {"Hat"}  # nothing is a choice too: no default unless one is left showing
+# the hair's shape key that tucks it under each kind of cap (add_peci.py)
+TUCK = {"Peci": "Tuck_peci", "Rajut": "Tuck_rajut"}
 
 _px = {}
 def pixels(img):
@@ -39,8 +42,11 @@ for g in ("female", "male"):
         if not c: continue
         obs = sorted([o for o in c.all_objects if o.type == 'MESH'], key=lambda o: (o.get("order", 999), o.name))
         slots[s] = [{"id": o.name, "label": o.get("label", o.name), "swatch": swatch(o)} for o in obs]
+        for c in slots[s]:
+            t = TUCK.get(c["id"].split("_")[0])
+            if s == "Hat" and t: c["tuck"] = t
         shown = [o for o in obs if not o.hide_get() and not o.hide_render]
-        default[s] = (shown or obs)[0].name
+        default[s] = shown[0].name if shown else None if s in OPTIONAL else obs[0].name
     for o in bpy.data.objects:
         o.hide_set(False); o.hide_render = False; o.hide_viewport = False
     for lc in bpy.context.view_layer.layer_collection.children: lc.exclude = False; lc.hide_viewport = False

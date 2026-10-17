@@ -110,6 +110,41 @@
      "id": "Top_vest_black",
      "label": "Rompi hitam",
      "swatch": "#1d1c1c"
+    },
+    {
+     "id": "Top_blazer_lightblue",
+     "label": "Blazer biru muda & kaos",
+     "swatch": "#8fb0d4"
+    },
+    {
+     "id": "Top_blazer_black",
+     "label": "Blazer hitam & kaos",
+     "swatch": "#1c1c1f"
+    },
+    {
+     "id": "Top_blazer_cream",
+     "label": "Blazer krem & kaos hitam",
+     "swatch": "#e3d6bf"
+    },
+    {
+     "id": "Top_blazer_pink",
+     "label": "Blazer dusty pink & kaos",
+     "swatch": "#c99a9e"
+    },
+    {
+     "id": "Top_batik_buketan",
+     "label": "Kebaya batik buketan",
+     "swatch": "#f0e5d1"
+    },
+    {
+     "id": "Top_batik_megamendung",
+     "label": "Blus batik mega mendung",
+     "swatch": "#16325e"
+    },
+    {
+     "id": "Top_batik_truntum",
+     "label": "Blus batik truntum",
+     "swatch": "#3a2418"
     }
    ],
    "Bottom": [
@@ -137,6 +172,26 @@
      "id": "Pants_F_black",
      "label": "Celana hitam",
      "swatch": "#434141"
+    },
+    {
+     "id": "Skirt_batik_parang",
+     "label": "Rok batik parang",
+     "swatch": "#e8e5db"
+    },
+    {
+     "id": "Skirt_batik_megamendung",
+     "label": "Rok batik mega mendung",
+     "swatch": "#15325d"
+    },
+    {
+     "id": "Skirt_batik_truntum",
+     "label": "Rok batik truntum",
+     "swatch": "#392317"
+    },
+    {
+     "id": "Skirt_batik_sidomukti",
+     "label": "Rok batik sidomukti",
+     "swatch": "#d7c297"
     }
    ],
    "Shoes": [
@@ -194,7 +249,7 @@
     {
      "id": "Body_M_deep",
      "label": "Cokelat",
-     "swatch": "#a87048"
+     "swatch": "#8fb0d4"
     }
    ],
    "Face": [
@@ -208,7 +263,7 @@
     {
      "id": "Hair_M_black",
      "label": "Rapi hitam",
-     "swatch": "#1e1a18"
+     "swatch": "#1d1d20"
     },
     {
      "id": "Hair_M_brown",
@@ -233,12 +288,50 @@
     {
      "id": "Hair_M_quiff",
      "label": "Jambul hitam",
-     "swatch": "#1b1919"
+     "swatch": "#c99a9e"
     },
     {
      "id": "Hair_M_quiff_b",
      "label": "Jambul",
      "swatch": "#221d1b"
+    }
+   ],
+   "Hat": [
+    {
+     "id": "Peci_bordir",
+     "label": "Peci bordir emas",
+     "swatch": "#18161a",
+     "tuck": "Tuck_peci"
+    },
+    {
+     "id": "Peci_polos",
+     "label": "Peci hitam polos",
+     "swatch": "#17151b",
+     "tuck": "Tuck_peci"
+    },
+    {
+     "id": "Rajut_white",
+     "label": "Peci rajut putih",
+     "swatch": "#afaeaa",
+     "tuck": "Tuck_rajut"
+    },
+    {
+     "id": "Rajut_black",
+     "label": "Peci rajut hitam",
+     "swatch": "#1c1b1e",
+     "tuck": "Tuck_rajut"
+    },
+    {
+     "id": "Rajut_blue",
+     "label": "Peci rajut biru",
+     "swatch": "#6a7893",
+     "tuck": "Tuck_rajut"
+    },
+    {
+     "id": "Rajut_brown",
+     "label": "Peci rajut cokelat",
+     "swatch": "#57402e",
+     "tuck": "Tuck_rajut"
     }
    ],
    "Top": [
@@ -255,7 +348,7 @@
     {
      "id": "Top_black_short",
      "label": "Kemeja hitam lengan pendek",
-     "swatch": "#1f1f21"
+     "swatch": "#b48a8e"
     },
     {
      "id": "Top_suit",
@@ -276,6 +369,46 @@
      "id": "Top_purple",
      "label": "Jas ungu",
      "swatch": "#6e2dac"
+    },
+    {
+     "id": "Top_blazer_lightblue",
+     "label": "Blazer biru muda & kaos",
+     "swatch": "#f1eee6"
+    },
+    {
+     "id": "Top_blazer_navy",
+     "label": "Blazer navy & kaos",
+     "swatch": "#e9dcc9"
+    },
+    {
+     "id": "Top_blazer_black",
+     "label": "Blazer hitam & kaos",
+     "swatch": "#1a1818"
+    },
+    {
+     "id": "Top_blazer_beige",
+     "label": "Blazer krem & kaos hitam",
+     "swatch": "#f3f0ea"
+    },
+    {
+     "id": "Top_batik_megamendung",
+     "label": "Batik mega mendung",
+     "swatch": "#16325d"
+    },
+    {
+     "id": "Top_batik_truntum",
+     "label": "Batik truntum",
+     "swatch": "#3a2418"
+    },
+    {
+     "id": "Top_batik_parang_short",
+     "label": "Batik parang lengan pendek",
+     "swatch": "#e8e5db"
+    },
+    {
+     "id": "Top_batik_kawung_short",
+     "label": "Batik kawung lengan pendek",
+     "swatch": "#e2cfa4"
     }
    ],
    "Bottom": [
@@ -287,7 +420,7 @@
     {
      "id": "Pants_M_cream",
      "label": "Celana krem",
-     "swatch": "#e6ddc8"
+     "swatch": "#1a1a1c"
     },
     {
      "id": "Pants_M_navy",
@@ -324,7 +457,7 @@
     {
      "id": "Shoes_M_brown",
      "label": "Pantofel cokelat",
-     "swatch": "#5a3a22"
+     "swatch": "#e3d6bf"
     },
     {
      "id": "Shoes_black",
@@ -352,6 +485,7 @@
    "Skin": "Body_M_med",
    "Face": "Face_M",
    "Hair": "Hair_M_black",
+   "Hat": null,
    "Top": "Top_batik_long",
    "Bottom": "Pants_M_cream",
    "Shoes": "Shoes_M_brown"
