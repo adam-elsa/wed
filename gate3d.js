@@ -621,8 +621,10 @@ function init() {
       // the lobby (and its RSVP button) fades in under the line; once it's up, the line shrinks away
       state = 'lobby';
       gate.classList.add('in-lobby');
-      controls.start(isTouch);
-      askMotion();
+      askCharacter(() => {
+        controls.start(isTouch);
+        askMotion();
+      });
       setTimeout(shrinkStoryIntoRsvp, 700);
     }
   }
@@ -672,6 +674,49 @@ function init() {
       gate.classList.remove('show-story', 'story-leave', 'story-fly');
       setTimeout(() => { if (line) line.style.cssText = ''; }, 1400);
     }, 550);
+  }
+
+  // ---------- before walking about: make a character, or go in as you are ----------
+  // Asked on every arrival; someone who already made one can keep it or change it. The walking
+  // hints (and the phone-motion question) come after, once the guest has chosen.
+  const charAsk = document.getElementById('charAsk');
+  let charAsked = false;
+  function askCharacter(then) {
+    if (charAsked || !charAsk) return then();
+    charAsked = true;
+    let made = null;
+    try { made = JSON.parse(localStorage.getItem('ae-character') || 'null'); } catch (err) { /* none */ }
+    const makeLabel = document.getElementById('charMakeLabel');
+    const skipLabel = document.getElementById('charSkipLabel');
+    const copy = document.getElementById('charCopy');
+    if (made) {
+      if (makeLabel) makeLabel.textContent = 'Ubah Karakter';
+      if (skipLabel) skipLabel.textContent = 'Pakai yang Tersimpan';
+      if (copy) copy.textContent = 'Karaktermu sudah tersimpan dari kunjungan sebelumnya.';
+    }
+    const make = document.getElementById('charMake');
+    const skip = document.getElementById('charSkip');
+    const done = () => {
+      make.removeEventListener('click', onMake);
+      skip.removeEventListener('click', onSkip);
+      charAsk.hidden = true;
+      then();
+    };
+    const onSkip = () => done();
+    const onMake = () => {
+      charAsk.hidden = true;
+      import('./creator3d.js')
+        .then((m) => m.openCreator())
+        .then((look) => {
+          if (look) done();
+          else charAsk.hidden = false; // backed out of the first step: choose again
+        })
+        .catch((err) => { console.error(err); done(); });
+    };
+    make.addEventListener('click', onMake);
+    skip.addEventListener('click', onSkip);
+    // once the story's last line has shrunk into the guest-book button
+    setTimeout(() => { charAsk.hidden = false; }, 1400);
   }
 
   // ---------- how the guest looks around inside: asked once, remembered after ----------
@@ -1228,8 +1273,10 @@ function init() {
     if (ms >= 2800) {
       state = 'lobby';
       gate.classList.add('in-lobby');
-      controls.start(isTouch);
-      askMotion();
+      askCharacter(() => {
+        controls.start(isTouch);
+        askMotion();
+      });
     }
   }
 

@@ -32,3 +32,6 @@ tools/guests/*.blend1
 
 # per-guest Blender working files (87 MB): local only, never deployed (tools/guests/split_guests.py makes them)
 assets/chars/blenderfiles/
+
+# the character creator's modular Blender files (16 MB): local only; export_modular.py turns them into assets/chars/avatar_*.glb
+assets/chars/blenderfilesmodular/
