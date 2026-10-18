@@ -1,7 +1,8 @@
 // Making your own character, in the lobby before walking about: gender (and skin tone), then the
 // hair or a hijab, the top, the bottom and the shoes, one step at a time, with the character
 // turning on its own little stage beside the choices (drag to turn it yourself).
-// A hijab or a pashmina is one model in any colour: ready-made swatches, or a colour wheel.
+// A hijab, a pashmina, trousers, shoes or a peci rajut is one model in any colour: ready-made swatches,
+// or a colour wheel.
 // openCreator() resolves with the finished look, or null if the guest backs out of the first step.
 import * as THREE from 'three';
 import { loadManifest, loadKit, createAvatar, choices, defaultLook, tidyLook, savedLook, saveLook, tintable, SLOTS } from './avatar3d.js';
@@ -175,7 +176,7 @@ export function openCreator() {
       const wheelWrap = document.createElement('div');
       wheelWrap.className = 'creator-wheel';
       const wheel = document.createElement('canvas');
-      wheel.width = wheel.height = 300;
+      wheel.width = wheel.height = 200;
       wheel.setAttribute('aria-label', 'Roda warna');
       const mark = document.createElement('span');
       mark.className = 'creator-wheel-mark';
@@ -223,8 +224,8 @@ export function openCreator() {
         mark.style.top = `${50 + Math.sin(a) * sat * 50}%`;
         mark.style.background = hex;
         for (const w of swatches) w.b.setAttribute('aria-pressed', w.hex.toLowerCase() === hex.toLowerCase() ? 'true' : 'false');
-        // the chosen hijab's own dot follows along
-        const dot = optsEl.querySelector('.creator-opt[aria-pressed="true"][data-tint] .creator-dot');
+        // the chosen part's own dot follows along
+        const dot = optsEl.querySelector(`.creator-opt[aria-pressed="true"][data-tint="${slot}"] .creator-dot`);
         if (dot) dot.style.background = hex;
       }
       function set(hex, fromSwatch) {
@@ -266,6 +267,19 @@ export function openCreator() {
       if (items.length === 1 && items[0].classList.contains('creator-colors')) wrap.className = 'creator-colors-wrap';
       optsEl.appendChild(wrap);
     }
+    // a choice's button; one the guest colours shows the colour picked for it
+    function pick(slot, c) {
+      const look = looks[gender];
+      const on = look.parts[slot] === c.id;
+      const b = option(c.label, (on && c.tint && look.colors[slot]) || c.swatch, on, () => { look.parts[slot] = c.id; });
+      if (c.tint) b.dataset.tint = slot;
+      return b;
+    }
+    // ...and under the choices, its colours, if the chosen one is coloured by the guest
+    function paints(slot) {
+      const t = tintable(M, gender, looks[gender], slot);
+      if (t) group('Warna ' + t.label.toLowerCase(), [colorPicker(slot, t)]);
+    }
     function render(keepScroll) {
       const s = STEPS[step];
       stepsEl.innerHTML = '';
@@ -287,26 +301,21 @@ export function openCreator() {
         group('Warna kulit', choices(M, gender, 'Skin').map((c) => option(c.label, c.swatch, look.parts.Skin === c.id, () => { look.parts.Skin = c.id; })));
       } else if (s.key === 'Head' && gender === 'female') {
         const all = choices(M, gender, 'Head');
-        const pick = (c) => {
-          const on = look.parts.Head === c.id;
-          const b = option(c.label, (on && look.colors.Head) || c.swatch, on, () => { look.parts.Head = c.id; });
-          if (c.tint) b.dataset.tint = '1';
-          return b;
-        };
-        group('Hijab', all.filter((c) => c.kind === 'hijab').map(pick));
-        const t = tintable(M, gender, look, 'Head');
-        if (t) group('Warna ' + t.label.toLowerCase(), [colorPicker('Head', t)]);
-        group('Rambut', all.filter((c) => c.kind === 'hair').map(pick));
+        group('Hijab', all.filter((c) => c.kind === 'hijab').map((c) => pick('Head', c)));
+        paints('Head');
+        group('Rambut', all.filter((c) => c.kind === 'hair').map((c) => pick('Head', c)));
       } else if (s.key === 'Head') {
         // men: the hair, then a peci (or none) over it
-        group(null, choices(M, gender, 'Head').map((c) => option(c.label, c.swatch, look.parts.Head === c.id, () => { look.parts.Head = c.id; })));
+        group(null, choices(M, gender, 'Head').map((c) => pick('Head', c)));
         const hats = choices(M, gender, 'Hat');
         if (hats.length) {
           group('Peci', [option('Tanpa peci', null, !look.parts.Hat, () => { look.parts.Hat = null; }),
-            ...hats.map((c) => option(c.label, c.swatch, look.parts.Hat === c.id, () => { look.parts.Hat = c.id; }))]);
+            ...hats.map((c) => pick('Hat', c))]);
+          paints('Hat');
         }
       } else {
-        group(null, choices(M, gender, s.key).map((c) => option(c.label, c.swatch, look.parts[s.key] === c.id, () => { look.parts[s.key] = c.id; })));
+        group(null, choices(M, gender, s.key).map((c) => pick(s.key, c)));
+        paints(s.key);
       }
       back.textContent = step === 0 ? 'Batal' : 'Kembali';
       next.textContent = step === STEPS.length - 1 ? 'Selesai' : 'Lanjut';

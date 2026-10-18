@@ -29,12 +29,14 @@ def swatch(o):
         c = a[int((v % 1) * h) % h, int((u % 1) * w) % w]
         k = tuple((c * 7).round().astype(int))
         s, n = tally.get(k, (np.zeros(3), 0.0)); tally[k] = (s + c * p.area, n + p.area)
+    if not tally: return o.get("tint", "#888888")  # all plain colour (a part the guest colours)
     s, n = max(tally.values(), key=lambda t: t[1])
     return '#%02x%02x%02x' % tuple(int(x) for x in np.clip(s / n * 255, 0, 255))
 
 manifest = {}
 for g in ("female", "male"):
     bpy.ops.wm.open_mainfile(filepath=os.path.join(src, g + ".blend"))
+    _px.clear()  # each file has its own palette: never read one gender's colours for the other
     rig = bpy.data.objects["Guest_Rig"]
     slots, default = {}, {}
     for s in SLOTS:

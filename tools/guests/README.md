@@ -60,7 +60,13 @@ swatches or a colour wheel. Their custom properties `tint` (the starting colour)
 into avatar.json; any mesh given a `tint` becomes colourable the same way. `tint_hijabs.py` turned the earlier one-model-per-colour
 file into this (`blender -b -P tint_hijabs.py -- .../female.blend`).
 
-female.blend is now saved with Blender 5.2, which Blender 4.2 can't open: run these scripts with 5.2.
+The same goes for trousers, shoes and the peci rajut: `tint_parts.py` (run once, already done) made one model per shape
+(Celana bahan, Celana bersabuk, Pantofel, Sepatu, Sneakers, Peci rajut; Celana panjang, Kulot, Flat, Hak tinggi), the old
+colours becoming its swatches. On those, the material names say what takes the colour: `Tint.*` the picked colour,
+`TintDark.*` a darker shade of it (creases, the belt), `TintMap.*` the colour over its texture (the knit); anything else
+(the sneakers' white soles `Sole.*`, the gold buckle) stays as it is. A part with no `Tint*` material is coloured all over.
+
+Both modular files are now saved with Blender 5.2, which Blender 4.2 can't open: run these scripts with 5.2.
 
 To add a choice: in the modular file, duplicate a mesh inside its collection, keep it parented to Guest_Rig with its Armature
 modifier, recolour or reshape it, rename it (the name prefix, e.g. `Top_`, `Skirt_`, `Hijab_`, is how the page knows the slot

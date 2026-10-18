@@ -5,7 +5,11 @@
 // A look is { gender: 'female' | 'male', parts: { Skin, Head, Hat, Top, Bottom, Shoes } }: Head is a
 // hair or (for women) a hijab; Hat is a peci (men) or null. A peci switches on its hair's tuck shape
 // key, which keeps the hair under the cap. A part with a `tint` in avatar.json (the hijab, the
-// pashmina) is painted whatever colour the guest picked: look.colors[slot] as #rrggbb, else its tint.
+// pashmina, trousers, shoes, the peci rajut) is painted whatever colour the guest picked:
+// look.colors[slot] as #rrggbb, else its tint. Which of its materials take the colour is in their
+// names (tools/guests/tint_parts.py): Tint.* the colour, TintDark.* a darker shade of it, TintMap.*
+// the colour over its texture (the knit); the rest (soles, buckles) stay. A part with none of those
+// (the hijab) is coloured all over.
 // The creator (creator3d.js) makes one; the venue keeps it in
 // localStorage (LOOK_KEY) for whatever walks the guest about.
 import * as THREE from 'three';
@@ -83,7 +87,7 @@ export function loadKit(gender) {
               m.map.minFilter = m.map.magFilter = THREE.NearestFilter; // flat swatches: never blur one into the next
               m.map.generateMipmaps = false;
             }
-            mats.set(m, new THREE.MeshLambertMaterial({ map: m.map, color: m.color, side: THREE.DoubleSide }));
+            mats.set(m, new THREE.MeshLambertMaterial({ name: m.name, map: m.map, color: m.color, side: THREE.DoubleSide }));
           }
           o.material = mats.get(m);
         });
@@ -103,21 +107,27 @@ export function createAvatar(kit, M) {
     if (o.name && (o.isMesh || o.isGroup) && !o.isBone) parts[o.name] = parts[o.name] || o;
   });
   const faces = Object.keys(parts).filter((n) => /^Face_/.test(n));
-  // a coloured part gets plain materials of its own (no texture), so its colour can be anything
+  // a coloured part gets materials of its own, so its colour can be anything
   const painted = new Map();
   const paint = (id, hex) => {
     const node = parts[id];
     if (!node) return;
     if (!painted.has(id)) {
+      const meshes = [];
+      node.traverse((o) => { if (o.isMesh) meshes.push(o); });
+      const marked = meshes.some((o) => /^Tint/.test(o.material.name));
       const mats = [];
-      node.traverse((o) => {
-        if (!o.isMesh) return;
-        o.material = new THREE.MeshLambertMaterial({ side: THREE.DoubleSide });
-        mats.push(o.material);
-      });
+      for (const o of meshes) {
+        const n = o.material.name || '';
+        if (marked && !/^Tint/.test(n)) continue; // a sole, a buckle: as it is
+        const shade = /^TintDark/.test(n) ? 0.8 : 1;
+        const map = /^TintMap/.test(n) ? o.material.map : null;
+        o.material = new THREE.MeshLambertMaterial({ name: n, map, side: THREE.DoubleSide });
+        mats.push({ m: o.material, shade });
+      }
       painted.set(id, mats);
     }
-    for (const m of painted.get(id)) m.color.set(hex);
+    for (const { m, shade } of painted.get(id)) m.color.set(hex).multiplyScalar(shade);
   };
   const mixer = new THREE.AnimationMixer(root);
   let action = null;
@@ -159,7 +169,7 @@ export function createAvatar(kit, M) {
     dispose() {
       mixer.stopAllAction();
       root.removeFromParent();
-      for (const mats of painted.values()) mats.forEach((m) => m.dispose());
+      for (const mats of painted.values()) mats.forEach(({ m }) => m.dispose());
     },
   };
 }
