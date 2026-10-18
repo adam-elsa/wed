@@ -1,0 +1,556 @@
+{
+ "female": {
+  "glb": "avatar_female.glb",
+  "slots": {
+   "Skin": [
+    {
+     "id": "Body_F_light",
+     "label": "Kuning langsat",
+     "swatch": "#e8b08a"
+    },
+    {
+     "id": "Body_F_med",
+     "label": "Sawo matang",
+     "swatch": "#cf9468"
+    },
+    {
+     "id": "Body_F_deep",
+     "label": "Cokelat",
+     "swatch": "#a87048"
+    }
+   ],
+   "Face": [
+    {
+     "id": "Face_F",
+     "label": "Face_F",
+     "swatch": "#3f3c3b"
+    }
+   ],
+   "Hair": [
+    {
+     "id": "Hair_F_bob",
+     "label": "Bob",
+     "swatch": "#2c2b2b"
+    },
+    {
+     "id": "Hair_F_bob_brown",
+     "label": "Bob cokelat",
+     "swatch": "#3b2926"
+    },
+    {
+     "id": "Hair_F_long",
+     "label": "Panjang hitam",
+     "swatch": "#1a1818"
+    }
+   ],
+   "Hijab": [
+    {
+     "id": "Hijab_basic",
+     "label": "Hijab",
+     "swatch": "#c49f7c",
+     "tint": "#c49f7c",
+     "colors": [
+      "#c49f7c",
+      "#eeebe4",
+      "#1f1d1f",
+      "#2b3653",
+      "#93a184",
+      "#c08085",
+      "#8a6a55",
+      "#a99ab8",
+      "#7a2e3a",
+      "#3f5e4a"
+     ]
+    },
+    {
+     "id": "Pashmina_basic",
+     "label": "Pashmina",
+     "swatch": "#c08085",
+     "tint": "#c08085",
+     "colors": [
+      "#c49f7c",
+      "#eeebe4",
+      "#1f1d1f",
+      "#2b3653",
+      "#93a184",
+      "#c08085",
+      "#8a6a55",
+      "#a99ab8",
+      "#7a2e3a",
+      "#3f5e4a"
+     ]
+    }
+   ],
+   "Top": [
+    {
+     "id": "Top_kebaya",
+     "label": "Kebaya bordir",
+     "swatch": "#f3eee2"
+    },
+    {
+     "id": "Top_white_b",
+     "label": "Blus putih",
+     "swatch": "#f2f2f2"
+    },
+    {
+     "id": "Top_white",
+     "label": "Kemeja putih",
+     "swatch": "#f0f1f1"
+    },
+    {
+     "id": "Top_vest",
+     "label": "Rompi & kemeja",
+     "swatch": "#494848"
+    },
+    {
+     "id": "Top_vest_black",
+     "label": "Rompi hitam",
+     "swatch": "#1d1c1c"
+    },
+    {
+     "id": "Top_blazer_lightblue",
+     "label": "Blazer biru muda & kaos",
+     "swatch": "#8fb0d4"
+    },
+    {
+     "id": "Top_blazer_black",
+     "label": "Blazer hitam & kaos",
+     "swatch": "#1c1c1f"
+    },
+    {
+     "id": "Top_blazer_cream",
+     "label": "Blazer krem & kaos hitam",
+     "swatch": "#e3d6bf"
+    },
+    {
+     "id": "Top_blazer_pink",
+     "label": "Blazer dusty pink & kaos",
+     "swatch": "#c99a9e"
+    },
+    {
+     "id": "Top_batik_buketan",
+     "label": "Kebaya batik buketan",
+     "swatch": "#f0e5d1"
+    },
+    {
+     "id": "Top_batik_megamendung",
+     "label": "Blus batik mega mendung",
+     "swatch": "#16325e"
+    },
+    {
+     "id": "Top_batik_truntum",
+     "label": "Blus batik truntum",
+     "swatch": "#3a2418"
+    }
+   ],
+   "Bottom": [
+    {
+     "id": "Skirt_batik_maroon",
+     "label": "Rok batik merah marun",
+     "swatch": "#732539"
+    },
+    {
+     "id": "Skirt_batik_kawung",
+     "label": "Rok batik kawung",
+     "swatch": "#d3c4a4"
+    },
+    {
+     "id": "Skirt_mini_check",
+     "label": "Rok pendek kotak",
+     "swatch": "#c5d2e7"
+    },
+    {
+     "id": "Pants_F_wide_basic",
+     "label": "Kulot",
+     "swatch": "#f1eee6",
+     "tint": "#f1eee6",
+     "colors": [
+      "#f1eee6",
+      "#1f1f22",
+      "#3b3b40",
+      "#8a8a8a",
+      "#e6ddc8",
+      "#b59d72",
+      "#2b3550",
+      "#6b6a50",
+      "#5a4030",
+      "#7a2e3a"
+     ]
+    },
+    {
+     "id": "Pants_F_basic",
+     "label": "Celana panjang",
+     "swatch": "#474545",
+     "tint": "#474545",
+     "colors": [
+      "#474545",
+      "#1f1f22",
+      "#3b3b40",
+      "#8a8a8a",
+      "#e6ddc8",
+      "#b59d72",
+      "#2b3550",
+      "#6b6a50",
+      "#5a4030",
+      "#7a2e3a",
+      "#f1eee6"
+     ]
+    },
+    {
+     "id": "Skirt_batik_parang",
+     "label": "Rok batik parang",
+     "swatch": "#e8e5db"
+    },
+    {
+     "id": "Skirt_batik_megamendung",
+     "label": "Rok batik mega mendung",
+     "swatch": "#15325d"
+    },
+    {
+     "id": "Skirt_batik_truntum",
+     "label": "Rok batik truntum",
+     "swatch": "#392317"
+    },
+    {
+     "id": "Skirt_batik_sidomukti",
+     "label": "Rok batik sidomukti",
+     "swatch": "#d7c297"
+    }
+   ],
+   "Shoes": [
+    {
+     "id": "Heels_basic",
+     "label": "Hak tinggi",
+     "swatch": "#efe4d2",
+     "tint": "#efe4d2",
+     "colors": [
+      "#efe4d2",
+      "#2c4fd6",
+      "#1a1a1a",
+      "#5a3a22",
+      "#8a6448",
+      "#e9dcc9",
+      "#f3f0ea",
+      "#9a9a96",
+      "#7a2e3a",
+      "#c08085",
+      "#2b3550"
+     ]
+    },
+    {
+     "id": "Shoes_F_basic",
+     "label": "Flat",
+     "swatch": "#e9dcc9",
+     "tint": "#e9dcc9",
+     "colors": [
+      "#e9dcc9",
+      "#444546",
+      "#f3f0ea",
+      "#1a1a1a",
+      "#5a3a22",
+      "#8a6448",
+      "#9a9a96",
+      "#2c4fd6",
+      "#7a2e3a",
+      "#c08085",
+      "#2b3550"
+     ]
+    }
+   ]
+  },
+  "default": {
+   "Skin": "Body_F_light",
+   "Face": "Face_F",
+   "Hair": "Hair_F_bob",
+   "Hijab": "Hijab_basic",
+   "Top": "Top_kebaya",
+   "Bottom": "Skirt_batik_maroon",
+   "Shoes": "Heels_basic"
+  }
+ },
+ "male": {
+  "glb": "avatar_male.glb",
+  "slots": {
+   "Skin": [
+    {
+     "id": "Body_M_light",
+     "label": "Kuning langsat",
+     "swatch": "#e8b08a"
+    },
+    {
+     "id": "Body_M_med",
+     "label": "Sawo matang",
+     "swatch": "#cf9468"
+    },
+    {
+     "id": "Body_M_deep",
+     "label": "Cokelat",
+     "swatch": "#a87048"
+    }
+   ],
+   "Face": [
+    {
+     "id": "Face_M",
+     "label": "Face_M",
+     "swatch": "#3f3c3b"
+    }
+   ],
+   "Hair": [
+    {
+     "id": "Hair_M_black",
+     "label": "Rapi hitam",
+     "swatch": "#1e1a18"
+    },
+    {
+     "id": "Hair_M_brown",
+     "label": "Pendek cokelat",
+     "swatch": "#724e43"
+    },
+    {
+     "id": "Hair_M_brown2",
+     "label": "Rapi cokelat tua",
+     "swatch": "#3b2926"
+    },
+    {
+     "id": "Hair_M_side",
+     "label": "Pendek cokelat muda",
+     "swatch": "#724e43"
+    },
+    {
+     "id": "Hair_M_dark",
+     "label": "Rapi gelap",
+     "swatch": "#2a201b"
+    },
+    {
+     "id": "Hair_M_quiff",
+     "label": "Jambul hitam",
+     "swatch": "#1b1919"
+    },
+    {
+     "id": "Hair_M_quiff_b",
+     "label": "Jambul",
+     "swatch": "#221d1b"
+    }
+   ],
+   "Hat": [
+    {
+     "id": "Peci_bordir",
+     "label": "Peci bordir emas",
+     "swatch": "#18161a",
+     "tuck": "Tuck_peci"
+    },
+    {
+     "id": "Peci_polos",
+     "label": "Peci hitam polos",
+     "swatch": "#17151b",
+     "tuck": "Tuck_peci"
+    },
+    {
+     "id": "Rajut_basic",
+     "label": "Peci rajut",
+     "swatch": "#ffffff",
+     "tuck": "Tuck_rajut",
+     "tint": "#ffffff",
+     "colors": [
+      "#ffffff",
+      "#3a3a3c",
+      "#9fb4dc",
+      "#8a6448",
+      "#7a2e3a",
+      "#93a184",
+      "#2b3550",
+      "#c9a96e"
+     ]
+    }
+   ],
+   "Top": [
+    {
+     "id": "Top_batik_long",
+     "label": "Batik lengan panjang",
+     "swatch": "#794425"
+    },
+    {
+     "id": "Top_white_trim",
+     "label": "Kemeja putih list batik",
+     "swatch": "#f7f7f5"
+    },
+    {
+     "id": "Top_black_short",
+     "label": "Kemeja hitam lengan pendek",
+     "swatch": "#1f1f21"
+    },
+    {
+     "id": "Top_suit",
+     "label": "Kemeja & dasi",
+     "swatch": "#2f2e2e"
+    },
+    {
+     "id": "Top_navy_blazer",
+     "label": "Blazer navy",
+     "swatch": "#2c3e5c"
+    },
+    {
+     "id": "Top_black_orange",
+     "label": "Jas hitam",
+     "swatch": "#1e1e21"
+    },
+    {
+     "id": "Top_purple",
+     "label": "Jas ungu",
+     "swatch": "#6e2dac"
+    },
+    {
+     "id": "Top_blazer_lightblue",
+     "label": "Blazer biru muda & kaos",
+     "swatch": "#8fb0d4"
+    },
+    {
+     "id": "Top_blazer_navy",
+     "label": "Blazer navy & kaos",
+     "swatch": "#26314b"
+    },
+    {
+     "id": "Top_blazer_black",
+     "label": "Blazer hitam & kaos",
+     "swatch": "#1c1c1f"
+    },
+    {
+     "id": "Top_blazer_beige",
+     "label": "Blazer krem & kaos hitam",
+     "swatch": "#c7b08c"
+    },
+    {
+     "id": "Top_batik_megamendung",
+     "label": "Batik mega mendung",
+     "swatch": "#16325d"
+    },
+    {
+     "id": "Top_batik_truntum",
+     "label": "Batik truntum",
+     "swatch": "#3a2418"
+    },
+    {
+     "id": "Top_batik_parang_short",
+     "label": "Batik parang lengan pendek",
+     "swatch": "#e8e5db"
+    },
+    {
+     "id": "Top_batik_kawung_short",
+     "label": "Batik kawung lengan pendek",
+     "swatch": "#e2cfa4"
+    }
+   ],
+   "Bottom": [
+    {
+     "id": "Pants_M_basic",
+     "label": "Celana bahan",
+     "swatch": "#e6ddc8",
+     "tint": "#e6ddc8",
+     "colors": [
+      "#e6ddc8",
+      "#252626",
+      "#2b3550",
+      "#6b6a50",
+      "#1f1f22",
+      "#3b3b40",
+      "#8a8a8a",
+      "#b59d72",
+      "#5a4030",
+      "#7a2e3a",
+      "#f1eee6"
+     ]
+    },
+    {
+     "id": "Pants_belt_basic",
+     "label": "Celana bersabuk",
+     "swatch": "#2c3e5c",
+     "tint": "#2c3e5c",
+     "colors": [
+      "#2c3e5c",
+      "#1d1d20",
+      "#6232ae",
+      "#1f1f22",
+      "#3b3b40",
+      "#8a8a8a",
+      "#e6ddc8",
+      "#b59d72",
+      "#2b3550",
+      "#6b6a50",
+      "#5a4030",
+      "#7a2e3a",
+      "#f1eee6"
+     ]
+    }
+   ],
+   "Shoes": [
+    {
+     "id": "Shoes_M_basic",
+     "label": "Pantofel",
+     "swatch": "#5a3a22",
+     "tint": "#5a3a22",
+     "colors": [
+      "#5a3a22",
+      "#232426",
+      "#1a1a1a",
+      "#8a6448",
+      "#e9dcc9",
+      "#f3f0ea",
+      "#9a9a96",
+      "#2c4fd6",
+      "#7a2e3a",
+      "#c08085",
+      "#2b3550"
+     ]
+    },
+    {
+     "id": "Shoes_basic",
+     "label": "Sepatu",
+     "swatch": "#1a1a1a",
+     "tint": "#1a1a1a",
+     "colors": [
+      "#1a1a1a",
+      "#501e98",
+      "#5a3a22",
+      "#8a6448",
+      "#e9dcc9",
+      "#f3f0ea",
+      "#9a9a96",
+      "#2c4fd6",
+      "#7a2e3a",
+      "#c08085",
+      "#2b3550"
+     ]
+    },
+    {
+     "id": "Sneakers_basic",
+     "label": "Sneakers",
+     "swatch": "#dedfdf",
+     "tint": "#dedfdf",
+     "colors": [
+      "#dedfdf",
+      "#aaacad",
+      "#1a1a1a",
+      "#5a3a22",
+      "#8a6448",
+      "#e9dcc9",
+      "#f3f0ea",
+      "#9a9a96",
+      "#2c4fd6",
+      "#7a2e3a",
+      "#c08085",
+      "#2b3550"
+     ]
+    }
+   ]
+  },
+  "default": {
+   "Skin": "Body_M_med",
+   "Face": "Face_M",
+   "Hair": "Hair_M_black",
+   "Hat": null,
+   "Top": "Top_batik_long",
+   "Bottom": "Pants_M_basic",
+   "Shoes": "Shoes_M_basic"
+  }
+ }
+}

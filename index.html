@@ -181,6 +181,53 @@
     <p class="motion-copy">Sebagian orang jadi pusing kalau tampilan ikut gerakan ponsel.</p>
     <p class="motion-note">Bisa diubah kapan saja lewat tombol ⟳ di pojok.</p>
   </div>
+  <!-- on arriving in the lobby, before the how-to-walk hints: make a character, or go in as you are -->
+  <div class="motion-ask char-ask" id="charAsk" hidden>
+    <p class="eyebrow">Sebelum Masuk</p>
+    <h3 class="motion-title">Mau tampil seperti apa?</h3>
+    <div class="motion-choices">
+      <button class="motion-card" id="charMake" type="button">
+        <span class="motion-label is-solid" id="charMakeLabel">Buat Karakter</span>
+        <svg class="motion-art" viewBox="0 0 150 92" aria-hidden="true">
+          <!-- a little figure on a stand, with a sparkle -->
+          <circle cx="75" cy="20" r="9" fill="none" stroke="currentColor" stroke-width="2.6"/>
+          <path d="M60 58 C60 40 66 33 75 33 C84 33 90 40 90 58 Z" fill="rgba(255,255,255,0.05)" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/>
+          <path d="M66 58 L64 78 M84 58 L86 78" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/>
+          <ellipse cx="75" cy="82" rx="26" ry="5" fill="none" stroke="currentColor" stroke-width="2" opacity="0.7"/>
+          <path d="M112 18 l3 8 8 3 -8 3 -3 8 -3 -8 -8 -3 8 -3 Z" fill="currentColor" opacity="0.85"/>
+          <path d="M36 44 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2 Z" fill="currentColor" opacity="0.6"/>
+        </svg>
+      </button>
+      <button class="motion-card" id="charSkip" type="button">
+        <span class="motion-label" id="charSkipLabel">Langsung Masuk</span>
+        <svg class="motion-art" viewBox="0 0 150 92" aria-hidden="true">
+          <!-- an eye: seeing the venue through your own eyes -->
+          <path d="M35 46 C50 24 100 24 115 46 C100 68 50 68 35 46 Z" fill="rgba(255,255,255,0.05)" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/>
+          <circle cx="75" cy="46" r="11" fill="none" stroke="currentColor" stroke-width="2.6"/>
+          <circle cx="75" cy="46" r="4.5" fill="currentColor"/>
+        </svg>
+      </button>
+    </div>
+    <p class="motion-copy" id="charCopy">Pilih gender, rambut atau hijab, lalu pakaianmu.</p>
+  </div>
+  <!-- the character creator: the character on its stage, and the choices one step at a time -->
+  <div class="creator" id="creator" hidden>
+    <div class="creator-stage">
+      <canvas id="creatorCanvas"></canvas>
+      <p class="creator-loading" id="creatorLoading" hidden></p>
+      <p class="creator-drag">Geser untuk memutar</p>
+    </div>
+    <div class="creator-panel">
+      <p class="eyebrow">Buat Karakter</p>
+      <ol class="creator-steps" id="creatorSteps"></ol>
+      <h3 class="creator-title" id="creatorTitle"></h3>
+      <div class="creator-options" id="creatorOptions"></div>
+      <div class="creator-nav">
+        <button class="btn-outline" id="creatorBack" type="button">Batal</button>
+        <button class="btn-solid" id="creatorNext" type="button">Lanjut</button>
+      </div>
+    </div>
+  </div>
   <!-- flips the phone-motion look on and off once the choice is made -->
   <button class="motion-toggle" id="motionToggle" type="button" aria-pressed="false" hidden>
     <span aria-hidden="true">⟳</span> <span class="motion-state">Gerak ponsel: mati</span>

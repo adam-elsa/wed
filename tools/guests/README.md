@@ -27,3 +27,49 @@ After step 3, two more passes (run on `guests.blend`):
 Hand edits made in Blender (the two hijab guests were tweaked this way) live in `guests.blend` and its per-guest
 copies; `merge.py` copies edited meshes from a per-guest file back into `guests.blend`. Re-running `build.py` would
 overwrite them, so re-export from `guests.blend` (step 4) instead. The .blend files are not in git (50 MB).
+
+## The character creator's parts (assets/chars/avatar_*.glb)
+
+The guest's own character is put together from parts instead of fixed outfits. They live in two modular files,
+`assets/chars/blenderfilesmodular/female.blend` and `male.blend` (not in git, about 8 MB each): the skeleton with all 12 animations,
+and one collection per creator step: Skin, Face, Hair, Hijab (female only), Hat (male only, optional), Top, Bottom, Shoes. Every mesh in a collection is one
+choice; its `label` custom property is the name the guest sees and `order` sorts the list. The choice left showing in each
+collection is the default. Any top goes with any bottom (checked for clipping at the waist).
+
+- `blender -b -P build_modular.py -- guests.blend <repo>/assets/chars/blenderfilesmodular`: cuts the two files out of `guests.blend`,
+  adding what the crowd doesn't have (the deepest skin tone for women), with one hijab and one pashmina to colour.
+  Re-running it overwrites hand edits in the modular files, so after editing them only run the export.
+- `blender -b -P export_modular.py -- <repo>/assets/chars/blenderfilesmodular <repo>/assets/chars`: writes `avatar_female.glb`,
+  `avatar_male.glb` and `avatar.json` (each choice's id, label and colour dot, and the defaults).
+
+Three more scripts add to the modular files in place (each can be run again: it replaces what it added before). Run them after
+`build_modular.py`, then export:
+
+- `python peci_textures.py tex`, then `blender -b -P add_peci.py -- <repo>/assets/chars/blenderfilesmodular/male.blend tex`: a Hat
+  collection for the men (songkok with a gold embroidered band, a plain one, and peci rajut in four colours), fitted round the
+  head and every hairstyle above the ears. Hair that would poke through gets a shape key (`Tuck_peci`, `Tuck_rajut`) that the
+  page turns on while that cap is worn.
+- `blender -b -P add_suits.py -- <repo>/assets/chars/blenderfilesmodular`: blazers over a plain V-neck tee for both genders (the
+  pack's jacket with its shirt and collar taken out; the tee is cut from the body's own chest; the women's blazer is refitted
+  to the female body).
+- `python batik_textures.py tex`, then `blender -b -P add_batik.py -- <repo>/assets/chars/blenderfilesmodular tex`: more batik
+  (mega mendung, truntum, parang, kawung, sidomukti, buketan) on men's long- and short-sleeved shirts, women's blouses and long skirts.
+
+The hijab and the pashmina are one model each (`Hijab_basic`, `Pashmina_basic`) that the guest colours in the creator, from
+swatches or a colour wheel. Their custom properties `tint` (the starting colour) and `colors` (the swatches, comma-separated) go
+into avatar.json; any mesh given a `tint` becomes colourable the same way. `tint_hijabs.py` turned the earlier one-model-per-colour
+file into this (`blender -b -P tint_hijabs.py -- .../female.blend`).
+
+The same goes for trousers, shoes and the peci rajut: `tint_parts.py` (run once, already done) made one model per shape
+(Celana bahan, Celana bersabuk, Pantofel, Sepatu, Sneakers, Peci rajut; Celana panjang, Kulot, Flat, Hak tinggi), the old
+colours becoming its swatches. On those, the material names say what takes the colour: `Tint.*` the picked colour,
+`TintDark.*` a darker shade of it (creases, the belt), `TintMap.*` the colour over its texture (the knit); anything else
+(the sneakers' white soles `Sole.*`, the gold buckle) stays as it is. A part with no `Tint*` material is coloured all over.
+
+Both modular files are now saved with Blender 5.2, which Blender 4.2 can't open: run these scripts with 5.2.
+
+To add a choice: in the modular file, duplicate a mesh inside its collection, keep it parented to Guest_Rig with its Armature
+modifier, recolour or reshape it, rename it (the name prefix, e.g. `Top_`, `Skirt_`, `Hijab_`, is how the page knows the slot
+when hiding the others; a `Skirt_` bottom also gets the skirt sitting poses), set `label`, and run the export.
+
+`split_guests.py` makes the per-guest files in `assets/chars/blenderfiles/` (one per crowd outfit; also not in git).
