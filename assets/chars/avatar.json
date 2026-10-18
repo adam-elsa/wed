@@ -45,44 +45,40 @@
    ],
    "Hijab": [
     {
-     "id": "Hijab_beige",
-     "label": "Hijab krem",
-     "swatch": "#c49f7c"
+     "id": "Hijab_basic",
+     "label": "Hijab",
+     "swatch": "#c49f7c",
+     "tint": "#c49f7c",
+     "colors": [
+      "#c49f7c",
+      "#eeebe4",
+      "#1f1d1f",
+      "#2b3653",
+      "#93a184",
+      "#c08085",
+      "#8a6a55",
+      "#a99ab8",
+      "#7a2e3a",
+      "#3f5e4a"
+     ]
     },
     {
-     "id": "Hijab_black",
-     "label": "Hijab hitam",
-     "swatch": "#1f1d1f"
-    },
-    {
-     "id": "Hijab_navy",
-     "label": "Hijab navy",
-     "swatch": "#2b3653"
-    },
-    {
-     "id": "Hijab_sage",
-     "label": "Hijab sage",
-     "swatch": "#93a184"
-    },
-    {
-     "id": "Hijab_white",
-     "label": "Hijab putih",
-     "swatch": "#f0e7e4"
-    },
-    {
-     "id": "Pashmina_pink",
-     "label": "Pashmina dusty pink",
-     "swatch": "#c08085"
-    },
-    {
-     "id": "Pashmina_mocha",
-     "label": "Pashmina mocca",
-     "swatch": "#8a6a55"
-    },
-    {
-     "id": "Pashmina_lilac",
-     "label": "Pashmina lilac",
-     "swatch": "#a99ab8"
+     "id": "Pashmina_basic",
+     "label": "Pashmina",
+     "swatch": "#c08085",
+     "tint": "#c08085",
+     "colors": [
+      "#c49f7c",
+      "#eeebe4",
+      "#1f1d1f",
+      "#2b3653",
+      "#93a184",
+      "#c08085",
+      "#8a6a55",
+      "#a99ab8",
+      "#7a2e3a",
+      "#3f5e4a"
+     ]
     }
    ],
    "Top": [
@@ -226,7 +222,7 @@
    "Skin": "Body_F_light",
    "Face": "Face_F",
    "Hair": "Hair_F_bob",
-   "Hijab": "Hijab_beige",
+   "Hijab": "Hijab_basic",
    "Top": "Top_kebaya",
    "Bottom": "Skirt_batik_maroon",
    "Shoes": "Heels_cream"

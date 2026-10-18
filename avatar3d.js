@@ -4,7 +4,9 @@
 //
 // A look is { gender: 'female' | 'male', parts: { Skin, Head, Hat, Top, Bottom, Shoes } }: Head is a
 // hair or (for women) a hijab; Hat is a peci (men) or null. A peci switches on its hair's tuck shape
-// key, which keeps the hair under the cap. The creator (creator3d.js) makes one; the venue keeps it in
+// key, which keeps the hair under the cap. A part with a `tint` in avatar.json (the hijab, the
+// pashmina) is painted whatever colour the guest picked: look.colors[slot] as #rrggbb, else its tint.
+// The creator (creator3d.js) makes one; the venue keeps it in
 // localStorage (LOOK_KEY) for whatever walks the guest about.
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -32,9 +34,16 @@ export function choices(M, gender, slot) {
   return [...(s.Hair || []).map((c) => ({ ...c, kind: 'hair' })), ...(s.Hijab || []).map((c) => ({ ...c, kind: 'hijab' }))];
 }
 
+// the chosen part of a slot, if it is one the guest colours
+export function tintable(M, gender, look, slot) {
+  const id = look.parts[slot];
+  return id ? choices(M, gender, slot).find((c) => c.id === id && c.tint) || null : null;
+}
+const HEX = /^#[0-9a-f]{6}$/i;
+
 export function defaultLook(M, gender) {
   const d = M[gender].default;
-  return { gender, parts: { Skin: d.Skin, Head: gender === 'female' ? d.Hijab || d.Hair : d.Hair, Hat: d.Hat || null, Top: d.Top, Bottom: d.Bottom, Shoes: d.Shoes } };
+  return { gender, colors: {}, parts: { Skin: d.Skin, Head: gender === 'female' ? d.Hijab || d.Hair : d.Hair, Hat: d.Hat || null, Top: d.Top, Bottom: d.Bottom, Shoes: d.Shoes } };
 }
 
 // a saved look, checked against what the parts files have now (anything gone falls back to the default)
@@ -45,6 +54,8 @@ export function tidyLook(M, look) {
     const id = look && look.parts && look.parts[slot];
     if (id && choices(M, gender, slot).some((c) => c.id === id)) out.parts[slot] = id;
     else if (OPTIONAL.has(slot) && look && look.gender === gender && look.parts && 'Hat' in look.parts && !id) out.parts[slot] = null;
+    const c = look && look.colors && look.colors[slot];
+    if (c && HEX.test(c) && tintable(M, gender, out, slot)) out.colors[slot] = c.toLowerCase();
   }
   return out;
 }
@@ -92,6 +103,22 @@ export function createAvatar(kit, M) {
     if (o.name && (o.isMesh || o.isGroup) && !o.isBone) parts[o.name] = parts[o.name] || o;
   });
   const faces = Object.keys(parts).filter((n) => /^Face_/.test(n));
+  // a coloured part gets plain materials of its own (no texture), so its colour can be anything
+  const painted = new Map();
+  const paint = (id, hex) => {
+    const node = parts[id];
+    if (!node) return;
+    if (!painted.has(id)) {
+      const mats = [];
+      node.traverse((o) => {
+        if (!o.isMesh) return;
+        o.material = new THREE.MeshLambertMaterial({ side: THREE.DoubleSide });
+        mats.push(o.material);
+      });
+      painted.set(id, mats);
+    }
+    for (const m of painted.get(id)) m.color.set(hex);
+  };
   const mixer = new THREE.AnimationMixer(root);
   let action = null;
   let look = null;
@@ -107,6 +134,12 @@ export function createAvatar(kit, M) {
       // under a peci, the hair is tucked in (its shape key for that kind of cap)
       const hat = M && next.parts.Hat && (M[next.gender].slots.Hat || []).find((c) => c.id === next.parts.Hat);
       const tuck = hat && hat.tuck;
+      if (M) {
+        for (const slot of SLOTS) {
+          const t = tintable(M, next.gender, next, slot);
+          if (t) paint(t.id, (next.colors && next.colors[slot]) || t.tint);
+        }
+      }
       const hair = parts[next.parts.Head];
       if (hair) hair.traverse((o) => {
         if (!o.morphTargetDictionary) return;
@@ -123,6 +156,10 @@ export function createAvatar(kit, M) {
       action = next;
     },
     update(dt) { mixer.update(dt); },
-    dispose() { mixer.stopAllAction(); root.removeFromParent(); },
+    dispose() {
+      mixer.stopAllAction();
+      root.removeFromParent();
+      for (const mats of painted.values()) mats.forEach((m) => m.dispose());
+    },
   };
 }

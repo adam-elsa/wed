@@ -1,9 +1,10 @@
 // Making your own character, in the lobby before walking about: gender (and skin tone), then the
 // hair or a hijab, the top, the bottom and the shoes, one step at a time, with the character
 // turning on its own little stage beside the choices (drag to turn it yourself).
+// A hijab or a pashmina is one model in any colour: ready-made swatches, or a colour wheel.
 // openCreator() resolves with the finished look, or null if the guest backs out of the first step.
 import * as THREE from 'three';
-import { loadManifest, loadKit, createAvatar, choices, defaultLook, tidyLook, savedLook, saveLook } from './avatar3d.js';
+import { loadManifest, loadKit, createAvatar, choices, defaultLook, tidyLook, savedLook, saveLook, tintable, SLOTS } from './avatar3d.js';
 
 const STEPS = [
   { key: 'gender', title: 'Kamu datang sebagai', short: 'Gender' },
@@ -148,9 +149,110 @@ export function openCreator() {
         b.appendChild(dot);
       }
       b.appendChild(document.createTextNode(label));
-      b.addEventListener('click', () => { pick(); idle = 0; render(); refresh(); });
+      b.addEventListener('click', () => { pick(); idle = 0; render(true); refresh(); });
       return b;
     }
+    // ---------- colouring a part: swatches, and a wheel (hue round it, strength out from the middle)
+    // with a brightness slider beside it. Dragging repaints the character as it goes.
+    function colorPicker(slot, item) {
+      const look = looks[gender];
+      const now = () => look.colors[slot] || item.tint;
+      const box = document.createElement('div');
+      box.className = 'creator-colors';
+      const row = document.createElement('div');
+      row.className = 'creator-swatches';
+      const swatches = (item.colors || []).map((hex) => {
+        const b = document.createElement('button');
+        b.type = 'button';
+        b.className = 'creator-swatch';
+        b.style.background = hex;
+        b.setAttribute('aria-label', hex);
+        b.addEventListener('click', () => set(hex, true));
+        row.appendChild(b);
+        return { b, hex };
+      });
+      box.appendChild(row);
+      const wheelWrap = document.createElement('div');
+      wheelWrap.className = 'creator-wheel';
+      const wheel = document.createElement('canvas');
+      wheel.width = wheel.height = 300;
+      wheel.setAttribute('aria-label', 'Roda warna');
+      const mark = document.createElement('span');
+      mark.className = 'creator-wheel-mark';
+      wheelWrap.append(wheel, mark);
+      const side = document.createElement('div');
+      side.className = 'creator-wheel-side';
+      const chip = document.createElement('span');
+      chip.className = 'creator-chip';
+      const light = document.createElement('input');
+      light.type = 'range'; light.min = '8'; light.max = '100';
+      light.className = 'creator-light';
+      const lightLabel = document.createElement('label');
+      lightLabel.className = 'creator-light-label';
+      lightLabel.textContent = 'Terang';
+      lightLabel.appendChild(light);
+      side.append(chip, lightLabel);
+      const wheelRow = document.createElement('div');
+      wheelRow.className = 'creator-wheel-row';
+      wheelRow.append(wheelWrap, side);
+      box.appendChild(wheelRow);
+
+      let [h, sat, val] = toHsv(now());
+      function drawWheel() {
+        const g = wheel.getContext('2d'), n = wheel.width, r = n / 2;
+        const img = g.createImageData(n, n), d = img.data;
+        for (let y = 0; y < n; y++) {
+          for (let x = 0; x < n; x++) {
+            const dx = x - r, dy = y - r, dist = Math.hypot(dx, dy) / r, i = (y * n + x) * 4;
+            if (dist > 1) { d[i + 3] = 0; continue; }
+            const [R, G, B] = fromHsv(((Math.atan2(dy, dx) / (2 * Math.PI)) + 1) % 1, dist, val);
+            d[i] = R; d[i + 1] = G; d[i + 2] = B;
+            d[i + 3] = dist > 0.985 ? Math.round(((1 - dist) / 0.015) * 255) : 255; // a soft edge
+          }
+        }
+        g.putImageData(img, 0, 0);
+      }
+      function show() {
+        const hex = now();
+        chip.style.background = hex;
+        chip.textContent = hex.toUpperCase();
+        chip.style.color = val > 0.6 && sat < 0.5 ? '#211a10' : '#f2ece1';
+        light.value = String(Math.round(val * 100));
+        const a = h * 2 * Math.PI;
+        mark.style.left = `${50 + Math.cos(a) * sat * 50}%`;
+        mark.style.top = `${50 + Math.sin(a) * sat * 50}%`;
+        mark.style.background = hex;
+        for (const w of swatches) w.b.setAttribute('aria-pressed', w.hex.toLowerCase() === hex.toLowerCase() ? 'true' : 'false');
+        // the chosen hijab's own dot follows along
+        const dot = optsEl.querySelector('.creator-opt[aria-pressed="true"][data-tint] .creator-dot');
+        if (dot) dot.style.background = hex;
+      }
+      function set(hex, fromSwatch) {
+        look.colors[slot] = hex.toLowerCase();
+        if (fromSwatch) { [h, sat, val] = toHsv(hex); drawWheel(); }
+        idle = 0;
+        show();
+        if (shown && shown.g === gender) shown.a.wear(look);
+      }
+      const pickAt = (e) => {
+        const r = wheel.getBoundingClientRect();
+        const dx = ((e.clientX - r.left) / r.width) * 2 - 1, dy = ((e.clientY - r.top) / r.height) * 2 - 1;
+        h = ((Math.atan2(dy, dx) / (2 * Math.PI)) + 1) % 1;
+        sat = Math.min(1, Math.hypot(dx, dy));
+        set(toHex(fromHsv(h, sat, val)));
+      };
+      let drag = null;
+      wheel.addEventListener('pointerdown', (e) => { drag = e.pointerId; wheel.setPointerCapture(e.pointerId); pickAt(e); });
+      wheel.addEventListener('pointermove', (e) => { if (drag === e.pointerId) pickAt(e); });
+      const stop = () => { drag = null; };
+      wheel.addEventListener('pointerup', stop);
+      wheel.addEventListener('pointercancel', stop);
+      light.addEventListener('input', () => { val = Number(light.value) / 100; drawWheel(); set(toHex(fromHsv(h, sat, val))); });
+      drawWheel();
+      show();
+      return box;
+    }
+
     function group(name, items) {
       if (name) {
         const h = document.createElement('p');
@@ -161,9 +263,10 @@ export function openCreator() {
       const wrap = document.createElement('div');
       wrap.className = 'creator-grid';
       items.forEach((i) => wrap.appendChild(i));
+      if (items.length === 1 && items[0].classList.contains('creator-colors')) wrap.className = 'creator-colors-wrap';
       optsEl.appendChild(wrap);
     }
-    function render() {
+    function render(keepScroll) {
       const s = STEPS[step];
       stepsEl.innerHTML = '';
       STEPS.forEach((t, i) => {
@@ -184,8 +287,15 @@ export function openCreator() {
         group('Warna kulit', choices(M, gender, 'Skin').map((c) => option(c.label, c.swatch, look.parts.Skin === c.id, () => { look.parts.Skin = c.id; })));
       } else if (s.key === 'Head' && gender === 'female') {
         const all = choices(M, gender, 'Head');
-        const pick = (c) => option(c.label, c.swatch, look.parts.Head === c.id, () => { look.parts.Head = c.id; });
+        const pick = (c) => {
+          const on = look.parts.Head === c.id;
+          const b = option(c.label, (on && look.colors.Head) || c.swatch, on, () => { look.parts.Head = c.id; });
+          if (c.tint) b.dataset.tint = '1';
+          return b;
+        };
         group('Hijab', all.filter((c) => c.kind === 'hijab').map(pick));
+        const t = tintable(M, gender, look, 'Head');
+        if (t) group('Warna ' + t.label.toLowerCase(), [colorPicker('Head', t)]);
         group('Rambut', all.filter((c) => c.kind === 'hair').map(pick));
       } else if (s.key === 'Head') {
         // men: the hair, then a peci (or none) over it
@@ -200,7 +310,7 @@ export function openCreator() {
       }
       back.textContent = step === 0 ? 'Batal' : 'Kembali';
       next.textContent = step === STEPS.length - 1 ? 'Selesai' : 'Lanjut';
-      optsEl.scrollTop = 0;
+      if (!keepScroll) optsEl.scrollTop = 0;
     }
     function close(result) {
       closed = true;
@@ -227,7 +337,10 @@ export function openCreator() {
     }
     function onNext() {
       if (step < STEPS.length - 1) { step++; render(); faceFront(); return; }
-      const look = { gender, parts: { ...looks[gender].parts } };
+      const made = looks[gender];
+      const colors = {};
+      for (const slot of SLOTS) if (made.colors[slot] && tintable(M, gender, made, slot)) colors[slot] = made.colors[slot];
+      const look = { gender, parts: { ...made.parts }, colors };
       saveLook(look);
       window.dispatchEvent(new CustomEvent('character:made', { detail: look }));
       // a little celebration before handing back to the lobby
@@ -250,3 +363,17 @@ export function openCreator() {
     avatarFor(gender === 'female' ? 'male' : 'female').catch(() => {});
   }));
 }
+
+// ---------- colour helpers: #rrggbb <-> hue, saturation, value (each 0..1)
+function toHsv(hex) {
+  const n = parseInt(hex.slice(1), 16), r = ((n >> 16) & 255) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255;
+  const max = Math.max(r, g, b), min = Math.min(r, g, b), d = max - min;
+  let h = 0;
+  if (d) h = max === r ? ((g - b) / d + 6) % 6 : max === g ? (b - r) / d + 2 : (r - g) / d + 4;
+  return [h / 6, max ? d / max : 0, max];
+}
+function fromHsv(h, s, v) {
+  const f = (n) => { const k = (n + h * 6) % 6; return Math.round((v - v * s * Math.max(0, Math.min(k, 4 - k, 1))) * 255); };
+  return [f(5), f(3), f(1)];
+}
+function toHex([r, g, b]) { return '#' + [r, g, b].map((x) => x.toString(16).padStart(2, '0')).join(''); }

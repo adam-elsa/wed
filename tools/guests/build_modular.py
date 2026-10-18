@@ -9,7 +9,7 @@
 # export_modular.py turns the two files into assets/chars/avatar_*.glb and avatar.json.
 #
 # On the way, a few choices the guest crowd doesn't have are added: the deepest skin tone for the
-# women, and more colours of hijab and pashmina.
+# women. The hijab and the pashmina are one model each, coloured in the creator.
 import bpy, sys, os, functools, numpy as np
 
 src, out = sys.argv[sys.argv.index('--') + 1:][:2]
@@ -91,15 +91,10 @@ for p in fd.data.polygons:
     c = face_rgb(fd, p)
     for a, b in ((SKIN["med"], SKIN["deep"]), (sh(SKIN["med"], 0.92), sh(SKIN["deep"], 0.92))):
         if np.abs(c - hexrgb(a)).max() < 0.05: paint(fd, p, b); break
-HIJAB = {"Hijab_black": "#1f1d1f", "Hijab_navy": "#2b3653", "Hijab_sage": "#93a184", "Hijab_white": "#eeebe4"}
-for name, col in HIJAB.items():
-    o = dup(bpy.data.objects["Hijab_beige"], name)
-    for p in o.data.polygons: paint(o, p, col)
-PASH = {"Pashmina_mocha": "#8a6a55", "Pashmina_lilac": "#a99ab8"}
-for name, col in PASH.items():
-    o = dup(bpy.data.objects["Hijab_pink"], name)
-    for p in o.data.polygons: paint(o, p, col)
-bpy.data.objects["Hijab_pink"].name = "Pashmina_pink"
+# one hijab and one pashmina, coloured in the creator (see tint_hijabs.py, which does the same to an existing file)
+TINT_COLORS = "#c49f7c,#eeebe4,#1f1d1f,#2b3653,#93a184,#c08085,#8a6a55,#a99ab8,#7a2e3a,#3f5e4a"
+for old, new, tint in (("Hijab_beige", "Hijab_basic", "#c49f7c"), ("Hijab_pink", "Pashmina_basic", "#c08085")):
+    o = bpy.data.objects[old]; o.name = new; o.data.name = new; o["tint"] = tint; o["colors"] = TINT_COLORS
 PAL.pack()
 
 # ---------- which slot, which gender, and what the guest sees it called
@@ -107,8 +102,7 @@ LABELS = {
     "Body_F_light": "Kuning langsat", "Body_F_med": "Sawo matang", "Body_F_deep": "Cokelat",
     "Body_M_light": "Kuning langsat", "Body_M_med": "Sawo matang", "Body_M_deep": "Cokelat",
     "Hair_F_bob": "Bob", "Hair_F_bob_brown": "Bob cokelat", "Hair_F_long": "Panjang hitam",
-    "Hijab_beige": "Hijab krem", "Hijab_black": "Hijab hitam", "Hijab_navy": "Hijab navy", "Hijab_sage": "Hijab sage", "Hijab_white": "Hijab putih",
-    "Pashmina_pink": "Pashmina dusty pink", "Pashmina_mocha": "Pashmina mocca", "Pashmina_lilac": "Pashmina lilac",
+    "Hijab_basic": "Hijab", "Pashmina_basic": "Pashmina",
     "Top_kebaya": "Kebaya bordir", "Top_white_b": "Blus putih", "Top_white": "Kemeja putih", "Top_vest": "Rompi & kemeja", "Top_vest_black": "Rompi hitam",
     "Skirt_batik_maroon": "Rok batik merah marun", "Skirt_batik_kawung": "Rok batik kawung", "Skirt_mini_check": "Rok pendek kotak",
     "Pants_F_wide_white": "Kulot putih", "Pants_F_black": "Celana hitam",
@@ -129,7 +123,7 @@ def slot(n):
 def female(n):
     return "_F" in n or n.startswith(("Hijab", "Pashmina", "Skirt", "Heels")) or n in ("Top_kebaya", "Top_white", "Top_white_b", "Top_vest", "Top_vest_black")
 SLOTS = {"female": ["Skin", "Face", "Hair", "Hijab", "Top", "Bottom", "Shoes"], "male": ["Skin", "Face", "Hair", "Top", "Bottom", "Shoes"]}
-DEFAULT = {"female": ["Body_F_light", "Face_F", "Hijab_beige", "Top_kebaya", "Skirt_batik_maroon", "Heels_cream"],
+DEFAULT = {"female": ["Body_F_light", "Face_F", "Hijab_basic", "Top_kebaya", "Skirt_batik_maroon", "Heels_cream"],
            "male": ["Body_M_med", "Face_M", "Hair_M_black", "Top_batik_long", "Pants_M_cream", "Shoes_M_brown"]}
 order = list(LABELS)
 for o in bpy.data.objects:

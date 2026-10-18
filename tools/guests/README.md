@@ -37,7 +37,7 @@ choice; its `label` custom property is the name the guest sees and `order` sorts
 collection is the default. Any top goes with any bottom (checked for clipping at the waist).
 
 - `blender -b -P build_modular.py -- guests.blend <repo>/assets/chars/blenderfilesmodular`: cuts the two files out of `guests.blend`,
-  adding what the crowd doesn't have (the deepest skin tone for women; hijabs in black, navy, sage, white; pashminas in mocha, lilac).
+  adding what the crowd doesn't have (the deepest skin tone for women), with one hijab and one pashmina to colour.
   Re-running it overwrites hand edits in the modular files, so after editing them only run the export.
 - `blender -b -P export_modular.py -- <repo>/assets/chars/blenderfilesmodular <repo>/assets/chars`: writes `avatar_female.glb`,
   `avatar_male.glb` and `avatar.json` (each choice's id, label and colour dot, and the defaults).
@@ -54,6 +54,13 @@ Three more scripts add to the modular files in place (each can be run again: it 
   to the female body).
 - `python batik_textures.py tex`, then `blender -b -P add_batik.py -- <repo>/assets/chars/blenderfilesmodular tex`: more batik
   (mega mendung, truntum, parang, kawung, sidomukti, buketan) on men's long- and short-sleeved shirts, women's blouses and long skirts.
+
+The hijab and the pashmina are one model each (`Hijab_basic`, `Pashmina_basic`) that the guest colours in the creator, from
+swatches or a colour wheel. Their custom properties `tint` (the starting colour) and `colors` (the swatches, comma-separated) go
+into avatar.json; any mesh given a `tint` becomes colourable the same way. `tint_hijabs.py` turned the earlier one-model-per-colour
+file into this (`blender -b -P tint_hijabs.py -- .../female.blend`).
+
+female.blend is now saved with Blender 5.2, which Blender 4.2 can't open: run these scripts with 5.2.
 
 To add a choice: in the modular file, duplicate a mesh inside its collection, keep it parented to Guest_Rig with its Armature
 modifier, recolour or reshape it, rename it (the name prefix, e.g. `Top_`, `Skirt_`, `Hijab_`, is how the page knows the slot

@@ -45,6 +45,10 @@ for g in ("female", "male"):
         for c in slots[s]:
             t = TUCK.get(c["id"].split("_")[0])
             if s == "Hat" and t: c["tuck"] = t
+        for c, o in zip(slots[s], obs):  # coloured by the guest: the colour it starts in, and the ready-made ones
+            if o.get("tint"):
+                c["tint"] = c["swatch"] = o["tint"]
+                c["colors"] = [x.strip() for x in str(o.get("colors", "")).split(",") if x.strip()]
         shown = [o for o in obs if not o.hide_get() and not o.hide_render]
         default[s] = shown[0].name if shown else None if s in OPTIONAL else obs[0].name
     for o in bpy.data.objects:
