@@ -756,6 +756,8 @@ export function createLobby() {
     goRest(camera, dur = 1.4) { glide(camera, null, dur); },
     roam(camera) { startRoam(camera); },
     roaming() { return roam.on; },
+    // the room's walls, floor to ceiling (for the third-person camera to stay inside)
+    bounds: { ...BOUNDS, h: H },
     // where the guest is standing and facing, for the walk through to the ballroom
     where() { return { x: roam.pos.x, z: roam.pos.z, yaw: roam.yaw }; },
     // Into the ballroom: face its door (returns how long the move takes, in seconds)...

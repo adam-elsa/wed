@@ -739,6 +739,28 @@ body.invitation-overlay .gate{pointer-events:none;}
   color:var(--gold-soft);
   cursor:pointer;
 }
+/* first or third person: the same pill, top left */
+.view-toggle{
+  position:fixed;
+  top:14px;
+  left:max(14px, env(safe-area-inset-left));
+  z-index:58;
+  font-family:var(--font-sans);
+  font-size:10.5px;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  padding:8px 13px;
+  border-radius:999px;
+  border:1px solid rgba(226,199,138,0.45);
+  background:rgba(21,17,14,0.72);
+  backdrop-filter:blur(4px);
+  color:var(--gold-soft);
+  cursor:pointer;
+}
+.view-toggle[aria-pressed="true"]{border-color:var(--gold);background:rgba(60,45,22,0.8);}
+.view-toggle, .view-toggle[hidden]{display:none;}
+.gate.in-lobby .view-toggle:not([hidden]), .gate.in-venue .view-toggle:not([hidden]){display:block;}
+body.is-creating .view-toggle{display:none !important;}
 /* only while a room is being walked: not over the opening, nor the 2D invitation */
 .motion-toggle, .motion-toggle[hidden]{display:none;}
 .gate.in-lobby .motion-toggle:not([hidden]), .gate.in-venue .motion-toggle:not([hidden]){display:block;}
