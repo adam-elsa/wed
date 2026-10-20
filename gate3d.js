@@ -896,6 +896,9 @@ function init() {
 
   function setView(next) {
     view = next;
+    // a card is opening: the mouse is for its name field and buttons now, not for looking about
+    // (in WASD mode it was locked to the view, and reaching for the card would have closed it)
+    if (next.name !== 'rest') controls.unlock();
     if (!lobbyUi) return;
     lobbyUi.classList.toggle('is-focused', next.name !== 'rest');
     lobbyUi.classList.toggle('is-story', next.name === 'story');
