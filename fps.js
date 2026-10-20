@@ -64,6 +64,7 @@ export function createControls(canvas, stick) {
   let stickId = null, lookId = null;
   let lookAt = null;
   let locked = false;
+  let releasing = false;    // the lock is being let go: the mouse is on its way to the page, not looking
   let gyro = false;
   let gyroAt = 0;
 
@@ -141,13 +142,14 @@ export function createControls(canvas, stick) {
 
   // ---- mouse look, once the canvas is clicked (computers) ----
   function onMouseMove(e) {
-    if (!locked) return;
+    if (!locked || releasing) return;
     look.yaw -= e.movementX * MOUSE;
     look.pitch -= e.movementY * MOUSE;
     if (e.movementX || e.movementY) touched = true;
   }
   function onLockChange() {
     locked = document.pointerLockElement === canvas;
+    if (!locked) releasing = false;
     canvas.classList.toggle('is-locked', locked);
   }
   document.addEventListener('pointerlockchange', onLockChange);
@@ -253,6 +255,15 @@ export function createControls(canvas, stick) {
       if (r && r.catch) r.catch(() => {});   // denied (or the document lost focus): mouse look just stays off
     },
     locked: () => locked,
+    // give the mouse back to the page (a card with a form or buttons has opened), without the
+    // movement on its way there counting as looking around
+    unlock() {
+      look.yaw = look.pitch = 0;
+      touched = false;
+      if (!locked) return;
+      releasing = true;
+      document.exitPointerLock();
+    },
     // Looking around with the phone's own movement. iOS only hands over the sensor from
     // inside a tap, so this is called from the button the guest presses to turn it on.
     setGyro(on) {
