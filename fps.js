@@ -354,7 +354,7 @@ export function buildBlockers(scene, { w, d, skip } = {}) {
   // bigger than what they stand for — the one around the gazebo spans the whole aisle.
   const seen = (o) => { for (let n = o; n; n = n.parent) if (!n.visible) return false; return true; };
   scene.traverse((o) => {
-    if (!o.isMesh || o.userData.noBlock || !seen(o) || (skip && skip(o))) return; // noBlock: a guest strolling about
+    if (!o.isMesh || o.userData.noBlock || !seen(o) || (skip && skip(o))) return; // noBlock: the other guests, your own character
     if (!o.geometry.boundingBox) o.geometry.computeBoundingBox();
     // an instanced mesh's own box covers every copy at once (every wall slat as one
     // slab across the room), so take each instance's box on its own
@@ -378,6 +378,16 @@ export function buildBlockers(scene, { w, d, skip } = {}) {
       if (box.max.y - box.min.y < FLAT) continue;                    // a rug, a step, a tabletop edge
       const bw = box.max.x - box.min.x, bd = box.max.z - box.min.z;
       if (bw * bd > area * HUGE) continue;                           // the floor or the ceiling
+      // Something round (a table, a pillar) blocks as a rough circle, not its square box, whose
+      // corners reach 40% past its edge and pinched the way between a table and whoever stands
+      // by it: three overlapping boxes, an octagon reaching about 10% past the edge at most.
+      if (!o.isInstancedMesh && o.geometry.type === 'CylinderGeometry' && bw > 0.5 && Math.abs(bw - bd) < 0.15 * bw) {
+        const cx = (box.min.x + box.max.x) / 2, cz = (box.min.z + box.max.z) / 2, R = bw / 2;
+        for (const [hx, hz] of [[R, 0.45 * R], [0.45 * R, R], [0.78 * R, 0.78 * R]]) {
+          out.push({ x0: cx - hx, x1: cx + hx, z0: cz - hz, z1: cz + hz, round: true });
+        }
+        continue;
+      }
       out.push({ x0: box.min.x, x1: box.max.x, z0: box.min.z, z1: box.max.z });
     }
   });
@@ -392,8 +402,11 @@ const MERGED_MAX = 4.5; // m² of floor
 function merge(rects) {
   const out = [];
   for (const r of rects.sort((a, b) => a.x0 - b.x0)) {
+    // a round thing's boxes stay as they are: merged, they would be its square again
+    if (r.round) { out.push({ ...r }); continue; }
     let hit = null;
     for (const o of out) {
+      if (o.round) continue;
       if (r.x0 > o.x1 + 0.04 || r.x1 < o.x0 - 0.04 || r.z0 > o.z1 + 0.04 || r.z1 < o.z0 - 0.04) continue;
       const w = Math.max(o.x1, r.x1) - Math.min(o.x0, r.x0);
       const d = Math.max(o.z1, r.z1) - Math.min(o.z0, r.z0);
@@ -414,8 +427,11 @@ function merge(rects) {
 const blocked = (x, z, rects, r) => rects.some((b) => x > b.x0 - r && x < b.x1 + r && z > b.z0 - r && z < b.z1 + r);
 
 // Walk `pos` by (dx, dz), stopping at the furniture but sliding along it rather than
-// sticking — try the whole step, then each axis on its own.
-export function slide(pos, dx, dz, rects, bounds, r = 0.42) {
+// sticking — try the whole step, then each axis on its own. `r` is how close the guest gets
+// to anything: about a person's half-width, and no less than the camera's near plane (0.3),
+// so first person never sees into a chair. (It was 0.42, which shut the gaps between the
+// chairs of neighbouring tables in the ballroom; the lobby, whose camera starts at 0.5, keeps it.)
+export function slide(pos, dx, dz, rects, bounds, r = 0.3) {
   const inside = blocked(pos.x, pos.z, rects, r);
   const fit = (x, z) => (
     x > bounds.x0 + r && x < bounds.x1 - r && z > bounds.z0 + r && z < bounds.z1 - r &&

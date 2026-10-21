@@ -711,7 +711,7 @@ export function createBallroom() {
   crowd.push({ x: 3.7, z: -11.4, yaw: Math.PI, pose: 'stand', anim: 'Clap' }, { x: -3.7, z: -11.6, yaw: Math.PI, pose: 'stand', anim: 'Happy' }); // either side of the stage, out of the way of the view
   crowd.push({ x: -8.9, z: 1.4, to: [-8.9, 9.4], pose: 'walk' }, { x: 3.8, z: -1.6, to: [10.2, -1.6], pose: 'walk' });
   const guests = addGuests(scene, crowd, 11);
-  guests.ready.then(() => { blockers = null; }); // the standing guests are now something to walk round
+  guests.ready.then(() => { blockers = null; }); // rebuilt once they're in (they don't block, but their meshes are new)
 
   // ---------- what can be clicked: a box around each spot's subject ----------
   const proxies = [];

@@ -741,7 +741,9 @@ function init() {
     if (!viewToggle) return;
     viewToggle.hidden = !tp.available();
     viewToggle.setAttribute('aria-pressed', tp.on() ? 'true' : 'false');
-    if (viewState) viewState.textContent = tp.on() ? 'Orang ketiga' : 'Orang pertama';
+    // a keyboard can switch with V; say so (a phone has only the button)
+    const key = isTouch ? '' : ' tekan "V"';
+    if (viewState) viewState.textContent = tp.on() ? `Orang ketiga / 3rd Person View${key}` : `Orang pertama / 1st Person View${key}`;
   }
   function setView3(on) {
     tp.set(on);

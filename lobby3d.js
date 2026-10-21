@@ -542,7 +542,7 @@ export function createLobby() {
     roam.vz += (wantZ - roam.vz) * k;
     if (Math.abs(roam.vx) > 1e-4 || Math.abs(roam.vz) > 1e-4) {
       if (!blockers) blockers = buildBlockers(scene, { w: W, d: D }); // rebuilt once the guests arrive
-      slide(roam.pos, roam.vx * dt, roam.vz * dt, blockers, BOUNDS);
+      slide(roam.pos, roam.vx * dt, roam.vz * dt, blockers, BOUNDS, 0.42); // the lobby's camera sees from 0.5 m: keep that clear
       roam.pos.y = EYE_H;
     }
   }

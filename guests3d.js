@@ -143,7 +143,11 @@ export function addGuests(scene, crowd, seed = 1) {
       const mesh = new THREE.SkinnedMesh(look.geo, look.mats);
       root.add(mesh);
       mesh.bind(new THREE.Skeleton(G.boneNames.map((n) => byName[n]), G.boneInverses), new THREE.Matrix4());
-      if (c.pose === 'walk') mesh.userData.noBlock = true; // moves about: not something to stop against
+      // The other guests aren't obstacles: you walk through them, as in most games of this kind.
+      // (Blocking by their bounds, the skeleton's T-pose with the arms out 1.4 m wide, shut the
+      // gaps between the tables; even a body-sized footprint left the way past a drinks table
+      // too tight.) The chairs the seated ones sit on still block.
+      mesh.userData.noBlock = true;
       root.position.set(c.x, c.y || 0, c.z);
       root.rotation.y = c.yaw || 0;
       const anim = c.anim || pickAnim(c.pose, look, rnd);
