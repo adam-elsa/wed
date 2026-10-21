@@ -354,13 +354,13 @@ export function buildBlockers(scene, { w, d, skip } = {}) {
   // bigger than what they stand for — the one around the gazebo spans the whole aisle.
   const seen = (o) => { for (let n = o; n; n = n.parent) if (!n.visible) return false; return true; };
   scene.traverse((o) => {
-    if (!o.isMesh || o.userData.noBlock || !seen(o) || (skip && skip(o))) return; // noBlock: a guest strolling about
+    if (!o.isMesh || o.userData.noBlock || !seen(o) || (skip && skip(o))) return; // noBlock: the other guests, your own character
     if (!o.geometry.boundingBox) o.geometry.computeBoundingBox();
     // an instanced mesh's own box covers every copy at once (every wall slat as one
     // slab across the room), so take each instance's box on its own
     const n = o.isInstancedMesh ? o.count : 1;
     for (let i = 0; i < n; i++) {
-      geoBox.copy(o.userData.blockBox || o.geometry.boundingBox); // blockBox: a guest's body, not their T-pose
+      geoBox.copy(o.geometry.boundingBox);
       if (o.isInstancedMesh) {
         o.getMatrixAt(i, m);
         m.premultiply(o.matrixWorld);
@@ -378,6 +378,16 @@ export function buildBlockers(scene, { w, d, skip } = {}) {
       if (box.max.y - box.min.y < FLAT) continue;                    // a rug, a step, a tabletop edge
       const bw = box.max.x - box.min.x, bd = box.max.z - box.min.z;
       if (bw * bd > area * HUGE) continue;                           // the floor or the ceiling
+      // Something round (a table, a pillar) blocks as a rough circle, not its square box, whose
+      // corners reach 40% past its edge and pinched the way between a table and whoever stands
+      // by it: three overlapping boxes, an octagon reaching about 10% past the edge at most.
+      if (!o.isInstancedMesh && o.geometry.type === 'CylinderGeometry' && bw > 0.5 && Math.abs(bw - bd) < 0.15 * bw) {
+        const cx = (box.min.x + box.max.x) / 2, cz = (box.min.z + box.max.z) / 2, R = bw / 2;
+        for (const [hx, hz] of [[R, 0.45 * R], [0.45 * R, R], [0.78 * R, 0.78 * R]]) {
+          out.push({ x0: cx - hx, x1: cx + hx, z0: cz - hz, z1: cz + hz, round: true });
+        }
+        continue;
+      }
       out.push({ x0: box.min.x, x1: box.max.x, z0: box.min.z, z1: box.max.z });
     }
   });
@@ -392,8 +402,11 @@ const MERGED_MAX = 4.5; // m² of floor
 function merge(rects) {
   const out = [];
   for (const r of rects.sort((a, b) => a.x0 - b.x0)) {
+    // a round thing's boxes stay as they are: merged, they would be its square again
+    if (r.round) { out.push({ ...r }); continue; }
     let hit = null;
     for (const o of out) {
+      if (o.round) continue;
       if (r.x0 > o.x1 + 0.04 || r.x1 < o.x0 - 0.04 || r.z0 > o.z1 + 0.04 || r.z1 < o.z0 - 0.04) continue;
       const w = Math.max(o.x1, r.x1) - Math.min(o.x0, r.x0);
       const d = Math.max(o.z1, r.z1) - Math.min(o.z0, r.z0);
