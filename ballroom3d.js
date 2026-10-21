@@ -904,6 +904,8 @@ export function createBallroom() {
     },
     go,
     spot() { return nav.spot; },
+    // the room's walls, floor to ceiling (for the third-person camera to stay inside)
+    bounds: { ...BOUNDS, h: H },
     arrived() { return !nav.walk; },
     // look around: dx, dy as fractions of the screen dragged across
     drag(camera, dx, dy) {

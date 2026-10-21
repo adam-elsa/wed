@@ -7,6 +7,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { createLobby } from './lobby3d.js';
 import { createBallroom, planSvg, SPOTS } from './ballroom3d.js';
 import { createControls, hasGyro } from './fps.js';
+import { createThirdPerson } from './thirdperson3d.js';
 
 const gate = document.getElementById('gate');
 const canvas = document.getElementById('gateCanvas');
@@ -414,6 +415,7 @@ function init() {
   const isTouch = window.matchMedia('(pointer: coarse)').matches;
   // walking around the lobby and the ballroom: thumbstick + drag on phones, WASD + mouse on computers
   const controls = createControls(canvas, document.getElementById('stick'));
+  const tp = createThirdPerson();
   const crosshair = document.getElementById('crosshair');
   const hint = document.getElementById('motionHint');
   if (isTouch && typeof DeviceOrientationEvent !== 'undefined') {
@@ -473,6 +475,7 @@ function init() {
   function step() {
     const dt = Math.min(clock.getDelta(), 0.05);
     const t = clock.elapsedTime;
+    tp.restore(camera); // the rooms work from the guest's eyes; third person steps back after
 
     pointer.sx += (pointer.x - pointer.sx) * 0.05;
     pointer.sy += (pointer.y - pointer.sy) * 0.05;
@@ -518,6 +521,15 @@ function init() {
     }
     const driving = state === 'lobby' || state === 'venue';
     if (driving && controls.took()) takeWheel();
+    if (active === lobby.scene) lobby.update(camera, t, dt, pointer, state === 'lobby' ? controls : null);
+    else if (venue && active === venue.scene) venue.update(camera, t, dt, pointer, state === 'venue' ? controls : null);
+    // third person: the guest's character under their eyes, the camera behind it (not while the
+    // lobby has the camera on rails for a tour or a card, nor on the way through a door)
+    const inLobby = active === lobby.scene, inVenue = !!venue && active === venue.scene;
+    if (inLobby || inVenue) {
+      const show = (state === 'lobby' && lobby.roaming()) || state === 'venue';
+      tp.place(camera, active, inLobby ? lobby.bounds : venue.bounds, dt, show);
+    }
     if (crosshair) {
       const aiming = driving && controls.locked();
       crosshair.hidden = !aiming;
@@ -528,8 +540,6 @@ function init() {
         crosshair.classList.toggle('is-on', !!at);
       }
     }
-    if (active === lobby.scene) lobby.update(camera, t, dt, pointer, state === 'lobby' ? controls : null);
-    else if (venue && active === venue.scene) venue.update(camera, t, dt, pointer, state === 'venue' ? controls : null);
     if (state === 'lobby') tickLobby();
     else if (state === 'venue') tickVenue();
     renderer.render(active, camera);
@@ -696,28 +706,63 @@ function init() {
     }
     const make = document.getElementById('charMake');
     const skip = document.getElementById('charSkip');
-    const done = () => {
+    const done = (look) => {
       make.removeEventListener('click', onMake);
       skip.removeEventListener('click', onSkip);
       charAsk.hidden = true;
+      useLook(look);
       then();
     };
-    const onSkip = () => done();
+    const onSkip = () => done(made);
     const onMake = () => {
       charAsk.hidden = true;
       import('./creator3d.js')
         .then((m) => m.openCreator())
         .then((look) => {
-          if (look) done();
+          if (look) done(look);
           else charAsk.hidden = false; // backed out of the first step: choose again
         })
-        .catch((err) => { console.error(err); done(); });
+        .catch((err) => { console.error(err); done(made); });
     };
     make.addEventListener('click', onMake);
     skip.addEventListener('click', onSkip);
     // once the story's last line has shrunk into the guest-book button
     setTimeout(() => { charAsk.hidden = false; }, 1400);
   }
+
+  // ---------- first or third person ----------
+  // With a character (made just now, or kept from last time) the guest walks about as it, seen
+  // from behind; "Langsung Masuk" without one stays first person. The corner button (or V)
+  // switches, and the choice is remembered.
+  const VIEW_KEY = 'ae-view';
+  const viewToggle = document.getElementById('viewToggle');
+  const viewState = viewToggle && viewToggle.querySelector('.view-state');
+  function showView() {
+    if (!viewToggle) return;
+    viewToggle.hidden = !tp.available();
+    viewToggle.setAttribute('aria-pressed', tp.on() ? 'true' : 'false');
+    if (viewState) viewState.textContent = tp.on() ? 'Orang ketiga' : 'Orang pertama';
+  }
+  function setView3(on) {
+    tp.set(on);
+    try { localStorage.setItem(VIEW_KEY, tp.on() ? 'third' : 'first'); } catch (err) { /* private mode */ }
+    showView();
+  }
+  function useLook(look) {
+    tp.setLook(look || null);
+    if (!look) { tp.set(false); showView(); return; }
+    let pref = null;
+    try { pref = localStorage.getItem(VIEW_KEY); } catch (err) { /* private mode */ }
+    tp.set(pref !== 'first');
+    showView();
+  }
+  if (viewToggle) viewToggle.addEventListener('click', () => setView3(!tp.on()));
+  window.addEventListener('keydown', (e) => {
+    if (e.code !== 'KeyV' || e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
+    const el = document.activeElement;
+    if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)) return;
+    if ((state === 'lobby' || state === 'venue') && tp.available()) setView3(!tp.on());
+  });
 
   // ---------- how the guest looks around inside: asked once, remembered after ----------
   // The thumbstick and a drag always work. Taking the view from the phone's own movement is

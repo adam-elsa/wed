@@ -162,9 +162,12 @@ export function createAvatar(kit, M) {
       const next = mixer.clipAction(clip);
       if (next === action) return;
       next.reset().play();
+      next.timeScale = 1;
       if (action) next.crossFadeFrom(action, fade, false);
       action = next;
     },
+    // how fast the current animation plays (a walk keeps pace with the feet)
+    setSpeed(k) { if (action) action.timeScale = k; },
     update(dt) { mixer.update(dt); },
     dispose() {
       mixer.stopAllAction();
