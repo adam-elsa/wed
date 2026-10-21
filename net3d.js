@@ -9,8 +9,8 @@
 import * as THREE from 'three';
 import { loadManifest, loadKit, createAvatar, tidyLook, defaultLook } from './avatar3d.js';
 
-// the deployed relay, once there is one: 'wss://adam-elsa-venue.<account>.workers.dev/ws'
-export const RELAY_URL = '';
+// the deployed relay (multiplayer/, on Adam's Cloudflare account); '' turns multiplayer off
+export const RELAY_URL = 'wss://adam-elsa-venue.adam-ramdhan71.workers.dev/ws';
 
 const SEND_HZ = 5;          // updates a second at most, and only when something changed
 const KEEPALIVE = 4;        // seconds: say where I am now and then even standing still
