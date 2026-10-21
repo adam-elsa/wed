@@ -1,0 +1,13 @@
+# The venue's relay (see src/index.js and README.md). Deploy: npx wrangler deploy
+name = "adam-elsa-venue"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+
+[[durable_objects.bindings]]
+name = "VENUE"
+class_name = "Venue"
+
+# the free plan runs SQLite-backed Durable Objects
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["Venue"]

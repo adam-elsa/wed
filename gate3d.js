@@ -8,6 +8,7 @@ import { createLobby } from './lobby3d.js';
 import { createBallroom, planSvg, SPOTS } from './ballroom3d.js';
 import { createControls, hasGyro } from './fps.js';
 import { createThirdPerson } from './thirdperson3d.js';
+import { createNet, savedName, saveName } from './net3d.js';
 
 const gate = document.getElementById('gate');
 const canvas = document.getElementById('gateCanvas');
@@ -416,6 +417,14 @@ function init() {
   // walking around the lobby and the ballroom: thumbstick + drag on phones, WASD + mouse on computers
   const controls = createControls(canvas, document.getElementById('stick'));
   const tp = createThirdPerson();
+  // the other guests here right now (only with a relay to talk to; see net3d.js)
+  const onlineEl = document.getElementById('onlineCount');
+  const net = createNet((n) => {
+    if (!onlineEl) return;
+    onlineEl.hidden = !n;
+    const t = onlineEl.querySelector('.online-n');
+    if (t) t.textContent = `${n} tamu online`;
+  });
   const crosshair = document.getElementById('crosshair');
   const hint = document.getElementById('motionHint');
   if (isTouch && typeof DeviceOrientationEvent !== 'undefined') {
@@ -528,6 +537,9 @@ function init() {
     const inLobby = active === lobby.scene, inVenue = !!venue && active === venue.scene;
     if (inLobby || inVenue) {
       const show = (state === 'lobby' && lobby.roaming()) || state === 'venue';
+      // the camera is still at the guest's eyes here: tell the others where they are, and show them
+      const room = state === 'lobby' ? 'lobby' : state === 'venue' ? 'ballroom' : null;
+      net.update(dt, room, active, camera.position, show);
       tp.place(camera, active, inLobby ? lobby.bounds : venue.bounds, dt, show);
     }
     if (crosshair) {
@@ -751,6 +763,9 @@ function init() {
     showView();
   }
   function useLook(look) {
+    // into the venue with the others: named by the guest book if signed before, else the invitation
+    const invited = document.querySelector('#lobbyGuestbookForm input[name="name"]');
+    net.start({ name: savedName() || (invited && invited.value.trim()) || 'Tamu', look: look || null });
     tp.setLook(look || null);
     if (!look) { tp.set(false); showView(); return; }
     let pref = null;
@@ -912,8 +927,10 @@ function init() {
   const SIGNED_KEY = 'ae-guestbook-signed';
   let signed = false;
   try { signed = localStorage.getItem(SIGNED_KEY) === '1'; } catch (err) { /* private mode: ask again */ }
-  window.addEventListener('guestbook:signed', () => {
+  window.addEventListener('guestbook:signed', (e) => {
     signed = true;
+    const name = e.detail && e.detail.name;
+    if (name) { saveName(name); net.setName(name); }
     try { localStorage.setItem(SIGNED_KEY, '1'); } catch (err) { /* fine: remembered for this visit */ }
     // let the thank-you show for a moment, then turn to the angpao
     setTimeout(() => { if (state === 'lobby' && view.name === 'rsvp') openGroup('gift'); }, 1400);

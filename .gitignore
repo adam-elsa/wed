@@ -35,3 +35,6 @@ assets/chars/blenderfiles/
 
 # the character creator's modular Blender files (16 MB): local only; export_modular.py turns them into assets/chars/avatar_*.glb
 assets/chars/blenderfilesmodular/
+
+# the multiplayer relay's local dev state (npx wrangler dev)
+multiplayer/.wrangler/

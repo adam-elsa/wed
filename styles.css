@@ -761,6 +761,27 @@ body.invitation-overlay .gate{pointer-events:none;}
 .view-toggle, .view-toggle[hidden]{display:none;}
 .gate.in-lobby .view-toggle:not([hidden]), .gate.in-venue .view-toggle:not([hidden]){display:block;}
 body.is-creating .view-toggle{display:none !important;}
+/* the guests online, under the view switch */
+.online-count{
+  position:fixed;
+  top:52px;
+  left:max(14px, env(safe-area-inset-left));
+  z-index:58;
+  margin:0;
+  display:flex;align-items:center;gap:7px;
+  font-family:var(--font-sans);
+  font-size:10.5px;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  padding:6px 12px;
+  border-radius:999px;
+  background:rgba(21,17,14,0.6);
+  color:var(--ink-dim);
+}
+.online-dot{width:7px;height:7px;border-radius:50%;background:#5fd38a;box-shadow:0 0 6px #5fd38a;}
+.online-count, .online-count[hidden]{display:none;}
+.gate.in-lobby .online-count:not([hidden]), .gate.in-venue .online-count:not([hidden]){display:flex;}
+body.is-creating .online-count{display:none !important;}
 /* only while a room is being walked: not over the opening, nor the 2D invitation */
 .motion-toggle, .motion-toggle[hidden]{display:none;}
 .gate.in-lobby .motion-toggle:not([hidden]), .gate.in-venue .motion-toggle:not([hidden]){display:block;}
