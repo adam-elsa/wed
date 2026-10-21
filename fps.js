@@ -360,7 +360,7 @@ export function buildBlockers(scene, { w, d, skip } = {}) {
     // slab across the room), so take each instance's box on its own
     const n = o.isInstancedMesh ? o.count : 1;
     for (let i = 0; i < n; i++) {
-      geoBox.copy(o.geometry.boundingBox);
+      geoBox.copy(o.userData.blockBox || o.geometry.boundingBox); // blockBox: a guest's body, not their T-pose
       if (o.isInstancedMesh) {
         o.getMatrixAt(i, m);
         m.premultiply(o.matrixWorld);
@@ -414,8 +414,11 @@ function merge(rects) {
 const blocked = (x, z, rects, r) => rects.some((b) => x > b.x0 - r && x < b.x1 + r && z > b.z0 - r && z < b.z1 + r);
 
 // Walk `pos` by (dx, dz), stopping at the furniture but sliding along it rather than
-// sticking — try the whole step, then each axis on its own.
-export function slide(pos, dx, dz, rects, bounds, r = 0.42) {
+// sticking — try the whole step, then each axis on its own. `r` is how close the guest gets
+// to anything: about a person's half-width, and no less than the camera's near plane (0.3),
+// so first person never sees into a chair. (It was 0.42, which shut the gaps between the
+// chairs of neighbouring tables in the ballroom; the lobby, whose camera starts at 0.5, keeps it.)
+export function slide(pos, dx, dz, rects, bounds, r = 0.3) {
   const inside = blocked(pos.x, pos.z, rects, r);
   const fit = (x, z) => (
     x > bounds.x0 + r && x < bounds.x1 - r && z > bounds.z0 + r && z < bounds.z1 - r &&

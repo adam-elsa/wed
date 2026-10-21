@@ -23,6 +23,7 @@ const FAR = 16;      // metres: further than this, animate every third frame
 const UPRIGHT = THREE.MathUtils.degToRad(-2);
 const HEAD_LEVEL = 0.8;
 const KEEP = ['position', 'normal', 'uv', 'skinIndex', 'skinWeight'];
+const FOOTPRINT = new THREE.Box3(new THREE.Vector3(-0.22, 0, -0.18), new THREE.Vector3(0.22, 1.7, 0.18)); // a standing body
 
 let loading = null;
 function load() {
@@ -143,7 +144,11 @@ export function addGuests(scene, crowd, seed = 1) {
       const mesh = new THREE.SkinnedMesh(look.geo, look.mats);
       root.add(mesh);
       mesh.bind(new THREE.Skeleton(G.boneNames.map((n) => byName[n]), G.boneInverses), new THREE.Matrix4());
-      if (c.pose === 'walk') mesh.userData.noBlock = true; // moves about: not something to stop against
+      // What a guest walking about bumps into. The mesh's own bounds are the skeleton's T-pose,
+      // arms out 1.4 m wide, which closed the gaps between the tables: so a standing guest blocks
+      // only the space their body takes, and a seated one not at all (their chair already does).
+      if (c.pose === 'walk' || c.pose === 'sit') mesh.userData.noBlock = true; // a stroller moves about
+      else mesh.userData.blockBox = FOOTPRINT;
       root.position.set(c.x, c.y || 0, c.z);
       root.rotation.y = c.yaw || 0;
       const anim = c.anim || pickAnim(c.pose, look, rnd);
