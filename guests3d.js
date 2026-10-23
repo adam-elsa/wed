@@ -189,6 +189,7 @@ export function addGuests(scene, crowd, seed = 1) {
 
   return {
     ready,
+    group,
     update(dt, camera) {
       frame++;
       if (camera) frustum.setFromProjectionMatrix(pv.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));

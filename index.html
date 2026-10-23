@@ -137,6 +137,14 @@
     </div>
     <!-- when to come back for the day itself; "besok" follows the date (gate3d.js), gone after the day -->
     <p class="venue-notice" id="venueNotice">Pernikahan kami akan diadakan besok: akad pada jam 12.30 WIB dan pesta pada jam 16.00 WIB. Silakan datang lagi pada waktu tersebut.</p>
+    <!-- on the wedding day, in its place: the time and what is happening in the room now (live3d.js) -->
+    <div class="venue-live" id="venueLive" hidden>
+      <p class="venue-live-clock"><span class="venue-live-dot" aria-hidden="true"></span><span id="venueLiveClock"></span></p>
+      <p class="venue-live-title" id="venueLiveTitle"></p>
+      <p class="venue-live-sub" id="venueLiveSub"></p>
+      <p class="venue-live-now" id="venueLiveNow"></p>
+      <p class="venue-live-next" id="venueLiveNext"></p>
+    </div>
     <div class="venue-plan" id="venuePlan"></div>
     <div class="lobby-bottom">
       <button data-en="← Lobby" class="btn-outline" id="venueBack" type="button">← Lobi</button>

@@ -19,6 +19,7 @@ import { canvasTex, rng } from './lobby3d.js';
 import { buildBlockers, slide } from './fps.js';
 import { addGuests } from './guests3d.js';
 import { addCouple } from './couple3d.js';
+import { addLive } from './live3d.js';
 
 // Indonesian, or English for guests from Malaysia (lang.js)
 const L = window.L || ((id) => id);
@@ -719,6 +720,10 @@ export function createBallroom() {
   // and the two of us, standing on the pelaminan in front of our sofa to greet everyone (couple3d.js)
   const couple = addCouple(scene, { x: 0, y: STAGE.h, z: NORTH + 3.15, gap: 0.42 });
   couple.ready.then(() => { blockers = null; });
+  // On the wedding day itself the room follows the day instead, moment by moment by the clock in
+  // Jakarta (live3d.js): the guests above and the two of us are put away, and the rundown's people
+  // take their places, the crowd walking in at 16.00 to the same seats and huddles.
+  const live = addLive(scene, crowd);
 
   // ---------- what can be clicked: a box around each spot's subject ----------
   const proxies = [];
@@ -907,8 +912,12 @@ export function createBallroom() {
       nav.camPitch += (pitch - nav.camPitch) * a;
       camera.rotation.set(nav.camPitch, nav.camYaw, 0, 'YXZ');
       lights.material.opacity = 0.75 + Math.sin(t * 2.3) * 0.25;
-      guests.update(dt, camera);
-      couple.update(dt);
+      const today = live.update(dt, camera);
+      guests.group.visible = couple.group.visible = !today;
+      if (!today) {
+        guests.update(dt, camera);
+        couple.update(dt);
+      }
     },
     go,
     spot() { return nav.spot; },

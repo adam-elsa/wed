@@ -344,6 +344,67 @@ a{color:inherit;}
 @media (min-aspect-ratio:1/1) and (min-width:761px){
   .venue-notice{font-size:24px;padding:18px 36px 20px;max-width:min(920px,100%);border-radius:24px;}
 }
+/* on the wedding day, in the notice's place: the time and what is happening now (live3d.js) */
+.venue-live{
+  margin:8px 0 0;
+  padding:12px 22px 14px;
+  max-width:min(560px,100%);
+  color:var(--ink);
+  background:rgba(18,14,11,0.78);
+  border:1px solid var(--line);
+  border-radius:18px;
+  backdrop-filter:blur(6px);
+}
+.venue-live[hidden], .venue-live p[hidden]{display:none;}
+.venue-live p{margin:0;}
+.venue-live-clock{
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  font-family:var(--font-sans);
+  font-size:11px;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  color:var(--gold-soft);
+}
+.venue-live-dot{width:8px;height:8px;border-radius:50%;background:#e2555a;box-shadow:0 0 8px #e2555a;animation:live-dot 1.6s ease-in-out infinite;}
+@keyframes live-dot{50%{opacity:0.35;}}
+.venue-live-title{font-family:var(--font-display);font-size:clamp(22px,5vw,30px);line-height:1.2;margin-top:4px !important;}
+.venue-live-sub{font-size:13px;color:var(--ink-dim);}
+.venue-live-now{font-size:15px;margin-top:6px !important;}
+.venue-live-next{font-size:12px;color:var(--ink-dim);margin-top:6px !important;}
+@media (min-aspect-ratio:1/1) and (min-width:761px){
+  .venue-live{padding:16px 30px 18px;max-width:min(720px,100%);}
+  .venue-live-now{font-size:18px;}
+}
+/* over people's heads: their names, and what they are saying */
+.live-tag, .live-bubble{
+  position:absolute;
+  left:0;top:0;
+  pointer-events:none;
+  opacity:0;
+  transition:opacity .3s ease;
+  white-space:nowrap;
+}
+.live-tag.is-visible, .live-bubble.is-visible{opacity:1;}
+.live-tag{
+  font-family:var(--font-sans);
+  font-size:10.5px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--gold-soft);
+  background:rgba(18,14,11,0.72);
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:5px 10px;
+}
+.live-bubble{
+  font-size:13px;
+  color:#211a10;
+  background:#fffaf0;
+  border-radius:14px;
+  padding:6px 12px;
+  margin-top:-8px;
+  box-shadow:0 4px 14px rgba(0,0,0,0.35);
+}
 .venue-ui .lobby-title{font-size:clamp(26px,6vw,36px);margin:2px 0 4px;}
 /* ballroom: the label under the cursor, and the little floor plan */
 .gate-canvas{touch-action:none;} /* a drag turns the view there */

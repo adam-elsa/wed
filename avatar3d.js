@@ -169,6 +169,23 @@ export function createAvatar(kit, M) {
     // how fast the current animation plays (a walk keeps pace with the feet)
     setSpeed(k) { if (action) action.timeScale = k; },
     update(dt) { mixer.update(dt); },
+    // a frame-exact pose, for the wedding day played to the clock (live3d.js): `clip` at `time`
+    // seconds, blended over `prev` at `prevTime` by (1 - w). No state carried between frames.
+    pose(clip, time, prev = null, prevTime = 0, w = 1) {
+      mixer.stopAllAction();
+      action = null;
+      const a = mixer.clipAction(kit.clips[clip] || kit.clips.Idle);
+      a.play();
+      a.setEffectiveWeight(prev ? w : 1);
+      a.time = time % a.getClip().duration;
+      if (prev && w < 1) {
+        const b = mixer.clipAction(kit.clips[prev] || kit.clips.Idle);
+        b.play();
+        b.setEffectiveWeight(1 - w);
+        b.time = prevTime % b.getClip().duration;
+      }
+      mixer.update(0);
+    },
     dispose() {
       mixer.stopAllAction();
       root.removeFromParent();

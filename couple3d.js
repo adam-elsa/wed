@@ -135,12 +135,8 @@ export function addCouple(scene, { x = 0, y = 0, z = 0, yaw = 0, gap = 0.36 } = 
 
   const ready = Promise.all([loadManifest(), loadKit('male'), loadKit('female')]).then(([M, male, female]) => {
     if (gone) return;
-    const groom = createAvatar(male, M);
-    groom.wear(GROOM);
-    suit(groom.root);
-    const bride = createAvatar(female, M);
-    bride.wear(BRIDE);
-    gown(bride.root);
+    const groom = makeGroom(male, M);
+    const bride = makeBride(female, M);
     // side by side, Elsa on Adam's left, each turned a touch toward the other
     groom.root.position.x = -gap;
     groom.root.rotation.y = 0.1;
@@ -157,6 +153,7 @@ export function addCouple(scene, { x = 0, y = 0, z = 0, yaw = 0, gap = 0.36 } = 
 
   return {
     ready,
+    group,
     update(dt) { for (const p of people) p.update(dt); },
     dispose() {
       gone = true;
@@ -164,6 +161,21 @@ export function addCouple(scene, { x = 0, y = 0, z = 0, yaw = 0, gap = 0.36 } = 
       group.removeFromParent();
     },
   };
+}
+
+// Adam and Elsa as in the photos, as avatars (avatar3d.js's createAvatar, so they play and pose
+// like any other): also used by the wedding day played to the clock (live3d.js)
+export function makeGroom(kit, M) {
+  const a = createAvatar(kit, M);
+  a.wear(GROOM);
+  suit(a.root);
+  return a;
+}
+export function makeBride(kit, M) {
+  const a = createAvatar(kit, M);
+  a.wear(BRIDE);
+  gown(a.root);
+  return a;
 }
 
 // ---------- Adam ----------
@@ -185,7 +197,12 @@ function suit(root) {
   }
   const buttons = [1.13, 1.07, 1.01].map((y) => new THREE.SphereGeometry(0.008, 8, 6).translate(0, y, 0.112));
   rigid(body, merge(buttons), new THREE.MeshLambertMaterial({ color: 0x8a6d3b }), 'Spine1');
-  // glasses: thin dark rims in front of the eyes, the arms back over the ears
+  glasses(body);
+}
+
+// his glasses, on whichever body he is wearing: thin dark rims in front of the eyes, the arms back
+// over the ears
+export function glasses(body) {
   const parts = [new THREE.BoxGeometry(0.026, 0.004, 0.004).translate(0, 1.604, 0.13)]; // the bridge
   for (const s of [-1, 1]) {
     const rim = roundRect(0.048, 0.034, 0.011);
