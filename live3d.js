@@ -14,6 +14,10 @@
 // as it always is (ballroom3d.js's guests, couple3d.js's couple on the pelaminan); ?at=13:05 in a
 // link plays the day from 13.05, on any day, to see it before it comes.
 //
+// Once the day is over (18.05 in Jakarta, and every day after) the room goes back to how it
+// always is, and the card offers to relive the day: the whole of it, from the akad to the close,
+// at the video's pace (about four and a half minutes), with a button for each of its big moments.
+//
 // The people are the creator's parts (avatar3d.js), dressed as the rundown says. Everyone but the
 // two of us is one merged mesh per person, like guests3d.js's crowd, to keep a hundred of them
 // cheap; Adam and Elsa are full avatars, all day in what they wear in our photos
@@ -55,18 +59,20 @@ function mirrorArms(bones) {
 
 // ---------- the clock ----------
 const toMin = (s) => Number(s.slice(0, 2)) * 60 + Number(s.slice(3, 5));
-// minutes past midnight in Jakarta on the wedding day, or null on any other day
+const END = toMin(MOMENTS[MOMENTS.length - 1].clock[1]); // the close: after this, the day is over
+// where the day is in Jakarta: { min } on the wedding day (minutes past midnight), { over } on any
+// day after it, {} before it
 function clock() {
   const at = new URLSearchParams(window.location.search).get('at');
   const m = at && /^(\d{1,2})[.:](\d{2})$/.exec(at);
   if (m) {
     const from = Number(m[1]) * 60 + Number(m[2]), t0 = performance.now();
-    return () => from + (performance.now() - t0) / 60000;
+    return () => ({ min: from + (performance.now() - t0) / 60000 });
   }
   return () => {
     const now = Date.now() + WIB * 60000;
-    if (new Date(now).toISOString().slice(0, 10) !== DAY) return null;
-    return (now % 86400000) / 60000;
+    const date = new Date(now).toISOString().slice(0, 10);
+    return date > DAY ? { over: true } : date < DAY ? {} : { min: (now % 86400000) / 60000 };
   };
 }
 
@@ -168,6 +174,15 @@ function where(A, real) {
     // walk from the last one)
     at: (k) => Math.max(a.lead[k], Math.min(base, a.still[k])),
   };
+}
+
+// the time of day a moment of the rundown happens at (for the clock while reliving the day)
+function realAt(A, t) {
+  let i = 0;
+  while (i < A.length - 1 && A[i + 1].story <= t) i++;
+  const a = A[i], b = A[i + 1];
+  const real = a.real + (R.toVideo(Math.max(t, a.story)) - R.toVideo(a.story)) / 60;
+  return b ? Math.min(real, b.real) : real;
 }
 
 // ---------- words ----------
@@ -581,10 +596,27 @@ const hash = (s) => {
 // ---------- the live mode ----------
 // crowd: the seats and huddles ballroom3d.js gives its guests; at the reception they walk in
 // from the door to those places instead of being there all along.
-export function addLive(scene, crowd) {
+// watch(): take the guest to where they can see the day, as reliving it starts
+export function addLive(scene, crowd, { watch } = {}) {
   const now = clock();
   let started = null; // the cast, the props and the plan, once the day has come
-  const ui = overlay();
+  // reliving the day: { v } video seconds into it, playing or not
+  const FIRST = R.toVideo(MOMENTS[0].t), LAST = R.toVideo(R.DURATION - 0.4);
+  let replay = null;
+  const ui = overlay({
+    relive() {
+      replay = { v: FIRST, playing: true };
+      if (watch) watch();
+    },
+    toggle() {
+      if (!replay) return;
+      if (replay.v >= LAST) replay.v = FIRST; // at the end: from the start again
+      replay.playing = !replay.playing;
+    },
+    seek(t) { if (replay) { replay.v = R.toVideo(t); replay.playing = true; } },
+    seekTo(k) { if (replay) replay.v = FIRST + k * (LAST - FIRST); },
+    close() { replay = null; },
+  });
 
   function start() {
     // strollers stay where they are: someone forever pacing would never let the room hold still
@@ -618,21 +650,35 @@ export function addLive(scene, crowd) {
   }
 
   return {
-    // every frame in the ballroom; says whether the day is on
+    // every frame in the ballroom; says whether the day is being shown (live, or relived)
     update(dt, camera) {
-      const real = now();
-      ui.show(real !== null);
-      if (real === null) {
+      const c = now();
+      const over = c.over || (c.min !== undefined && c.min >= END);
+      const mode = replay ? 'replay' : over ? 'over' : c.min !== undefined ? 'live' : 'off';
+      ui.show(mode);
+      if (mode === 'off' || mode === 'over') {
         if (started) started.group.visible = started.props.all.visible = false;
+        if (mode === 'over') ui.over();
         return false;
       }
       if (!started) started = start();
       const st = started;
       st.group.visible = st.props.all.visible = true;
-      const day = where(st.A, real);
+      let day;
+      if (replay) {
+        // all in step, at the video's pace (once the people are in)
+        if (st.kits && replay.playing) replay.v = Math.min(LAST, replay.v + dt);
+        if (replay.v >= LAST) replay.playing = false;
+        const t = R.toStory(replay.v);
+        day = { t, v: replay.v, at: () => t };
+        ui.card(realAt(st.A, t), t, true);
+        ui.progress((replay.v - FIRST) / (LAST - FIRST), t, replay.playing);
+      } else {
+        day = where(st.A, c.min);
+        // the card goes by the beat under way, not the one the room is holding ready for
+        ui.card(c.min, day.i === undefined ? day.t : st.A[day.i].story);
+      }
       const t = day.t;
-      // the card goes by the beat under way, not the one the room is holding ready for
-      ui.card(real, day.i === undefined ? t : st.A[day.i].story);
       st.frame++;
       if (camera) frustum.setFromProjectionMatrix(pv.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
 
@@ -738,9 +784,24 @@ export function addLive(scene, crowd) {
 // ---------- on screen ----------
 // the card with the time and what is happening (#venueLive, in place of the "come back on the
 // day" notice), and the name tags and speech bubbles over people's heads
-function overlay() {
+// on: { relive, toggle, seek(story t), seekTo(0..1), close } for the buttons.
+function overlay(on) {
   const $ = (id) => document.getElementById(id);
   const box = $('venueLive'), notice = $('venueNotice'), host = $('venueUi');
+  const bar = $('venueRelive'), go = $('venueReplay'), toggle = $('reliveToggle'), fill = $('reliveBar'), track = $('reliveTrack');
+  const chips = bar ? [...bar.querySelectorAll('[data-at]')].map((b) => ({ b, at: Number(b.dataset.at) })) : [];
+  if (go) go.addEventListener('click', () => on.relive());
+  if (toggle) toggle.addEventListener('click', () => on.toggle());
+  const close = $('reliveClose');
+  if (close) close.addEventListener('click', () => on.close());
+  for (const { b, at } of chips) b.addEventListener('click', () => on.seek(at));
+  if (track) {
+    track.addEventListener('click', (e) => {
+      const r = track.getBoundingClientRect();
+      on.seekTo(Math.min(1, Math.max(0, (e.clientX - r.left) / r.width)));
+    });
+  }
+  let playing = null;
   const noticeHidden = notice ? notice.hidden : true;
   let shown = null, lastCard = '';
   const tags = new Map(), bubbles = new Map();
@@ -751,25 +812,7 @@ function overlay() {
     if (host) host.appendChild(d);
     return d;
   };
-  const card = (real, t) => {
-    if (!box) return;
-    const before = real < toMin(MOMENTS[0].clock[0]);
-    const m = momentAt(t);
-    const i = MOMENTS.indexOf(m);
-    const next = before ? MOMENTS[0] : MOMENTS[i + 1];
-    const over = !before && !next && real >= toMin(m.clock[1]) + 1;
-    let beat = null;
-    for (const b of m.beats) if (b[0] <= t + 0.05) beat = b;
-    const text = [
-      `${L('LANGSUNG', 'LIVE')} · ${hm(real)}`,
-      before ? L('Hari pernikahan kami', 'Our wedding day') : say(m.title),
-      before ? L(`Akad pukul ${hm(toMin('12:30'))} · resepsi pukul ${hm(toMin('16:00'))}`, `The akad at ${hm(toMin('12:30'))} · the reception at ${hm(toMin('16:00'))}`)
-        // the break: nothing happens here but the room being turned round
-        : m.title === 'Changeover' ? L(`Resepsi dimulai pukul ${hm(toMin('16:00'))}`, `The reception starts at ${hm(toMin('16:00'))}`)
-        : say(m.sub),
-      over ? L('Terima kasih atas kehadiran dan doanya', 'Thank you for coming, and for your prayers') : beat ? say(beat[2]) : '',
-      next ? `${L('Berikutnya', 'Next')}, ${hm(toMin(next.clock[0]))}: ${say(next.title)}` : '',
-    ];
+  const fillCard = (text) => {
     const key = text.join('|');
     if (key === lastCard) return;
     lastCard = key;
@@ -780,15 +823,65 @@ function overlay() {
       n.hidden = !text[k];
     });
   };
+  const card = (real, t, again = false) => {
+    if (!box) return;
+    const before = real < toMin(MOMENTS[0].clock[0]);
+    const m = momentAt(t);
+    const i = MOMENTS.indexOf(m);
+    const next = before ? MOMENTS[0] : MOMENTS[i + 1];
+    const over = !before && !next && real >= toMin(m.clock[1]) + 1;
+    let beat = null;
+    for (const b of m.beats) if (b[0] <= t + 0.05) beat = b;
+    const text = [
+      `${again ? L('ULANG', 'REPLAY') : L('LANGSUNG', 'LIVE')} · ${hm(real)}`,
+      before ? L('Hari pernikahan kami', 'Our wedding day') : say(m.title),
+      before ? L(`Akad pukul ${hm(toMin('12:30'))} · resepsi pukul ${hm(toMin('16:00'))}`, `The akad at ${hm(toMin('12:30'))} · the reception at ${hm(toMin('16:00'))}`)
+        // the break: nothing happens here but the room being turned round
+        : m.title === 'Changeover' ? L(`Resepsi dimulai pukul ${hm(toMin('16:00'))}`, `The reception starts at ${hm(toMin('16:00'))}`)
+        : say(m.sub),
+      over ? L('Terima kasih atas kehadiran dan doanya', 'Thank you for coming, and for your prayers') : beat ? say(beat[2]) : '',
+      next ? `${L('Berikutnya', 'Next')}, ${hm(toMin(next.clock[0]))}: ${say(next.title)}` : '',
+    ];
+    fillCard(text);
+  };
   return {
-    show(on) {
-      if (on === shown) return;
-      shown = on;
-      if (box) box.hidden = !on;
-      if (notice) notice.hidden = on || noticeHidden;
-      if (!on) for (const d of [...tags.values(), ...bubbles.values()]) d.classList.remove('is-visible');
+    // mode: 'live' | 'replay' | 'over' (the card, with the button to relive the day) | 'off'
+    show(mode) {
+      if (mode === shown) return;
+      shown = mode;
+      const card = mode !== 'off';
+      if (box) {
+        box.hidden = !card;
+        box.classList.toggle('is-replay', mode === 'replay' || mode === 'over');
+        box.classList.toggle('is-reliving', mode === 'replay');
+      }
+      if (go) go.hidden = mode !== 'over';
+      if (bar) bar.hidden = mode !== 'replay';
+      if (notice) notice.hidden = card || noticeHidden;
+      if (mode !== 'live' && mode !== 'replay') for (const d of [...tags.values(), ...bubbles.values()]) d.classList.remove('is-visible');
     },
     card,
+    over() {
+      fillCard([
+        L('Sabtu, 24 Oktober 2026', 'Saturday, 24 October 2026'),
+        L('Acara telah selesai', 'The celebration is over'),
+        L('Terima kasih atas kehadiran dan doanya', 'Thank you for coming, and for your prayers'),
+        '',
+        L('Saksikan lagi hari kami, dari akad sampai penutup', 'Watch our day again, from the akad to the close'),
+      ]);
+    },
+    // while reliving: how far along, which big moment is on, and play or pause on the button
+    progress(k, t, isPlaying) {
+      if (fill) fill.style.transform = `scaleX(${Math.min(1, Math.max(0, k)).toFixed(4)})`;
+      let cur = null;
+      for (const c of chips) if (c.at <= t + 0.01) cur = c;
+      for (const c of chips) c.b.classList.toggle('is-on', c === cur);
+      if (toggle && isPlaying !== playing) {
+        playing = isPlaying;
+        toggle.textContent = isPlaying ? '❚❚' : '▶';
+        toggle.setAttribute('aria-label', isPlaying ? L('Jeda', 'Pause') : L('Putar', 'Play'));
+      }
+    },
     // name tags (the rundown's, plus Adam and Elsa whenever they're in view) and what is being said
     people(camera, t, heads) {
       if (!host || !camera) return;
