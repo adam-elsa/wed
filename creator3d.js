@@ -7,12 +7,44 @@
 import * as THREE from 'three';
 import { loadManifest, loadKit, createAvatar, choices, defaultLook, tidyLook, savedLook, saveLook, tintable, SLOTS } from './avatar3d.js';
 
+// Indonesian, or English for guests from Malaysia (lang.js). The choices' names (avatar.json, and
+// the few below) are written in Indonesian; EN has them in English.
+const L = window.L || ((id) => id);
+const EN = {
+  Perempuan: 'Female', 'Laki-laki': 'Male', 'Tanpa peci': 'No peci',
+  'Warna kulit': 'Skin tone', Rambut: 'Hair', Hijab: 'Hijab', Peci: 'Peci',
+  'Kuning langsat': 'Fair', 'Sawo matang': 'Tan', Cokelat: 'Brown',
+  Bob: 'Bob', 'Bob cokelat': 'Brown bob', 'Panjang hitam': 'Long black', 'Pendek cokelat': 'Short brown',
+  'Pendek cokelat muda': 'Short light brown', Jambul: 'Quiff', 'Jambul hitam': 'Black quiff',
+  'Rapi cokelat tua': 'Neat dark brown', 'Rapi gelap': 'Neat dark', 'Rapi hitam': 'Neat black',
+  Pashmina: 'Pashmina', 'Peci rajut': 'Knitted peci', 'Peci bordir emas': 'Gold-embroidered peci',
+  'Peci hitam polos': 'Plain black peci',
+  'Batik kawung lengan pendek': 'Short-sleeved kawung batik', 'Batik lengan panjang': 'Long-sleeved batik',
+  'Batik mega mendung': 'Mega mendung batik', 'Batik parang lengan pendek': 'Short-sleeved parang batik',
+  'Batik truntum': 'Truntum batik', 'Blazer biru muda & kaos': 'Light blue blazer & tee',
+  'Blazer dusty pink & kaos': 'Dusty pink blazer & tee', 'Blazer hitam & kaos': 'Black blazer & tee',
+  'Blazer krem & kaos hitam': 'Cream blazer & black tee', 'Blazer navy & kaos': 'Navy blazer & tee',
+  'Blazer navy': 'Navy blazer', 'Blus batik mega mendung': 'Mega mendung batik blouse',
+  'Blus batik truntum': 'Truntum batik blouse', 'Blus putih': 'White blouse',
+  'Jas hitam': 'Black suit', 'Jas ungu': 'Purple suit', 'Kebaya batik buketan': 'Buketan batik kebaya',
+  'Kebaya bordir': 'Embroidered kebaya', 'Kemeja & dasi': 'Shirt & tie',
+  'Kemeja hitam lengan pendek': 'Short-sleeved black shirt', 'Kemeja putih list batik': 'White shirt with batik trim',
+  'Kemeja putih': 'White shirt', 'Rompi & kemeja': 'Vest & shirt', 'Rompi hitam': 'Black vest',
+  'Celana bahan': 'Dress trousers', 'Celana bersabuk': 'Belted trousers', 'Celana panjang': 'Trousers',
+  Kulot: 'Culottes', 'Rok batik kawung': 'Kawung batik skirt', 'Rok batik mega mendung': 'Mega mendung batik skirt',
+  'Rok batik merah marun': 'Maroon batik skirt', 'Rok batik parang': 'Parang batik skirt',
+  'Rok batik sidomukti': 'Sidomukti batik skirt', 'Rok batik truntum': 'Truntum batik skirt',
+  'Rok pendek kotak': 'Plaid mini skirt',
+  Flat: 'Flats', 'Hak tinggi': 'High heels', Pantofel: 'Dress shoes', Sepatu: 'Shoes', Sneakers: 'Sneakers',
+};
+const tr = (s) => L(s, EN[s]);
+
 const STEPS = [
-  { key: 'gender', title: 'Kamu datang sebagai', short: 'Gender' },
-  { key: 'Head', title: 'Rambut atau hijab', titleMale: 'Rambut & peci', short: 'Rambut' },
-  { key: 'Top', title: 'Atasan', short: 'Atasan' },
-  { key: 'Bottom', title: 'Bawahan', short: 'Bawahan' },
-  { key: 'Shoes', title: 'Sepatu', short: 'Sepatu' },
+  { key: 'gender', title: L('Kamu datang sebagai', 'You are coming as'), short: 'Gender' },
+  { key: 'Head', title: L('Rambut atau hijab', 'Hair or hijab'), titleMale: L('Rambut & peci', 'Hair & peci'), short: L('Rambut', 'Hair') },
+  { key: 'Top', title: L('Atasan', 'Top'), short: L('Atasan', 'Top') },
+  { key: 'Bottom', title: L('Bawahan', 'Bottom'), short: L('Bawahan', 'Bottom') },
+  { key: 'Shoes', title: L('Sepatu', 'Shoes'), short: L('Sepatu', 'Shoes') },
 ];
 // where the stage's camera looks on each step: [height looked at, distance]
 const FRAME = { gender: [0.88, 4.4], Head: [1.56, 1.7], Top: [1.2, 2.5], Bottom: [0.62, 3.0], Shoes: [0.2, 2.0] };
@@ -84,7 +116,7 @@ export function openCreator() {
           turntable.add(a.root);
           shown = { g, a };
         }
-      }).catch(() => { loadingEl.textContent = 'Gagal memuat. Coba muat ulang halaman.'; });
+      }).catch(() => { loadingEl.textContent = L('Gagal memuat. Coba muat ulang halaman.', "Couldn't load. Try reloading the page."); });
     }
 
     function resize() {
@@ -149,7 +181,7 @@ export function openCreator() {
         dot.style.background = swatch;
         b.appendChild(dot);
       }
-      b.appendChild(document.createTextNode(label));
+      b.appendChild(document.createTextNode(tr(label)));
       b.addEventListener('click', () => { pick(); idle = 0; render(true); refresh(); });
       return b;
     }
@@ -177,7 +209,7 @@ export function openCreator() {
       wheelWrap.className = 'creator-wheel';
       const wheel = document.createElement('canvas');
       wheel.width = wheel.height = 200;
-      wheel.setAttribute('aria-label', 'Roda warna');
+      wheel.setAttribute('aria-label', L('Roda warna', 'Colour wheel'));
       const mark = document.createElement('span');
       mark.className = 'creator-wheel-mark';
       wheelWrap.append(wheel, mark);
@@ -190,7 +222,7 @@ export function openCreator() {
       light.className = 'creator-light';
       const lightLabel = document.createElement('label');
       lightLabel.className = 'creator-light-label';
-      lightLabel.textContent = 'Terang';
+      lightLabel.textContent = L('Terang', 'Brightness');
       lightLabel.appendChild(light);
       side.append(chip, lightLabel);
       const wheelRow = document.createElement('div');
@@ -258,7 +290,7 @@ export function openCreator() {
       if (name) {
         const h = document.createElement('p');
         h.className = 'creator-group';
-        h.textContent = name;
+        h.textContent = tr(name);
         optsEl.appendChild(h);
       }
       const wrap = document.createElement('div');
@@ -278,7 +310,7 @@ export function openCreator() {
     // ...and under the choices, its colours, if the chosen one is coloured by the guest
     function paints(slot) {
       const t = tintable(M, gender, looks[gender], slot);
-      if (t) group('Warna ' + t.label.toLowerCase(), [colorPicker(slot, t)]);
+      if (t) group(L('Warna ' + t.label.toLowerCase(), `${EN[t.label] || t.label} colour`), [colorPicker(slot, t)]);
     }
     function render(keepScroll) {
       const s = STEPS[step];
@@ -317,8 +349,8 @@ export function openCreator() {
         group(null, choices(M, gender, s.key).map((c) => pick(s.key, c)));
         paints(s.key);
       }
-      back.textContent = step === 0 ? 'Batal' : 'Kembali';
-      next.textContent = step === STEPS.length - 1 ? 'Selesai' : 'Lanjut';
+      back.textContent = step === 0 ? L('Batal', 'Cancel') : L('Kembali', 'Back');
+      next.textContent = step === STEPS.length - 1 ? L('Selesai', 'Done') : L('Lanjut', 'Next');
       if (!keepScroll) optsEl.scrollTop = 0;
     }
     function close(result) {
@@ -361,7 +393,7 @@ export function openCreator() {
     back.addEventListener('click', onBack);
     next.addEventListener('click', onNext);
 
-    loadingEl.textContent = 'Memuat karakter…';
+    loadingEl.textContent = L('Memuat karakter…', 'Loading your character…');
     box.hidden = false;
     document.body.classList.add('is-creating'); // the music button would sit on the Next button
     render();

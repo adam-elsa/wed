@@ -19,6 +19,9 @@ import { canvasTex, rng } from './lobby3d.js';
 import { buildBlockers, slide } from './fps.js';
 import { addGuests } from './guests3d.js';
 
+// Indonesian, or English for guests from Malaysia (lang.js)
+const L = window.L || ((id) => id);
+
 const W = 26, D = 36, H = 5.4;
 const EYE = 1.65;
 const SWAY = { yaw: 0.5, pitch: 0.16 }; // how far the view follows the mouse / the phone's tilt (radians)
@@ -50,17 +53,17 @@ const PAL = {
 
 // Where the guest can stand. `look`: what they face on arriving; `tag`: where the label floats.
 export const SPOTS = {
-  south: { title: 'Selamat Datang di Hari Bahagia Kami', look: [0, 1.9, -6] },
-  gazebo: { title: 'Gazebo', desc: 'Gazebo bunga di tengah jalan menuju pelaminan.', look: [0, 2.0, GAZEBO.z], tag: [0, 3.9, GAZEBO.z] },
-  sabit: { title: 'Gate Bunga', desc: 'Dua pasang gate sabit penuh bunga, dengan lampu kristal.', look: [0, 2.1, -9], tag: [0, 3.75, -4.65] },
-  stage: { title: 'Pelaminan', desc: 'Tempat kami menyambut Bapak/Ibu/Saudara/i.', look: [0, 2.2, NORTH + 1.4], tag: [0, 4.75, NORTH + 1.4] },
-  vip: { title: 'Area VIP', desc: 'Untuk keluarga dan tamu kehormatan.', look: [-9.5, 0.9, -10.2], tag: [-9.5, 2.3, -10.2] },
-  band: { title: 'Band & Hiburan', desc: 'Musik dan hiburan sepanjang acara.', look: [BAND.x, 1.6, BAND.z], tag: [BAND.x, 3.7, BAND.z] },
-  food: { title: 'Food Stall', desc: 'Aneka hidangan untuk para tamu.', look: [WEST + 1.5, 1.5, 5.5], tag: [WEST + 1.6, 3.6, 5.5] },
-  drinksW: { title: 'Minuman', desc: 'Pojok minuman.', look: [DRINKS[0][0], 1.0, DRINKS[0][1]], tag: [DRINKS[0][0], 2.25, DRINKS[0][1]] },
-  drinksE: { title: 'Minuman', desc: 'Pojok minuman.', look: [DRINKS[1][0], 1.0, DRINKS[1][1]], tag: [DRINKS[1][0], 2.25, DRINKS[1][1]] },
-  tables: { title: 'Meja Tamu', desc: 'Silakan duduk dan menikmati acara.', look: [8.2, 0.8, 7.9], tag: [8.2, 2.1, 7.9] },
-  door: { title: '← Lobi', look: [WEST, 1.5, AISLE.turnZ], tag: [WEST + 0.3, 3.15, AISLE.turnZ] },
+  south: { title: L('Selamat Datang di Hari Bahagia Kami', 'Welcome to Our Happy Day'), look: [0, 1.9, -6] },
+  gazebo: { title: 'Gazebo', desc: L('Gazebo bunga di tengah jalan menuju pelaminan.', 'A flower gazebo halfway along the aisle to the stage.'), look: [0, 2.0, GAZEBO.z], tag: [0, 3.9, GAZEBO.z] },
+  sabit: { title: L('Gate Bunga', 'Flower Gates'), desc: L('Dua pasang gate sabit penuh bunga, dengan lampu kristal.', 'Two pairs of crescent gates full of flowers, with crystal lights.'), look: [0, 2.1, -9], tag: [0, 3.75, -4.65] },
+  stage: { title: L('Pelaminan', 'Wedding Stage'), desc: L('Tempat kami menyambut Bapak/Ibu/Saudara/i.', 'Where we welcome you.'), look: [0, 2.2, NORTH + 1.4], tag: [0, 4.75, NORTH + 1.4] },
+  vip: { title: L('Area VIP', 'VIP Area'), desc: L('Untuk keluarga dan tamu kehormatan.', 'For family and guests of honour.'), look: [-9.5, 0.9, -10.2], tag: [-9.5, 2.3, -10.2] },
+  band: { title: L('Band & Hiburan', 'Band & Entertainment'), desc: L('Musik dan hiburan sepanjang acara.', 'Music and entertainment all through the event.'), look: [BAND.x, 1.6, BAND.z], tag: [BAND.x, 3.7, BAND.z] },
+  food: { title: 'Food Stall', desc: L('Aneka hidangan untuk para tamu.', 'All kinds of food for the guests.'), look: [WEST + 1.5, 1.5, 5.5], tag: [WEST + 1.6, 3.6, 5.5] },
+  drinksW: { title: L('Minuman', 'Drinks'), desc: L('Pojok minuman.', 'The drinks corner.'), look: [DRINKS[0][0], 1.0, DRINKS[0][1]], tag: [DRINKS[0][0], 2.25, DRINKS[0][1]] },
+  drinksE: { title: L('Minuman', 'Drinks'), desc: L('Pojok minuman.', 'The drinks corner.'), look: [DRINKS[1][0], 1.0, DRINKS[1][1]], tag: [DRINKS[1][0], 2.25, DRINKS[1][1]] },
+  tables: { title: L('Meja Tamu', 'Guest Tables'), desc: L('Silakan duduk dan menikmati acara.', 'Please take a seat and enjoy the event.'), look: [8.2, 0.8, 7.9], tag: [8.2, 2.1, 7.9] },
+  door: { title: L('← Lobi', '← Lobby'), look: [WEST, 1.5, AISLE.turnZ], tag: [WEST + 0.3, 3.15, AISLE.turnZ] },
 };
 // Path graph: [x, z] of every place the guest stands or passes. A narrow screen sees a
 // narrower slice of the room, so there the gazebo and the pelaminan are viewed from further

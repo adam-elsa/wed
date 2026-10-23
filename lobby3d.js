@@ -8,6 +8,9 @@ import * as THREE from 'three';
 import { buildBlockers, slide, EYE_H } from './fps.js';
 import { addGuests } from './guests3d.js';
 
+// Indonesian, or English for guests from Malaysia (lang.js)
+const L = window.L || ((id) => id);
+
 const W = 20, D = 24, H = 5.2;
 const SLAT_H = H - 0.4; // leave a gap at the top for the warm cove light
 
@@ -1010,11 +1013,11 @@ function makeTextures() {
     // header + times
     g.fillStyle = '#1d1712'; g.fillRect(0, 0, w, 96);
     g.fillStyle = '#d6ae5a'; g.font = '500 34px Jost, sans-serif';
-    g.fillText('L O K A S I   &   T E M P A T', w / 2, 60);
+    g.fillText(L('L O K A S I   &   T E M P A T', 'L O C A T I O N   &   V E N U E'), w / 2, 60);
     g.fillStyle = '#3a2e22'; g.font = 'italic 40px "Cormorant Garamond", Georgia, serif';
-    g.fillText('Akad 12.30 WIB  ·  Resepsi 16.00 WIB', w / 2, h - 88);
+    g.fillText(L('Akad 12.30 WIB  ·  Resepsi 16.00 WIB', 'Akad 12.30 WIB  ·  Reception 16.00 WIB'), w / 2, h - 88);
     g.font = '500 24px Jost, sans-serif'; g.fillStyle = '#8a6326';
-    g.fillText('SABTU, 24 OKTOBER 2026', w / 2, h - 40);
+    g.fillText(L('SABTU, 24 OKTOBER 2026', 'SATURDAY, 24 OCTOBER 2026'), w / 2, h - 40);
   };
   T.mapBoard = canvasTex(1024, 706, drawBoard);
   if (document.fonts) {
