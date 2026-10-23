@@ -24,7 +24,10 @@ const FOLLOW = 9;           // how quickly someone else's character catches up w
 const SNAP = 4;             // metres: a jump that far (they went through a door) is not walked
 const PING = 10;            // seconds between heartbeats (answered by Cloudflare, not the relay)
 const IDLE_CODE = 4000;     // the relay let me go for not walking about: wait to be back before rejoining
-const NAME_KEY = 'ae-guest-name';
+// the name the guest typed on the name card. Names kept before there was one (often just the
+// invitation's) were under 'ae-guest-name': dropped, so everyone types theirs once
+const NAME_KEY = 'ae-name';
+try { localStorage.removeItem('ae-guest-name'); } catch (err) { /* private mode */ }
 
 export function relayUrl() {
   try {
