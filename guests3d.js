@@ -158,11 +158,9 @@ export function addGuests(scene, crowd, seed = 1) {
       action.timeScale = 0.9 + rnd() * 0.2;
       action.play();
       group.add(root);
-      let headRest = null;
+      let sat = null;
       if (c.pose === 'sit') {
-        // the head as it sits when standing (the bind pose), relative to the guest: level, ahead
-        root.updateMatrixWorld(true);
-        if (byName.Head) headRest = root.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(byName.Head.getWorldQuaternion(new THREE.Quaternion()));
+        sat = posture(root, byName);
         // the pack's sitting poses lean the hips about 10 cm to one side: slide the person
         // back across so they sit in the middle of the seat
         mixer.update(0);
@@ -176,9 +174,7 @@ export function addGuests(scene, crowd, seed = 1) {
       }
       const p = { root, mixer, acc: 0 };
       // straight-backed chairs only: a sofa or an armchair is for lounging in (`lounge: true`)
-      if (c.pose === 'sit' && !c.lounge && byName.Spine1 && byName.Neck && byName.Head) {
-        p.posture = { segs: [[byName.Spine, byName.Spine1, UPRIGHT], [byName.Spine1, byName.Neck, 0], [byName.Neck, byName.Head, 0]], head: byName.Head, headRest };
-      }
+      if (c.pose === 'sit' && !c.lounge && sat) p.posture = sat;
       if (c.pose === 'walk' && c.to) {
         p.walk = { a: new THREE.Vector2(c.x, c.z), b: new THREE.Vector2(c.to[0], c.to[1]), k: rnd(), dir: 1, turn: 0 };
         p.walk.len = p.walk.a.distanceTo(p.walk.b);
@@ -189,6 +185,7 @@ export function addGuests(scene, crowd, seed = 1) {
 
   return {
     ready,
+    group,
     update(dt, camera) {
       frame++;
       if (camera) frustum.setFromProjectionMatrix(pv.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse));
@@ -226,7 +223,17 @@ function aim(bone, child, dir) {
   bone.quaternion.copy(_pq.multiply(_w));
   bone.updateWorldMatrix(false, true);
 }
-function sitUp(p) {
+// What sitUp straightens for someone: the pieces of the back and the neck, and the head as it
+// sits when standing, relative to them (level, looking ahead). Taken before any animation has
+// moved the bones (the bind pose), with the person already turned the way they sit.
+export function posture(root, byName) {
+  if (!byName.Spine || !byName.Spine1 || !byName.Neck || !byName.Head) return null;
+  root.updateMatrixWorld(true);
+  const headRest = root.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(byName.Head.getWorldQuaternion(new THREE.Quaternion()));
+  return { segs: [[byName.Spine, byName.Spine1, UPRIGHT], [byName.Spine1, byName.Neck, 0], [byName.Neck, byName.Head, 0]], head: byName.Head, headRest };
+}
+// p: { root, posture } (also used by live3d.js for the wedding day's seated people)
+export function sitUp(p) {
   const { segs, head, headRest } = p.posture;
   p.root.updateMatrixWorld(true);
   const yaw = p.root.rotation.y, fx = Math.sin(yaw), fz = Math.cos(yaw);
