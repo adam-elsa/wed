@@ -329,14 +329,14 @@ a{color:inherit;}
 /* under the title: when to come back for the wedding itself */
 .venue-notice{
   margin:8px 0 0;
-  padding:9px 18px 10px;
-  max-width:min(460px,100%);
-  font-size:12px;
-  line-height:1.55;
+  padding:13px 24px 15px;
+  max-width:min(690px,100%);
+  font-size:18px;
+  line-height:1.5;
   color:var(--ink);
   background:rgba(18,14,11,0.72);
   border:1px solid var(--line);
-  border-radius:14px;
+  border-radius:20px;
   backdrop-filter:blur(6px);
 }
 .venue-notice[hidden]{display:none;}
