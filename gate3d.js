@@ -814,7 +814,7 @@ function init() {
     const k = document.createElement('span');
     k.className = 'venue-chat-key';
     k.textContent = ' · tekan "J"';
-    venueChat.append(k);
+    (venueChat.querySelector('.venue-chat-sub') || venueChat).append(k);
   }
   // First a word on what's coming: it's our Discord, which asks two questions on the way in (what to
   // pick), and then the event's channel to go to. It opens by itself after a short countdown, a
