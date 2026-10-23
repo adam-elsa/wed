@@ -1309,6 +1309,19 @@ function init() {
   const venueTitle = document.getElementById('venueTitle');
   const venueHint = document.getElementById('venueHint');
   const venuePlan = document.getElementById('venuePlan');
+  // under the title, until the day is over: come back for the akad and the party. "besok" the day
+  // before, "hari ini" on the day, the date before that (by the calendar in Jakarta)
+  const venueNotice = document.getElementById('venueNotice');
+  if (venueNotice) {
+    let today = null;
+    try { today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta' }).format(new Date()); } catch (err) { /* old browser */ }
+    const days = today ? Math.round((Date.parse('2026-10-24') - Date.parse(today)) / 86400000) : 1;
+    if (days < 0) venueNotice.hidden = true;
+    else {
+      const when = days === 0 ? 'hari ini' : days === 1 ? 'besok' : 'pada Sabtu, 24 Oktober 2026';
+      venueNotice.textContent = `Pernikahan kami akan diadakan ${when}: akad pada jam 12.30 WIB dan pesta pada jam 14.00 WIB. Silakan datang lagi pada waktu tersebut.`;
+    }
+  }
   const VENUE_HINT = isTouch
     ? 'Gunakan tuas untuk berjalan · geser layar untuk melihat · ketuk label untuk ke sana'
     : 'WASD untuk berjalan · gerakkan mouse untuk melihat · klik label untuk ke sana';

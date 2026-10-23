@@ -326,6 +326,20 @@ a{color:inherit;}
   max-width:min(520px,100%);
 }
 .venue-ui .lobby-top .eyebrow{margin-bottom:4px;}
+/* under the title: when to come back for the wedding itself */
+.venue-notice{
+  margin:8px 0 0;
+  padding:9px 18px 10px;
+  max-width:min(460px,100%);
+  font-size:12px;
+  line-height:1.55;
+  color:var(--ink);
+  background:rgba(18,14,11,0.72);
+  border:1px solid var(--line);
+  border-radius:14px;
+  backdrop-filter:blur(6px);
+}
+.venue-notice[hidden]{display:none;}
 .venue-ui .lobby-title{font-size:clamp(26px,6vw,36px);margin:2px 0 4px;}
 /* ballroom: the label under the cursor, and the little floor plan */
 .gate-canvas{touch-action:none;} /* a drag turns the view there */
