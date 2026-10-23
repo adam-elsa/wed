@@ -372,6 +372,7 @@ a{color:inherit;}
   pointer-events:auto;
 }
 .venue-chat:hover{border-color:var(--gold);}
+.venue-chat-key{text-transform:none;letter-spacing:0.04em;opacity:0.8;}
 .venue-chat-dot{width:7px;height:7px;border-radius:50%;background:#e5484d;box-shadow:0 0 0 0 rgba(229,72,77,0.6);animation:chat-pulse 1.8s infinite;}
 @keyframes chat-pulse{70%{box-shadow:0 0 0 7px rgba(229,72,77,0);}100%{box-shadow:0 0 0 0 rgba(229,72,77,0);}}
 .plan-spot{fill:transparent;cursor:pointer;}
@@ -739,17 +740,22 @@ body.invitation-overlay .gate{pointer-events:none;}
   color:var(--gold-soft);
   cursor:pointer;
 }
-/* first or third person: the same pill, top left */
+/* first or third person (or "Buat Karakter"): bottom right, two short lines so it stays small;
+   over the live chat link in the ballroom, in its place in the lobby (which has none) */
 .view-toggle{
   position:fixed;
-  top:14px;
-  left:max(14px, env(safe-area-inset-left));
+  right:max(14px, env(safe-area-inset-right));
+  bottom:calc(max(18px, env(safe-area-inset-bottom)) + 58px);
   z-index:58;
+  align-items:center;
+  gap:9px;
   font-family:var(--font-sans);
-  font-size:10.5px;
+  font-size:9.5px;
+  line-height:1.35;
   letter-spacing:0.1em;
   text-transform:uppercase;
-  padding:8px 13px;
+  text-align:center;
+  padding:7px 14px 7px 11px;
   border-radius:999px;
   border:1px solid rgba(226,199,138,0.45);
   background:rgba(21,17,14,0.72);
@@ -757,14 +763,20 @@ body.invitation-overlay .gate{pointer-events:none;}
   color:var(--gold-soft);
   cursor:pointer;
 }
+.gate.in-venue .view-toggle{bottom:calc(max(18px, env(safe-area-inset-bottom)) + 102px);}
+.view-icon{width:18px;height:18px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;}
+.view-state span{display:block;white-space:nowrap;}
+.view-state .view-key{text-transform:none;letter-spacing:0.04em;opacity:0.75;}
+/* no character yet: the button makes one, so it reads as one to press */
+.view-toggle[data-mode="make"]{border-color:var(--gold);background:rgba(60,45,22,0.85);}
 .view-toggle[aria-pressed="true"]{border-color:var(--gold);background:rgba(60,45,22,0.8);}
 .view-toggle, .view-toggle[hidden]{display:none;}
-.gate.in-lobby .view-toggle:not([hidden]), .gate.in-venue .view-toggle:not([hidden]){display:block;}
+.gate.in-lobby .view-toggle:not([hidden]), .gate.in-venue .view-toggle:not([hidden]){display:flex;}
 body.is-creating .view-toggle{display:none !important;}
-/* the guests online, under the view switch */
+/* the guests online, top left (the top right has the phone-motion switch) */
 .online-count{
   position:fixed;
-  top:52px;
+  top:14px;
   left:max(14px, env(safe-area-inset-left));
   z-index:58;
   margin:0;
@@ -877,6 +889,8 @@ body.is-creating .music-toggle, body.is-creating .motion-toggle{display:none !im
 /* phones: the labels have to share a narrow screen with each other and the heading */
 @media (max-width:560px){
   .lobby-tag{font-size:10px;letter-spacing:0.14em;padding:6px 11px;}
+  /* the heading starts under the corner pills (guests online, phone motion), not between them */
+  .lobby-ui, .venue-ui{padding-top:calc(max(14px, env(safe-area-inset-top)) + 40px);}
 }
 
 /* ---- walking around the venue ---- */

@@ -228,9 +228,11 @@
       </div>
     </div>
   </div>
-  <!-- first or third person, once the guest has a character (V on a keyboard) -->
+  <!-- first or third person once the guest has a character, or making one if they went in
+       without (V on a keyboard); bottom right, over the live chat link -->
   <button class="view-toggle" id="viewToggle" type="button" aria-pressed="false" hidden>
-    <span aria-hidden="true">◐</span> <span class="view-state">Orang ketiga</span>
+    <svg class="view-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+    <span class="view-state">Orang ketiga</span>
   </button>
   <!-- how many guests are in the venue right now (only with the multiplayer relay) -->
   <p class="online-count" id="onlineCount" hidden><span class="online-dot" aria-hidden="true"></span><span class="online-n"></span></p>

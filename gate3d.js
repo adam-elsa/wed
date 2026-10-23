@@ -745,17 +745,48 @@ function init() {
   // ---------- first or third person ----------
   // With a character (made just now, or kept from last time) the guest walks about as it, seen
   // from behind; "Langsung Masuk" without one stays first person. The corner button (or V)
-  // switches, and the choice is remembered.
+  // switches, and the choice is remembered. Without a character the same button (and V) makes
+  // one there and then.
   const VIEW_KEY = 'ae-view';
   const viewToggle = document.getElementById('viewToggle');
   const viewState = viewToggle && viewToggle.querySelector('.view-state');
+  let viewShown = false; // only once the guest has chosen how to go in
   function showView() {
-    if (!viewToggle) return;
-    viewToggle.hidden = !tp.available();
-    viewToggle.setAttribute('aria-pressed', tp.on() ? 'true' : 'false');
-    // a keyboard can switch with V; say so (a phone has only the button)
-    const key = isTouch ? '' : ' tekan "V"';
-    if (viewState) viewState.textContent = tp.on() ? `Orang ketiga / 3rd Person View${key}` : `Orang pertama / 1st Person View${key}`;
+    if (!viewToggle || !viewShown) return;
+    const has = tp.available();
+    viewToggle.hidden = false;
+    viewToggle.dataset.mode = has ? 'view' : 'make';
+    viewToggle.setAttribute('aria-pressed', has && tp.on() ? 'true' : 'false');
+    // a keyboard can do it with V; say so (a phone has only the button)
+    const [a, b] = !has ? ['Buat Karakter', 'Create Character']
+      : tp.on() ? ['Orang ketiga', '3rd Person View'] : ['Orang pertama', '1st Person View'];
+    const key = isTouch ? '' : '<span class="view-key">tekan "V"</span>';
+    if (viewState) viewState.innerHTML = `<span>${a}</span><span>/ ${b}</span>${key}`;
+  }
+  // "Langsung Masuk", then changed their mind: the creator over the room, and in as the character
+  let creating = false;
+  function makeCharacterNow() {
+    if (creating || (charAsk && !charAsk.hidden) || document.body.classList.contains('is-creating')) return;
+    creating = true;
+    controls.unlock();
+    controls.stop(); // the keys and the thumbstick rest while the creator is up
+    import('./creator3d.js')
+      .then((m) => m.openCreator())
+      .then((look) => {
+        if (!look) return;
+        useLook(look);
+        setView3(true); // they made it to see it
+      })
+      .catch((err) => console.error(err))
+      .finally(() => {
+        creating = false;
+        if (state === 'lobby' || state === 'venue') controls.start(isTouch);
+      });
+  }
+  function onViewButton() {
+    if (state !== 'lobby' && state !== 'venue') return;
+    if (tp.available()) setView3(!tp.on());
+    else makeCharacterNow();
   }
   function setView3(on) {
     tp.set(on);
@@ -766,19 +797,37 @@ function init() {
     // into the venue with the others: named by the guest book if signed before, else the invitation
     const invited = document.querySelector('#lobbyGuestbookForm input[name="name"]');
     net.start({ name: savedName() || (invited && invited.value.trim()) || 'Tamu', look: look || null });
+    net.setLook(look || null); // (a character made later, the others see it change)
     tp.setLook(look || null);
+    viewShown = true;
     if (!look) { tp.set(false); showView(); return; }
     let pref = null;
     try { pref = localStorage.getItem(VIEW_KEY); } catch (err) { /* private mode */ }
     tp.set(pref !== 'first');
     showView();
   }
-  if (viewToggle) viewToggle.addEventListener('click', () => setView3(!tp.on()));
+  if (viewToggle) viewToggle.addEventListener('click', onViewButton);
+  // the live chat: on a computer the mouse is turning the view (no cursor to click it with), so J
+  // opens it, and the link says so
+  const venueChat = document.getElementById('venueChat');
+  if (venueChat && !isTouch) {
+    const k = document.createElement('span');
+    k.className = 'venue-chat-key';
+    k.textContent = ' · tekan "J"';
+    venueChat.append(k);
+  }
+  window.addEventListener('keydown', (e) => {
+    if (e.code !== 'KeyJ' || e.repeat || e.metaKey || e.ctrlKey || e.altKey || state !== 'venue' || !venueChat) return;
+    const el = document.activeElement;
+    if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)) return;
+    controls.unlock();
+    window.open(venueChat.href, '_blank', 'noopener');
+  });
   window.addEventListener('keydown', (e) => {
     if (e.code !== 'KeyV' || e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
     const el = document.activeElement;
     if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)) return;
-    if ((state === 'lobby' || state === 'venue') && tp.available()) setView3(!tp.on());
+    onViewButton();
   });
 
   // ---------- how the guest looks around inside: asked once, remembered after ----------
