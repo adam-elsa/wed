@@ -597,7 +597,40 @@ function init() {
     // the verse (QS. Az-Zariyat 49) overlays the whole walk, fading as the camera
     // steps through the doorway (~80% of the way in); our story follows inside
     gate.classList.toggle('show-ayat', ms >= 500 && ms < W.enterAt + W.enterMs * 0.8);
-    if (ms >= W.endMs) startArrive();
+    if (ms >= W.endMs) askName(startArrive);
+  }
+
+  // ---------- the guest's own name, on the white at the doorway ----------
+  // Typed, never filled in from the invitation link (too many went in as that), though a name
+  // typed on an earlier visit is offered again. It goes over their character for the others to
+  // see, and into the guest book at the desk.
+  const nameAsk = document.getElementById('nameAsk');
+  function askName(then) {
+    if (!nameAsk) return then();
+    state = 'name'; // the camera holds at the doorway, the screen stays white
+    const input = nameAsk.elements.name;
+    const err = nameAsk.querySelector('.name-err');
+    input.value = savedName();
+    nameAsk.hidden = false;
+    if (!isTouch) input.focus();
+    const onSubmit = (e) => {
+      e.preventDefault();
+      const name = input.value.replace(/\s+/g, ' ').trim();
+      if (name.length < 2) {
+        if (err) { err.textContent = 'Mohon tulis namamu dulu.'; err.className = 'rsvp-status name-err err'; }
+        input.focus();
+        return;
+      }
+      nameAsk.removeEventListener('submit', onSubmit);
+      input.blur();
+      nameAsk.hidden = true;
+      saveName(name);
+      // the guest book at the desk starts with it too, instead of the invitation's name
+      const book = document.querySelector('#lobbyGuestbookForm input[name="name"]');
+      if (book) book.value = name;
+      then();
+    };
+    nameAsk.addEventListener('submit', onSubmit);
   }
 
   // through the doors: under the white flash, swap to the lobby, then let the flash fade

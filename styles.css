@@ -861,6 +861,12 @@ body.is-creating .online-count{display:none !important;}
 .chat-ask.is-blocked #chatGo{animation:chat-go 1.2s ease-in-out infinite;}
 @keyframes chat-go{50%{box-shadow:0 0 0 6px rgba(203,161,92,0.25);}}
 
+/* ---- the guest's name, asked on the white at the doorway ---- */
+.name-ask{z-index:63;top:40%;text-align:center;}
+.name-ask .motion-title{margin-bottom:4px;}
+.name-copy{margin:0 0 4px;}
+.name-ask input{text-align:center;font-size:16px;} /* 16px: phones don't zoom into it */
+
 /* ---- making your own character (lobby, 3D only) ---- */
 .char-ask{width:min(430px, calc(100vw - 32px));}
 /* the character on a stage on the left, the choices in a panel on the right */
