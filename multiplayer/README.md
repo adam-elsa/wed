@@ -23,6 +23,23 @@ a day; 20 incoming messages count as one request; outgoing messages are free).
    `export const RELAY_URL = 'wss://adam-elsa-venue.<you>.workers.dev/ws';`
    Until then (or with it set to `''`), the venue works solo as before.
 
+## After changing src/index.js
+
+Run `npx wrangler deploy` again in this folder. Deploying restarts the relay, so everyone connected
+drops and reconnects by themselves a second later.
+
+## Who counts as here
+
+- Closing the page says goodbye: the others see the guest leave at once.
+- A browser that disappears without saying goodbye (a phone losing signal or killing the tab) stops
+  the `ping` every page sends every 10 seconds; the relay sees it out after 30 (`QUIET`).
+- A page still open but not in the venue (in the background, or on the 2D invitation) stops sending
+  where it is; after 2 minutes (`IDLE`) the relay lets it go with code 4000, and the page comes back
+  in on its own as soon as the guest is walking again.
+
+An alarm looks round every 15 seconds while anyone is connected. The pings are answered by
+Cloudflare itself (`setWebSocketAutoResponse`), without waking the relay.
+
 Only pages from `adam-elsa.github.io` and `localhost` may connect (`ORIGINS` in `src/index.js`).
 
 ## Try it on this computer first

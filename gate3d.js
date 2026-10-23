@@ -597,7 +597,40 @@ function init() {
     // the verse (QS. Az-Zariyat 49) overlays the whole walk, fading as the camera
     // steps through the doorway (~80% of the way in); our story follows inside
     gate.classList.toggle('show-ayat', ms >= 500 && ms < W.enterAt + W.enterMs * 0.8);
-    if (ms >= W.endMs) startArrive();
+    if (ms >= W.endMs) askName(startArrive);
+  }
+
+  // ---------- the guest's own name, on the white at the doorway ----------
+  // Typed, never filled in from the invitation link (too many went in as that), though a name
+  // typed on an earlier visit is offered again. It goes over their character for the others to
+  // see, and into the guest book at the desk.
+  const nameAsk = document.getElementById('nameAsk');
+  function askName(then) {
+    if (!nameAsk) return then();
+    state = 'name'; // the camera holds at the doorway, the screen stays white
+    const input = nameAsk.elements.name;
+    const err = nameAsk.querySelector('.name-err');
+    input.value = savedName();
+    nameAsk.hidden = false;
+    if (!isTouch) input.focus();
+    const onSubmit = (e) => {
+      e.preventDefault();
+      const name = input.value.replace(/\s+/g, ' ').trim();
+      if (name.length < 2) {
+        if (err) { err.textContent = 'Mohon tulis namamu dulu.'; err.className = 'rsvp-status name-err err'; }
+        input.focus();
+        return;
+      }
+      nameAsk.removeEventListener('submit', onSubmit);
+      input.blur();
+      nameAsk.hidden = true;
+      saveName(name);
+      // the guest book at the desk starts with it too, instead of the invitation's name
+      const book = document.querySelector('#lobbyGuestbookForm input[name="name"]');
+      if (book) book.value = name;
+      then();
+    };
+    nameAsk.addEventListener('submit', onSubmit);
   }
 
   // through the doors: under the white flash, swap to the lobby, then let the flash fade
@@ -745,17 +778,48 @@ function init() {
   // ---------- first or third person ----------
   // With a character (made just now, or kept from last time) the guest walks about as it, seen
   // from behind; "Langsung Masuk" without one stays first person. The corner button (or V)
-  // switches, and the choice is remembered.
+  // switches, and the choice is remembered. Without a character the same button (and V) makes
+  // one there and then.
   const VIEW_KEY = 'ae-view';
   const viewToggle = document.getElementById('viewToggle');
   const viewState = viewToggle && viewToggle.querySelector('.view-state');
+  let viewShown = false; // only once the guest has chosen how to go in
   function showView() {
-    if (!viewToggle) return;
-    viewToggle.hidden = !tp.available();
-    viewToggle.setAttribute('aria-pressed', tp.on() ? 'true' : 'false');
-    // a keyboard can switch with V; say so (a phone has only the button)
-    const key = isTouch ? '' : ' tekan "V"';
-    if (viewState) viewState.textContent = tp.on() ? `Orang ketiga / 3rd Person View${key}` : `Orang pertama / 1st Person View${key}`;
+    if (!viewToggle || !viewShown) return;
+    const has = tp.available();
+    viewToggle.hidden = false;
+    viewToggle.dataset.mode = has ? 'view' : 'make';
+    viewToggle.setAttribute('aria-pressed', has && tp.on() ? 'true' : 'false');
+    // a keyboard can do it with V; say so (a phone has only the button)
+    const [a, b] = !has ? ['Buat Karakter', 'Create Character']
+      : tp.on() ? ['Orang ketiga', '3rd Person View'] : ['Orang pertama', '1st Person View'];
+    const key = isTouch ? '' : '<span class="view-key">tekan "V"</span>';
+    if (viewState) viewState.innerHTML = `<span>${a}</span><span>/ ${b}</span>${key}`;
+  }
+  // "Langsung Masuk", then changed their mind: the creator over the room, and in as the character
+  let creating = false;
+  function makeCharacterNow() {
+    if (creating || (charAsk && !charAsk.hidden) || document.body.classList.contains('is-creating')) return;
+    creating = true;
+    controls.unlock();
+    controls.stop(); // the keys and the thumbstick rest while the creator is up
+    import('./creator3d.js')
+      .then((m) => m.openCreator())
+      .then((look) => {
+        if (!look) return;
+        useLook(look);
+        setView3(true); // they made it to see it
+      })
+      .catch((err) => console.error(err))
+      .finally(() => {
+        creating = false;
+        if (state === 'lobby' || state === 'venue') controls.start(isTouch);
+      });
+  }
+  function onViewButton() {
+    if (state !== 'lobby' && state !== 'venue') return;
+    if (tp.available()) setView3(!tp.on());
+    else makeCharacterNow();
   }
   function setView3(on) {
     tp.set(on);
@@ -766,19 +830,85 @@ function init() {
     // into the venue with the others: named by the guest book if signed before, else the invitation
     const invited = document.querySelector('#lobbyGuestbookForm input[name="name"]');
     net.start({ name: savedName() || (invited && invited.value.trim()) || 'Tamu', look: look || null });
+    net.setLook(look || null); // (a character made later, the others see it change)
     tp.setLook(look || null);
+    viewShown = true;
     if (!look) { tp.set(false); showView(); return; }
     let pref = null;
     try { pref = localStorage.getItem(VIEW_KEY); } catch (err) { /* private mode */ }
     tp.set(pref !== 'first');
     showView();
   }
-  if (viewToggle) viewToggle.addEventListener('click', () => setView3(!tp.on()));
+  if (viewToggle) viewToggle.addEventListener('click', onViewButton);
+  // the live chat: on a computer the mouse is turning the view (no cursor to click it with), so J
+  // opens it, and the link says so
+  const venueChat = document.getElementById('venueChat');
+  if (venueChat && !isTouch) {
+    const k = document.createElement('span');
+    k.className = 'venue-chat-key';
+    k.textContent = ' · tekan "J"';
+    (venueChat.querySelector('.venue-chat-sub') || venueChat).append(k);
+  }
+  // First a word on what's coming: it's our Discord, which asks two questions on the way in (what to
+  // pick), and then the event's channel to go to. It opens by itself after a short countdown, a
+  // little under 5 seconds, since browsers only let a page open a tab that long after the tap;
+  // where one stops it anyway (Safari), the button flashes to be tapped instead.
+  const chatAsk = document.getElementById('chatAsk');
+  const chatCount = document.getElementById('chatCount');
+  const chatGo = document.getElementById('chatGo');
+  const CHAT_WAIT = 5;     // seconds shown
+  const CHAT_OPEN = 4.8;   // seconds until it opens
+  let chatTimer = 0;
+  function openChat() {
+    if (!venueChat) return;
+    if (!chatAsk) { window.open(venueChat.href, '_blank', 'noopener'); return; }
+    if (!chatAsk.hidden) return;
+    controls.unlock();
+    controls.stop(); // the keys and the thumbstick rest while it's up
+    chatAsk.classList.remove('is-blocked');
+    if (chatGo) chatGo.textContent = 'Buka Sekarang';
+    chatAsk.hidden = false;
+    const start = performance.now();
+    const tick = () => {
+      const s = (performance.now() - start) / 1000;
+      if (s >= CHAT_OPEN) return goChat(true);
+      if (chatCount) chatCount.innerHTML = `Membuka Discord dalam <b>${Math.ceil(CHAT_WAIT - s)}</b>…`;
+      chatTimer = setTimeout(tick, 100);
+    };
+    tick();
+  }
+  function closeChat() {
+    clearTimeout(chatTimer);
+    if (!chatAsk || chatAsk.hidden) return;
+    chatAsk.hidden = true;
+    if (state === 'venue') controls.start(isTouch);
+  }
+  function goChat(byItself) {
+    clearTimeout(chatTimer);
+    const w = window.open(venueChat.href, '_blank');
+    if (w) { try { w.opener = null; } catch (err) { /* another site's window */ } closeChat(); return; }
+    // the browser held the tab back: it has to be a tap
+    if (!byItself) { window.location.href = venueChat.href; return; }
+    chatAsk.classList.add('is-blocked');
+    if (chatCount) chatCount.textContent = 'Ketuk tombol di bawah untuk membuka Discord';
+    if (chatGo) chatGo.textContent = 'Buka Discord';
+  }
+  if (venueChat) venueChat.addEventListener('click', (e) => { e.preventDefault(); openChat(); });
+  if (chatGo) chatGo.addEventListener('click', () => goChat(false));
+  const chatCancel = document.getElementById('chatCancel');
+  if (chatCancel) chatCancel.addEventListener('click', closeChat);
+  window.addEventListener('keydown', (e) => {
+    if (e.code === 'Escape' && chatAsk && !chatAsk.hidden) { closeChat(); return; }
+    if (e.code !== 'KeyJ' || e.repeat || e.metaKey || e.ctrlKey || e.altKey || state !== 'venue' || !venueChat) return;
+    const el = document.activeElement;
+    if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)) return;
+    openChat();
+  });
   window.addEventListener('keydown', (e) => {
     if (e.code !== 'KeyV' || e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
     const el = document.activeElement;
     if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)) return;
-    if ((state === 'lobby' || state === 'venue') && tp.available()) setView3(!tp.on());
+    onViewButton();
   });
 
   // ---------- how the guest looks around inside: asked once, remembered after ----------
@@ -1212,6 +1342,19 @@ function init() {
   const venueTitle = document.getElementById('venueTitle');
   const venueHint = document.getElementById('venueHint');
   const venuePlan = document.getElementById('venuePlan');
+  // under the title, until the day is over: come back for the akad and the party. "besok" the day
+  // before, "hari ini" on the day, the date before that (by the calendar in Jakarta)
+  const venueNotice = document.getElementById('venueNotice');
+  if (venueNotice) {
+    let today = null;
+    try { today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta' }).format(new Date()); } catch (err) { /* old browser */ }
+    const days = today ? Math.round((Date.parse('2026-10-24') - Date.parse(today)) / 86400000) : 1;
+    if (days < 0) venueNotice.hidden = true;
+    else {
+      const when = days === 0 ? 'hari ini' : days === 1 ? 'besok' : 'pada Sabtu, 24 Oktober 2026';
+      venueNotice.textContent = `Pernikahan kami akan diadakan ${when}: akad pada jam 12.30 WIB dan pesta pada jam 16.00 WIB. Silakan datang lagi pada waktu tersebut.`;
+    }
+  }
   const VENUE_HINT = isTouch
     ? 'Gunakan tuas untuk berjalan · geser layar untuk melihat · ketuk label untuk ke sana'
     : 'WASD untuk berjalan · gerakkan mouse untuk melihat · klik label untuk ke sana';

@@ -6,6 +6,12 @@
 // Without a relay (RELAY_URL empty and no ?relay= in the link), or if it can't be reached, the
 // venue is exactly as it was: just you and the crowd of extras. ?relay=ws://127.0.0.1:8787/ws
 // points a page at a relay running on this computer (npx wrangler dev in multiplayer/).
+//
+// Leaving: closing the page says goodbye; a browser that vanishes without one (a phone dropping
+// the connection) stops the 'ping' every PING seconds, and the relay sees it out after 30. A page
+// that stays open but isn't walking the venue (in the background, or on the 2D invitation) stops
+// saying where it is, and after 2 minutes the relay lets it go (code 4000, 'idle'); it comes back
+// in on its own as soon as the guest is walking again.
 import * as THREE from 'three';
 import { loadManifest, loadKit, createAvatar, tidyLook, defaultLook } from './avatar3d.js';
 
@@ -16,7 +22,12 @@ const SEND_HZ = 5;          // updates a second at most, and only when something
 const KEEPALIVE = 4;        // seconds: say where I am now and then even standing still
 const FOLLOW = 9;           // how quickly someone else's character catches up with their updates
 const SNAP = 4;             // metres: a jump that far (they went through a door) is not walked
-const NAME_KEY = 'ae-guest-name';
+const PING = 10;            // seconds between heartbeats (answered by Cloudflare, not the relay)
+const IDLE_CODE = 4000;     // the relay let me go for not walking about: wait to be back before rejoining
+// the name the guest typed on the name card. Names kept before there was one (often just the
+// invitation's) were under 'ae-guest-name': dropped, so everyone types theirs once
+const NAME_KEY = 'ae-name';
+try { localStorage.removeItem('ae-guest-name'); } catch (err) { /* private mode */ }
 
 export function relayUrl() {
   try {
@@ -63,7 +74,7 @@ const hash = (s) => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7)
 export function createNet(onCount) {
   const url = relayUrl();
   const peers = new Map(); // id -> { name, look, s, avatar, tag, pos, yaw, walking, loading }
-  let ws = null, myId = null, me = null, retry = 1, timer = 0, closed = false;
+  let ws = null, myId = null, me = null, retry = 1, timer = 0, closed = false, idle = false, pinger = 0;
   let sendAcc = 0, sinceSent = 0, last = null;
   const track = { x: null, z: null, yaw: 0, walking: false };
 
@@ -71,7 +82,7 @@ export function createNet(onCount) {
   const count = () => { if (onCount) onCount(ws && ws.readyState === 1 && myId ? 1 + peers.size : 0); };
 
   function connect() {
-    if (!url || closed) return;
+    if (!url || closed || idle) return;
     try { ws = new WebSocket(url); } catch (err) { return later(); }
     ws.onopen = () => {
       retry = 1;
@@ -93,15 +104,25 @@ export function createNet(onCount) {
       else if (m.t === 'name') { const p = peers.get(m.id); if (p) { p.name = m.name; retag(p); } }
       count();
     };
-    ws.onclose = () => { ws = null; count(); later(); };
+    ws.onclose = (e) => {
+      ws = null;
+      // nobody stays standing about while I can't hear them leave
+      for (const p of peers.values()) drop(p);
+      peers.clear();
+      count();
+      if (e.code === IDLE_CODE) idle = true; // update() brings me back once I'm walking again
+      else later();
+    };
     ws.onerror = () => { try { ws.close(); } catch (err) { /* closing anyway */ } };
   }
   function later() {
-    if (closed) return;
+    if (closed || idle) return;
     clearTimeout(timer);
     timer = setTimeout(connect, retry * 1000);
     retry = Math.min(15, retry * 2);
   }
+
+  function bye() { if (ws) try { ws.close(1000, 'bye'); } catch (err) { /* closing anyway */ } }
 
   function add(p) {
     if (p.id === myId || peers.has(p.id)) return;
@@ -146,6 +167,9 @@ export function createNet(onCount) {
       if (!url || me) return;
       me = { name: info.name || 'Tamu', look: info.look || null };
       connect();
+      pinger = setInterval(() => { if (ws && ws.readyState === 1) ws.send('ping'); }, PING * 1000);
+      // closing the page (or the browser) says goodbye straight away
+      window.addEventListener('pagehide', bye);
     },
     setName(name) {
       if (!me || !name || name === me.name) return;
@@ -171,6 +195,8 @@ export function createNet(onCount) {
         track.x = eye.x; track.z = eye.z;
       } else { track.walking = false; }
       sendAcc += dt; sinceSent += dt;
+      // let go for standing outside the venue: back in now there's somewhere to say I am
+      if (idle && room && track.x !== null) { idle = false; retry = 1; connect(); }
       if (ws && ws.readyState === 1 && room && track.x !== null && sendAcc >= 1 / SEND_HZ) {
         sendAcc = 0;
         const s = { r: room, x: +track.x.toFixed(2), z: +track.z.toFixed(2), y: +track.yaw.toFixed(2), a: track.walking ? 1 : 0 };
@@ -207,6 +233,8 @@ export function createNet(onCount) {
     dispose() {
       closed = true;
       clearTimeout(timer);
+      clearInterval(pinger);
+      window.removeEventListener('pagehide', bye);
       if (ws) try { ws.close(); } catch (err) { /* closing anyway */ }
       for (const p of peers.values()) drop(p);
       peers.clear();

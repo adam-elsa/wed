@@ -133,13 +133,16 @@
       <p class="eyebrow" id="venueTitle">Selamat Datang di Hari Bahagia Kami</p>
       <p class="lobby-hint" id="venueHint"></p>
     </div>
+    <!-- when to come back for the day itself; "besok" follows the date (gate3d.js), gone after the day -->
+    <p class="venue-notice" id="venueNotice">Pernikahan kami akan diadakan besok: akad pada jam 12.30 WIB dan pesta pada jam 16.00 WIB. Silakan datang lagi pada waktu tersebut.</p>
     <div class="venue-plan" id="venuePlan"></div>
     <div class="lobby-bottom">
       <button class="btn-outline" id="venueBack" type="button">← Lobi</button>
     </div>
     <!-- live chat during the event: change the href to swap Discord for a YouTube livestream -->
-    <a class="venue-chat" id="venueChat" href="https://discord.gg/pTdb6Fwn4" target="_blank" rel="noopener">
-      <span class="venue-chat-dot" aria-hidden="true"></span>Join Live Chat
+    <a class="venue-chat" id="venueChat" href="https://discord.gg/3uWyUHYU?event=1563070599130128444" target="_blank" rel="noopener">
+      <span class="venue-chat-dot" aria-hidden="true"></span>
+      <span class="venue-chat-text"><span>Join Live Chat</span><span class="venue-chat-sub">at our Discord</span></span>
     </a>
   </div>
   <!-- asked once, on arriving in the lobby: some people find a view tied to the phone's
@@ -181,6 +184,16 @@
     <p class="motion-copy">Sebagian orang jadi pusing kalau tampilan ikut gerakan ponsel.</p>
     <p class="motion-note">Bisa diubah kapan saja lewat tombol ⟳ di pojok.</p>
   </div>
+  <!-- after the verse, on the white at the doorway: the guest's own name, typed (not the one the
+       invitation link was made out to); it goes over their character and into the guest book -->
+  <form class="motion-ask name-ask card-form" id="nameAsk" novalidate hidden>
+    <p class="eyebrow">Sebelum Masuk</p>
+    <h3 class="motion-title">Masukkan Namamu</h3>
+    <p class="motion-copy name-copy">Enter your name · tampil di atas karaktermu, dilihat tamu lain di venue.</p>
+    <input type="text" name="name" placeholder="Nama kamu" aria-label="Nama kamu" maxlength="40" autocomplete="name" required>
+    <p class="rsvp-status name-err" role="status"></p>
+    <button type="submit" class="btn-solid">Masuk</button>
+  </form>
   <!-- on arriving in the lobby, before the how-to-walk hints: make a character, or go in as you are -->
   <div class="motion-ask char-ask" id="charAsk" hidden>
     <p class="eyebrow">Sebelum Masuk</p>
@@ -228,9 +241,37 @@
       </div>
     </div>
   </div>
-  <!-- first or third person, once the guest has a character (V on a keyboard) -->
+  <!-- before the live chat opens: it's our Discord, which asks two questions on the way in, and then
+       the event's channel; opens on its own after a short countdown (gate3d.js) -->
+  <div class="motion-ask chat-ask" id="chatAsk" role="dialog" aria-modal="true" aria-labelledby="chatAskTitle" hidden>
+    <p class="eyebrow">Live Chat</p>
+    <h3 class="motion-title" id="chatAskTitle">Kamu akan masuk ke Discord kami</h3>
+    <p class="motion-copy chat-lead">Saat bergabung, Discord menanyakan dua hal. Pilih ini:</p>
+    <ol class="chat-steps">
+      <li>
+        <span class="chat-q">Are you a robot?</span>
+        <span class="chat-pick"><span aria-hidden="true">🧠</span> Not as far as I know</span>
+      </li>
+      <li>
+        <span class="chat-q">Will you help us grow our followings?</span>
+        <span class="chat-pick"><span aria-hidden="true">❤️</span> I'm Here for the Wedding!</span>
+      </li>
+      <li>
+        <span class="chat-q">Lalu langsung masuk ke channel ini (di bawah <em>Voice Channels</em>):</span>
+        <span class="chat-pick chat-channel"><span aria-hidden="true">🎬</span> Events-AdamElsaWedding</span>
+      </li>
+    </ol>
+    <p class="chat-count" id="chatCount" aria-live="polite"></p>
+    <div class="chat-nav">
+      <button class="btn-outline" id="chatCancel" type="button">Batal</button>
+      <button class="btn-solid" id="chatGo" type="button">Buka Sekarang</button>
+    </div>
+  </div>
+  <!-- first or third person once the guest has a character, or making one if they went in
+       without (V on a keyboard); bottom right, over the live chat link -->
   <button class="view-toggle" id="viewToggle" type="button" aria-pressed="false" hidden>
-    <span aria-hidden="true">◐</span> <span class="view-state">Orang ketiga</span>
+    <svg class="view-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
+    <span class="view-state">Orang ketiga</span>
   </button>
   <!-- how many guests are in the venue right now (only with the multiplayer relay) -->
   <p class="online-count" id="onlineCount" hidden><span class="online-dot" aria-hidden="true"></span><span class="online-n"></span></p>

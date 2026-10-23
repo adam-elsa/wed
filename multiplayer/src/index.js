@@ -7,6 +7,14 @@
 // counts 20 incoming messages as one request and doesn't charge for outgoing ones, so passing
 // each update on to 30 people costs no more than receiving it.
 //
+// A guest who shuts the browser doesn't always say goodbye (a phone drops the connection without
+// closing it), so every page says 'ping' every 10 seconds, answered with 'pong' by Cloudflare
+// itself without waking the object. While anyone is connected an alarm looks round every 15
+// seconds and sends off whoever hasn't been heard from (a ping or a message) for 30.
+// A page that is still there but not in the venue (put away in the background, or reading the 2D
+// invitation) stops saying where it is; after 2 minutes of that it is let go too, with code 4000
+// so it doesn't reconnect straight away: it comes back in once the guest is walking again.
+//
 // Messages, as JSON, guest -> relay:
 //   { t: 'hi', name, look }        on connecting (look as in avatar3d.js, or null)
 //   { t: 's', r, x, z, y, a }      where I am: room ('lobby' | 'ballroom'), position, facing, walking (0/1)
@@ -23,6 +31,9 @@ const ORIGINS = [/^https:\/\/adam-elsa\.github\.io$/, /^http:\/\/localhost(:\d+)
 const MAX_GUESTS = 120;        // a wedding, not a stadium
 const MAX_RATE = 20;           // messages a second from one guest before they're ignored
 const NAME_MAX = 40;
+const QUIET = 30 * 1000;       // ms without a ping or a message before a guest counts as gone
+const SWEEP = 15 * 1000;       // ms between looks round for them
+const IDLE = 2 * 60 * 1000;    // ms without saying where they are (not walking the venue) before they're let go
 
 export default {
   async fetch(request, env) {
@@ -49,21 +60,44 @@ function cleanLook(look) {
 }
 
 export class Venue extends DurableObject {
+  constructor(ctx, env) {
+    super(ctx, env);
+    // the pages' heartbeat, answered without waking the object (see alarm())
+    this.ctx.setWebSocketAutoResponse(new WebSocketRequestResponsePair('ping', 'pong'));
+  }
+
   async fetch(request) {
-    if (this.ctx.getWebSockets().length >= MAX_GUESTS) return new Response('the venue is full', { status: 503 });
+    if (this.here().length >= MAX_GUESTS) return new Response('the venue is full', { status: 503 });
     const pair = new WebSocketPair();
     const [client, server] = Object.values(pair);
     this.ctx.acceptWebSocket(server); // hibernatable: the object can sleep while sockets stay open
-    server.serializeAttachment({ id: crypto.randomUUID().slice(0, 8), name: '', look: null, s: null, hi: false, win: 0, n: 0 });
+    server.serializeAttachment({ id: crypto.randomUUID().slice(0, 8), name: '', look: null, s: null, hi: false, win: 0, n: 0, seen: Date.now(), at: Date.now() });
+    if (!(await this.ctx.storage.getAlarm())) await this.ctx.storage.setAlarm(Date.now() + SWEEP);
     return new Response(null, { status: 101, webSocket: client });
   }
 
-  others(ws) { return this.ctx.getWebSockets().filter((w) => w !== ws); }
+  // look round for guests gone quiet (the browser closed without saying so), or still connected
+  // but no longer in the venue, and see them out
+  async alarm() {
+    const now = Date.now();
+    for (const ws of this.here()) {
+      const me = ws.deserializeAttachment() || {};
+      const pinged = this.ctx.getWebSocketAutoResponseTimestamp(ws);
+      if (now - Math.max(me.seen || 0, pinged ? pinged.getTime() : 0) > QUIET) this.bye(ws);
+      else if (now - (me.at || 0) > IDLE) this.bye(ws, 4000, 'idle');
+    }
+    if (this.here().length) await this.ctx.storage.setAlarm(Date.now() + SWEEP);
+  }
+
+  // the sockets still open: one closed from this end can linger until the other end answers
+  here() { return this.ctx.getWebSockets().filter((w) => { const a = w.deserializeAttachment(); return !(a && a.gone); }); }
+  others(ws) { return this.here().filter((w) => w !== ws); }
   send(ws, msg) { try { ws.send(typeof msg === 'string' ? msg : JSON.stringify(msg)); } catch (err) { /* gone */ } }
   tell(ws, msg) { const text = JSON.stringify(msg); for (const w of this.others(ws)) this.send(w, text); }
 
   async webSocketMessage(ws, data) {
     const me = ws.deserializeAttachment();
+    me.seen = Date.now();
     // a guest flooding the room is ignored for the rest of that second
     const sec = Math.floor(Date.now() / 1000);
     if (sec !== me.win) { me.win = sec; me.n = 0; }
@@ -84,7 +118,7 @@ export class Venue extends DurableObject {
     if (!me.hi) return;
     if (m.t === 's') {
       const s = { r: m.r === 'ballroom' ? 'ballroom' : 'lobby', x: num(m.x, -30, 30), z: num(m.z, -30, 30), y: num(m.y, -10, 10), a: m.a ? 1 : 0 };
-      me.s = s; ws.serializeAttachment(me);
+      me.s = s; me.at = Date.now(); ws.serializeAttachment(me);
       this.tell(ws, { t: 's', id: me.id, ...s });
     } else if (m.t === 'name') {
       me.name = clean(m.name) || me.name; ws.serializeAttachment(me);
@@ -99,9 +133,11 @@ export class Venue extends DurableObject {
 
   async webSocketClose(ws) { this.bye(ws); }
   async webSocketError(ws) { this.bye(ws); }
-  bye(ws) {
+  bye(ws, code = 1000, reason = 'bye') {
     const me = ws.deserializeAttachment();
+    if (me && me.gone) return; // seen out already
+    if (me) { me.gone = true; try { ws.serializeAttachment(me); } catch (err) { /* closed */ } }
     if (me && me.hi) this.tell(ws, { t: 'leave', id: me.id });
-    try { ws.close(); } catch (err) { /* already */ }
+    try { ws.close(code, reason); } catch (err) { /* already */ }
   }
 }
