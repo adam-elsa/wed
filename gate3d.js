@@ -1319,7 +1319,7 @@ function init() {
     if (days < 0) venueNotice.hidden = true;
     else {
       const when = days === 0 ? 'hari ini' : days === 1 ? 'besok' : 'pada Sabtu, 24 Oktober 2026';
-      venueNotice.textContent = `Pernikahan kami akan diadakan ${when}: akad pada jam 12.30 WIB dan pesta pada jam 14.00 WIB. Silakan datang lagi pada waktu tersebut.`;
+      venueNotice.textContent = `Pernikahan kami akan diadakan ${when}: akad pada jam 12.30 WIB dan pesta pada jam 16.00 WIB. Silakan datang lagi pada waktu tersebut.`;
     }
   }
   const VENUE_HINT = isTouch
