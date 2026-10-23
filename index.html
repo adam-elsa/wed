@@ -228,6 +228,32 @@
       </div>
     </div>
   </div>
+  <!-- before the live chat opens: it's our Discord, which asks two questions on the way in, and then
+       the event's channel; opens on its own after a short countdown (gate3d.js) -->
+  <div class="motion-ask chat-ask" id="chatAsk" role="dialog" aria-modal="true" aria-labelledby="chatAskTitle" hidden>
+    <p class="eyebrow">Live Chat</p>
+    <h3 class="motion-title" id="chatAskTitle">Kamu akan masuk ke Discord kami</h3>
+    <p class="motion-copy chat-lead">Saat bergabung, Discord menanyakan dua hal. Pilih ini:</p>
+    <ol class="chat-steps">
+      <li>
+        <span class="chat-q">Are you a robot?</span>
+        <span class="chat-pick"><span aria-hidden="true">🧠</span> Not as far as I know</span>
+      </li>
+      <li>
+        <span class="chat-q">Will you help us grow our followings?</span>
+        <span class="chat-pick"><span aria-hidden="true">❤️</span> I'm Here for the Wedding!</span>
+      </li>
+      <li>
+        <span class="chat-q">Lalu langsung masuk ke channel ini (di bawah <em>Voice Channels</em>):</span>
+        <span class="chat-pick chat-channel"><span aria-hidden="true">🎬</span> Events-AdamElsaWedding</span>
+      </li>
+    </ol>
+    <p class="chat-count" id="chatCount" aria-live="polite"></p>
+    <div class="chat-nav">
+      <button class="btn-outline" id="chatCancel" type="button">Batal</button>
+      <button class="btn-solid" id="chatGo" type="button">Buka Sekarang</button>
+    </div>
+  </div>
   <!-- first or third person once the guest has a character, or making one if they went in
        without (V on a keyboard); bottom right, over the live chat link -->
   <button class="view-toggle" id="viewToggle" type="button" aria-pressed="false" hidden>

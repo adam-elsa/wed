@@ -799,6 +799,47 @@ body.is-creating .online-count{display:none !important;}
 .gate.in-lobby .motion-toggle:not([hidden]), .gate.in-venue .motion-toggle:not([hidden]){display:block;}
 .motion-toggle[aria-pressed="true"]{border-color:var(--gold);background:rgba(60,45,22,0.8);}
 
+/* ---- before the live chat: what to pick on the way into our Discord ---- */
+.chat-ask{z-index:66;width:min(430px, calc(100vw - 32px));max-height:calc(100dvh - 24px);overflow-y:auto;}
+.chat-ask .motion-title{margin-bottom:6px;}
+.chat-lead{margin:0 0 12px;}
+.chat-steps{list-style:none;counter-reset:step;margin:0;padding:0;display:grid;gap:10px;text-align:left;}
+.chat-steps li{
+  counter-increment:step;
+  position:relative;
+  padding:10px 12px 11px 44px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:rgba(255,255,255,0.035);
+}
+.chat-steps li::before{
+  content:counter(step);
+  position:absolute;left:12px;top:10px;
+  width:22px;height:22px;border-radius:50%;
+  display:grid;place-items:center;
+  font-family:var(--font-sans);font-size:12px;font-weight:600;
+  color:#211a10;background:linear-gradient(135deg,var(--gold-soft),var(--gold));
+}
+.chat-q{display:block;font-size:12px;line-height:1.5;color:var(--ink-dim);margin-bottom:6px;}
+/* the choice to tap, drawn like Discord's own card so it's easy to spot there */
+.chat-pick{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:7px 12px;
+  border-radius:8px;
+  border:1.5px solid #5865f2;
+  background:#2b2d3a;
+  color:#f2f3f5;
+  font-family:var(--font-sans);font-size:13px;font-weight:600;
+}
+.chat-channel{border-color:transparent;background:#35373c;}
+.chat-count{margin:14px 0 0;font-size:12px;letter-spacing:0.04em;color:var(--gold-soft);min-height:1.5em;}
+.chat-count b{font-size:16px;}
+.chat-nav{display:flex;justify-content:center;gap:10px;margin-top:12px;}
+.chat-nav button{padding:11px 22px;}
+/* the browser stopped the tab opening by itself: the button is the way now */
+.chat-ask.is-blocked #chatGo{animation:chat-go 1.2s ease-in-out infinite;}
+@keyframes chat-go{50%{box-shadow:0 0 0 6px rgba(203,161,92,0.25);}}
+
 /* ---- making your own character (lobby, 3D only) ---- */
 .char-ask{width:min(430px, calc(100vw - 32px));}
 /* the character on a stage on the left, the choices in a panel on the right */

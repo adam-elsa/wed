@@ -816,12 +816,60 @@ function init() {
     k.textContent = ' · tekan "J"';
     venueChat.append(k);
   }
+  // First a word on what's coming: it's our Discord, which asks two questions on the way in (what to
+  // pick), and then the event's channel to go to. It opens by itself after a short countdown, a
+  // little under 5 seconds, since browsers only let a page open a tab that long after the tap;
+  // where one stops it anyway (Safari), the button flashes to be tapped instead.
+  const chatAsk = document.getElementById('chatAsk');
+  const chatCount = document.getElementById('chatCount');
+  const chatGo = document.getElementById('chatGo');
+  const CHAT_WAIT = 5;     // seconds shown
+  const CHAT_OPEN = 4.8;   // seconds until it opens
+  let chatTimer = 0;
+  function openChat() {
+    if (!venueChat) return;
+    if (!chatAsk) { window.open(venueChat.href, '_blank', 'noopener'); return; }
+    if (!chatAsk.hidden) return;
+    controls.unlock();
+    controls.stop(); // the keys and the thumbstick rest while it's up
+    chatAsk.classList.remove('is-blocked');
+    if (chatGo) chatGo.textContent = 'Buka Sekarang';
+    chatAsk.hidden = false;
+    const start = performance.now();
+    const tick = () => {
+      const s = (performance.now() - start) / 1000;
+      if (s >= CHAT_OPEN) return goChat(true);
+      if (chatCount) chatCount.innerHTML = `Membuka Discord dalam <b>${Math.ceil(CHAT_WAIT - s)}</b>…`;
+      chatTimer = setTimeout(tick, 100);
+    };
+    tick();
+  }
+  function closeChat() {
+    clearTimeout(chatTimer);
+    if (!chatAsk || chatAsk.hidden) return;
+    chatAsk.hidden = true;
+    if (state === 'venue') controls.start(isTouch);
+  }
+  function goChat(byItself) {
+    clearTimeout(chatTimer);
+    const w = window.open(venueChat.href, '_blank');
+    if (w) { try { w.opener = null; } catch (err) { /* another site's window */ } closeChat(); return; }
+    // the browser held the tab back: it has to be a tap
+    if (!byItself) { window.location.href = venueChat.href; return; }
+    chatAsk.classList.add('is-blocked');
+    if (chatCount) chatCount.textContent = 'Ketuk tombol di bawah untuk membuka Discord';
+    if (chatGo) chatGo.textContent = 'Buka Discord';
+  }
+  if (venueChat) venueChat.addEventListener('click', (e) => { e.preventDefault(); openChat(); });
+  if (chatGo) chatGo.addEventListener('click', () => goChat(false));
+  const chatCancel = document.getElementById('chatCancel');
+  if (chatCancel) chatCancel.addEventListener('click', closeChat);
   window.addEventListener('keydown', (e) => {
+    if (e.code === 'Escape' && chatAsk && !chatAsk.hidden) { closeChat(); return; }
     if (e.code !== 'KeyJ' || e.repeat || e.metaKey || e.ctrlKey || e.altKey || state !== 'venue' || !venueChat) return;
     const el = document.activeElement;
     if (el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.isContentEditable)) return;
-    controls.unlock();
-    window.open(venueChat.href, '_blank', 'noopener');
+    openChat();
   });
   window.addEventListener('keydown', (e) => {
     if (e.code !== 'KeyV' || e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
