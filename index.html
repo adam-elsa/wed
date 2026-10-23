@@ -36,108 +36,110 @@
     <div class="gate-top">
       <p class="eyebrow">The Wedding Celebration Of</p>
       <h1 class="gate-names"><span>Adam</span><span class="amp">&amp;</span><span>Elsa</span></h1>
-      <p class="gate-hint" id="motionHint" hidden>Ketuk layar untuk mengaktifkan efek gerak</p>
+      <p data-en="Tap the screen to turn on the motion effect" class="gate-hint" id="motionHint" hidden>Ketuk layar untuk mengaktifkan efek gerak</p>
     </div>
     <div class="gate-bottom">
       <p class="gate-venue">Golden Boutique Hotel · 24.10.2026</p>
       <div class="gate-divider"></div>
-      <p class="gate-guest">Kepada Bapak/Ibu/Saudara/i,<br><strong id="guestName" data-guest>Tamu Virtual Wedding</strong></p>
-      <button id="openBtn" class="btn-open" type="button">
+      <p data-en="Dear,<br><strong id=&quot;guestName&quot; data-guest>Virtual Wedding Guest</strong>" class="gate-guest">Kepada Bapak/Ibu/Saudara/i,<br><strong id="guestName" data-guest>Tamu Virtual Wedding</strong></p>
+      <button data-en="<span class=&quot;btn-open-icon&quot;>❧</span> Enter the Venue" id="openBtn" class="btn-open" type="button">
         <span class="btn-open-icon">❧</span> Masuk Venue
       </button>
+      <!-- English / Bahasa Indonesia (lang.js): starts the page again in the other one -->
+      <button class="lang-toggle" type="button">English</button>
     </div>
   </div>
   <!-- inside the lobby: look around, tap a photo, continue to the invitation -->
   <div class="lobby-ui" id="lobbyUi">
     <div class="lobby-top">
-      <p class="eyebrow">Selamat Datang</p>
+      <p data-en="Welcome" class="eyebrow">Selamat Datang</p>
       <p class="lobby-hint" id="lobbyHint"></p>
     </div>
     <div class="lobby-story-head">
-      <p class="eyebrow">Cerita Kami</p>
-      <p class="lobby-hint">Ketuk foto untuk melihat lebih dekat</p>
+      <p data-en="Our Story" class="eyebrow">Cerita Kami</p>
+      <p data-en="Tap a photo for a closer look" class="lobby-hint">Ketuk foto untuk melihat lebih dekat</p>
     </div>
     <!-- labels floating over each photo group (positioned by gate3d.js) -->
-    <button class="lobby-tag" data-group="couple" type="button">Kedua Mempelai</button>
-    <button class="lobby-tag" data-group="map" type="button">Lokasi &amp; Tempat</button>
-    <button class="lobby-tag lobby-tag--cta" data-group="rsvp" type="button">Buku Tamu</button>
+    <button data-en="The Bride &amp;amp; Groom" class="lobby-tag" data-group="couple" type="button">Kedua Mempelai</button>
+    <button data-en="Location &amp;amp; Venue" class="lobby-tag" data-group="map" type="button">Lokasi &amp; Tempat</button>
+    <button data-en="Guest Book" class="lobby-tag lobby-tag--cta" data-group="rsvp" type="button">Buku Tamu</button>
     <!-- on the door: walks through into the ballroom -->
-    <button class="lobby-tag lobby-tag--cta" data-group="venue" type="button">Masuk Ballroom</button>
-    <button class="lobby-tag" data-group="story" type="button">Cerita Kami</button>
-    <button class="lobby-tag" data-group="gift" type="button">Amplop Digital</button>
-    <button class="lobby-tag" data-group="invite" type="button">Undangan 2D</button>
+    <button data-en="Enter the Ballroom" class="lobby-tag lobby-tag--cta" data-group="venue" type="button">Masuk Ballroom</button>
+    <button data-en="Our Story" class="lobby-tag" data-group="story" type="button">Cerita Kami</button>
+    <button data-en="Digital Gift" class="lobby-tag" data-group="gift" type="button">Amplop Digital</button>
+    <button data-en="2D Invitation" class="lobby-tag" data-group="invite" type="button">Undangan 2D</button>
     <!-- info card beside the photo being viewed; data-show picks the section -->
     <div class="lobby-card" id="lobbyCard">
       <section data-card="groom">
-        <p class="eyebrow">Mempelai Pria</p>
+        <p data-en="The Groom" class="eyebrow">Mempelai Pria</p>
         <h3 class="card-name">Adam</h3>
-        <p class="card-sub">Putra dari</p>
-        <p class="card-parents">Bapak Badru Kamal<br>&amp; Ibu Ika Kurniaputri</p>
+        <p data-en="Son of" class="card-sub">Putra dari</p>
+        <p data-en="Mr. Badru Kamal<br>&amp;amp; Mrs. Ika Kurniaputri" class="card-parents">Bapak Badru Kamal<br>&amp; Ibu Ika Kurniaputri</p>
       </section>
       <section data-card="couple">
-        <p class="eyebrow">Kedua Mempelai</p>
+        <p data-en="The Bride &amp;amp; Groom" class="eyebrow">Kedua Mempelai</p>
         <h3 class="card-name">Adam <span class="amp">&amp;</span> Elsa</h3>
       </section>
       <section data-card="bride">
-        <p class="eyebrow">Mempelai Wanita</p>
+        <p data-en="The Bride" class="eyebrow">Mempelai Wanita</p>
         <h3 class="card-name">Elsa</h3>
-        <p class="card-sub">Putri dari</p>
-        <p class="card-parents">Bapak Muhammad Hasan<br>&amp; Ibu Damini</p>
+        <p data-en="Daughter of" class="card-sub">Putri dari</p>
+        <p data-en="Mr. Muhammad Hasan<br>&amp;amp; Mrs. Damini" class="card-parents">Bapak Muhammad Hasan<br>&amp; Ibu Damini</p>
       </section>
       <!-- same as the invitation's "Amplop Digital" section -->
       <section data-card="gift">
-        <p class="eyebrow">Amplop Digital</p>
-        <h3 class="card-title">Hadiah Pernikahan</h3>
-        <p class="card-sub">Doa restu Bapak/Ibu/Saudara/i adalah hadiah terindah bagi kami. Namun jika ingin memberi tanda kasih, dapat melalui:</p>
+        <p data-en="Digital Gift" class="eyebrow">Amplop Digital</p>
+        <h3 data-en="Wedding Gift" class="card-title">Hadiah Pernikahan</h3>
+        <p data-en="Your prayers and blessings are the most beautiful gift to us. But if you would like to send a token of love, you can do so through:" class="card-sub">Doa restu Bapak/Ibu/Saudara/i adalah hadiah terindah bagi kami. Namun jika ingin memberi tanda kasih, dapat melalui:</p>
         <div class="card-gift">
           <p class="gift-bank">BCA</p>
           <p class="gift-number" id="lobbyGiftNumber">8691241238</p>
-          <p class="gift-holder">a.n. Elsa</p>
+          <p data-en="Account holder: Elsa" class="gift-holder">a.n. Elsa</p>
         </div>
-        <button class="btn-solid card-btn" id="lobbyCopyGift" type="button">Salin Nomor Rekening</button>
-        <button class="btn-outline card-btn card-next" id="lobbyToBallroom" type="button">Masuk Ballroom →</button>
+        <button data-en="Copy Account Number" class="btn-solid card-btn" id="lobbyCopyGift" type="button">Salin Nomor Rekening</button>
+        <button data-en="Enter the Ballroom →" class="btn-outline card-btn card-next" id="lobbyToBallroom" type="button">Masuk Ballroom →</button>
       </section>
       <!-- the guest book at the reception desk: written before going on to the angpao and the ballroom -->
       <section data-card="rsvp">
-        <p class="eyebrow">Buku Tamu</p>
-        <h3 class="card-title">Selamat Datang</h3>
-        <p class="card-sub">Sebelum masuk ke ballroom, silakan tuliskan nama Bapak/Ibu/Saudara/i di buku tamu kami.</p>
+        <p data-en="Guest Book" class="eyebrow">Buku Tamu</p>
+        <h3 data-en="Welcome" class="card-title">Selamat Datang</h3>
+        <p data-en="Before going into the ballroom, please write your name in our guest book." class="card-sub">Sebelum masuk ke ballroom, silakan tuliskan nama Bapak/Ibu/Saudara/i di buku tamu kami.</p>
         <form class="card-form" id="lobbyGuestbookForm">
-          <input type="text" name="name" placeholder="Nama" aria-label="Nama" required autocomplete="name">
-          <button type="submit" class="btn-solid">Tulis di Buku Tamu</button>
+          <input data-en-placeholder="Name" data-en-aria-label="Name" type="text" name="name" placeholder="Nama" aria-label="Nama" required autocomplete="name">
+          <button data-en="Sign the Guest Book" type="submit" class="btn-solid">Tulis di Buku Tamu</button>
           <p class="rsvp-status" role="status"></p>
         </form>
       </section>
       <section data-card="map">
-        <p class="eyebrow">Lokasi &amp; Tempat</p>
+        <p data-en="Location &amp;amp; Venue" class="eyebrow">Lokasi &amp; Tempat</p>
         <h3 class="card-title">Golden Boutique Hotel</h3>
-        <p class="card-sub">Jakarta · Sabtu, 24 Oktober 2026</p>
+        <p data-en="Jakarta · Saturday, 24 October 2026" class="card-sub">Jakarta · Sabtu, 24 Oktober 2026</p>
         <div class="card-map">
           <iframe data-src="https://www.google.com/maps?q=Golden+Boutique+Hotel+Jakarta&amp;output=embed" title="Peta Golden Boutique Hotel" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
         </div>
         <div class="card-times">
-          <div><span>Akad Nikah</span><strong>12.30 WIB</strong></div>
-          <div><span>Resepsi</span><strong>16.00 WIB</strong></div>
+          <div data-en="<span>Akad (Ceremony)</span><strong>12.30 WIB</strong><small>1.30 PM Malaysia</small>"><span>Akad Nikah</span><strong>12.30 WIB</strong></div>
+          <div data-en="<span>Reception</span><strong>16.00 WIB</strong><small>5.00 PM Malaysia</small>"><span>Resepsi</span><strong>16.00 WIB</strong></div>
         </div>
-        <a class="btn-solid card-btn" href="https://www.google.com/maps/search/?api=1&amp;query=Golden+Boutique+Hotel+Jakarta" target="_blank" rel="noopener">Buka Google Maps</a>
+        <a data-en="Open Google Maps" class="btn-solid card-btn" href="https://www.google.com/maps/search/?api=1&amp;query=Golden+Boutique+Hotel+Jakarta" target="_blank" rel="noopener">Buka Google Maps</a>
       </section>
     </div>
     <div class="lobby-bottom">
-      <button class="btn-outline lobby-back" id="lobbyBack" type="button">← Kembali</button>
+      <button data-en="← Back" class="btn-outline lobby-back" id="lobbyBack" type="button">← Kembali</button>
     </div>
   </div>
   <!-- inside the ballroom (ballroom3d.js): drag to look around, tap a label to walk there.
        gate3d.js adds the floating labels and draws the floor plan -->
   <div class="venue-ui" id="venueUi">
     <div class="lobby-top">
-      <p class="eyebrow" id="venueTitle">Selamat Datang di Hari Bahagia Kami</p>
+      <p data-en="Welcome to Our Happy Day" class="eyebrow" id="venueTitle">Selamat Datang di Hari Bahagia Kami</p>
       <p class="lobby-hint" id="venueHint"></p>
     </div>
     <!-- when to come back for the day itself; "besok" follows the date (gate3d.js), gone after the day -->
     <p class="venue-notice" id="venueNotice">Pernikahan kami akan diadakan besok: akad pada jam 12.30 WIB dan pesta pada jam 16.00 WIB. Silakan datang lagi pada waktu tersebut.</p>
     <div class="venue-plan" id="venuePlan"></div>
     <div class="lobby-bottom">
-      <button class="btn-outline" id="venueBack" type="button">← Lobi</button>
+      <button data-en="← Lobby" class="btn-outline" id="venueBack" type="button">← Lobi</button>
     </div>
     <!-- live chat during the event: change the href to swap Discord for a YouTube livestream -->
     <a class="venue-chat" id="venueChat" href="https://discord.gg/3uWyUHYU?event=1563070599130128444" target="_blank" rel="noopener">
@@ -148,8 +150,8 @@
   <!-- asked once, on arriving in the lobby: some people find a view tied to the phone's
        movement makes them queasy, so moving with the thumbstick alone is the default -->
   <div class="motion-ask" id="motionAsk" hidden>
-    <p class="eyebrow">Melihat Sekeliling</p>
-    <h3 class="motion-title">Pilih cara melihat</h3>
+    <p data-en="Looking Around" class="eyebrow">Melihat Sekeliling</p>
+    <h3 data-en="Choose how to look around" class="motion-title">Pilih cara melihat</h3>
     <div class="motion-choices">
       <button class="motion-card" id="motionStick" type="button">
         <span class="motion-label is-solid">Joystick &amp; Swipe Only</span>
@@ -166,7 +168,7 @@
         </svg>
       </button>
       <button class="motion-card" id="motionGyro" type="button">
-        <span class="motion-label">Dengan Gerakan Gyroscope</span>
+        <span data-en="With Gyroscope Motion" class="motion-label">Dengan Gerakan Gyroscope</span>
         <svg class="motion-art" viewBox="0 0 150 92" aria-hidden="true">
           <!-- a phone being tilted, with the arcs it sweeps -->
           <g transform="rotate(-14 75 46)">
@@ -181,26 +183,26 @@
         </svg>
       </button>
     </div>
-    <p class="motion-copy">Sebagian orang jadi pusing kalau tampilan ikut gerakan ponsel.</p>
-    <p class="motion-note">Bisa diubah kapan saja lewat tombol ⟳ di pojok.</p>
+    <p data-en="Some people get dizzy when the view follows the phone's movement." class="motion-copy">Sebagian orang jadi pusing kalau tampilan ikut gerakan ponsel.</p>
+    <p data-en="You can change it any time with the ⟳ button in the corner." class="motion-note">Bisa diubah kapan saja lewat tombol ⟳ di pojok.</p>
   </div>
   <!-- after the verse, on the white at the doorway: the guest's own name, typed (not the one the
        invitation link was made out to); it goes over their character and into the guest book -->
   <form class="motion-ask name-ask card-form" id="nameAsk" novalidate hidden>
-    <p class="eyebrow">Sebelum Masuk</p>
-    <h3 class="motion-title">Masukkan Namamu</h3>
-    <p class="motion-copy name-copy">Enter your name · tampil di atas karaktermu, dilihat tamu lain di venue.</p>
-    <input type="text" name="name" placeholder="Nama kamu" aria-label="Nama kamu" maxlength="40" autocomplete="name" required>
+    <p data-en="Before You Enter" class="eyebrow">Sebelum Masuk</p>
+    <h3 data-en="Enter Your Name" class="motion-title">Masukkan Namamu</h3>
+    <p data-en="Shown above your character, for the other guests in the venue to see." class="motion-copy name-copy">Enter your name · tampil di atas karaktermu, dilihat tamu lain di venue.</p>
+    <input data-en-placeholder="Your name" data-en-aria-label="Your name" type="text" name="name" placeholder="Nama kamu" aria-label="Nama kamu" maxlength="40" autocomplete="name" required>
     <p class="rsvp-status name-err" role="status"></p>
-    <button type="submit" class="btn-solid">Masuk</button>
+    <button data-en="Enter" type="submit" class="btn-solid">Masuk</button>
   </form>
   <!-- on arriving in the lobby, before the how-to-walk hints: make a character, or go in as you are -->
   <div class="motion-ask char-ask" id="charAsk" hidden>
-    <p class="eyebrow">Sebelum Masuk</p>
-    <h3 class="motion-title">Mau tampil seperti apa?</h3>
+    <p data-en="Before You Enter" class="eyebrow">Sebelum Masuk</p>
+    <h3 data-en="How would you like to appear?" class="motion-title">Mau tampil seperti apa?</h3>
     <div class="motion-choices">
       <button class="motion-card" id="charMake" type="button">
-        <span class="motion-label is-solid" id="charMakeLabel">Buat Karakter</span>
+        <span data-en="Create a Character" class="motion-label is-solid" id="charMakeLabel">Buat Karakter</span>
         <svg class="motion-art" viewBox="0 0 150 92" aria-hidden="true">
           <!-- a little figure on a stand, with a sparkle -->
           <circle cx="75" cy="20" r="9" fill="none" stroke="currentColor" stroke-width="2.6"/>
@@ -212,7 +214,7 @@
         </svg>
       </button>
       <button class="motion-card" id="charSkip" type="button">
-        <span class="motion-label" id="charSkipLabel">Langsung Masuk</span>
+        <span data-en="Go Straight In" class="motion-label" id="charSkipLabel">Langsung Masuk</span>
         <svg class="motion-art" viewBox="0 0 150 92" aria-hidden="true">
           <!-- an eye: seeing the venue through your own eyes -->
           <path d="M35 46 C50 24 100 24 115 46 C100 68 50 68 35 46 Z" fill="rgba(255,255,255,0.05)" stroke="currentColor" stroke-width="2.6" stroke-linejoin="round"/>
@@ -221,23 +223,23 @@
         </svg>
       </button>
     </div>
-    <p class="motion-copy" id="charCopy">Pilih gender, rambut atau hijab, lalu pakaianmu.</p>
+    <p data-en="Choose your gender, hair or hijab, then your outfit." class="motion-copy" id="charCopy">Pilih gender, rambut atau hijab, lalu pakaianmu.</p>
   </div>
   <!-- the character creator: the character on its stage, and the choices one step at a time -->
   <div class="creator" id="creator" hidden>
     <div class="creator-stage">
       <canvas id="creatorCanvas"></canvas>
       <p class="creator-loading" id="creatorLoading" hidden></p>
-      <p class="creator-drag">Geser untuk memutar</p>
+      <p data-en="Drag to turn" class="creator-drag">Geser untuk memutar</p>
     </div>
     <div class="creator-panel">
-      <p class="eyebrow">Buat Karakter</p>
+      <p data-en="Create a Character" class="eyebrow">Buat Karakter</p>
       <ol class="creator-steps" id="creatorSteps"></ol>
       <h3 class="creator-title" id="creatorTitle"></h3>
       <div class="creator-options" id="creatorOptions"></div>
       <div class="creator-nav">
-        <button class="btn-outline" id="creatorBack" type="button">Batal</button>
-        <button class="btn-solid" id="creatorNext" type="button">Lanjut</button>
+        <button data-en="Cancel" class="btn-outline" id="creatorBack" type="button">Batal</button>
+        <button data-en="Next" class="btn-solid" id="creatorNext" type="button">Lanjut</button>
       </div>
     </div>
   </div>
@@ -245,8 +247,8 @@
        the event's channel; opens on its own after a short countdown (gate3d.js) -->
   <div class="motion-ask chat-ask" id="chatAsk" role="dialog" aria-modal="true" aria-labelledby="chatAskTitle" hidden>
     <p class="eyebrow">Live Chat</p>
-    <h3 class="motion-title" id="chatAskTitle">Kamu akan masuk ke Discord kami</h3>
-    <p class="motion-copy chat-lead">Saat bergabung, Discord menanyakan dua hal. Pilih ini:</p>
+    <h3 data-en="You're about to join our Discord" class="motion-title" id="chatAskTitle">Kamu akan masuk ke Discord kami</h3>
+    <p data-en="When you join, Discord asks two questions. Pick these:" class="motion-copy chat-lead">Saat bergabung, Discord menanyakan dua hal. Pilih ini:</p>
     <ol class="chat-steps">
       <li>
         <span class="chat-q">Are you a robot?</span>
@@ -257,14 +259,14 @@
         <span class="chat-pick"><span aria-hidden="true">❤️</span> I'm Here for the Wedding!</span>
       </li>
       <li>
-        <span class="chat-q">Lalu langsung masuk ke channel ini (di bawah <em>Voice Channels</em>):</span>
+        <span data-en="Then go straight to this channel (under <em>Voice Channels</em>):" class="chat-q">Lalu langsung masuk ke channel ini (di bawah <em>Voice Channels</em>):</span>
         <span class="chat-pick chat-channel"><span aria-hidden="true">🎬</span> Events-AdamElsaWedding</span>
       </li>
     </ol>
     <p class="chat-count" id="chatCount" aria-live="polite"></p>
     <div class="chat-nav">
-      <button class="btn-outline" id="chatCancel" type="button">Batal</button>
-      <button class="btn-solid" id="chatGo" type="button">Buka Sekarang</button>
+      <button data-en="Cancel" class="btn-outline" id="chatCancel" type="button">Batal</button>
+      <button data-en="Open Now" class="btn-solid" id="chatGo" type="button">Buka Sekarang</button>
     </div>
   </div>
   <!-- first or third person once the guest has a character, or making one if they went in
@@ -304,22 +306,22 @@
   <!-- verse overlaid on the walk up to the doors (gate3d.js toggles .show-ayat) -->
   <div class="gate-ayat">
     <span class="ayat-ornament" aria-hidden="true">❧</span>
-    <p class="ayat-id">“Dan segala sesuatu Kami ciptakan berpasang-pasangan agar kamu mengingat (kebesaran Allah).”</p>
+    <p data-en="“And We created pairs of all things, so that you may remember (the greatness of Allah).”" class="ayat-id">“Dan segala sesuatu Kami ciptakan berpasang-pasangan agar kamu mengingat (kebesaran Allah).”</p>
     <p class="ayat-src">QS. Az-Zariyat: 49</p>
   </div>
   <!-- our story, line by line, over the lobby just after stepping inside -->
   <div class="gate-story">
     <span class="ayat-ornament" aria-hidden="true">❧</span>
-    <p class="story-line">Perjalanan kami tidak singkat.</p>
-    <p class="story-line">Ada tawa, ada tangis, ada jarak, ada rindu.</p>
-    <p class="story-line">Di setiap musimnya, kami selalu memilih satu sama lain.</p>
-    <p class="story-line">Hari ini, kami memilih untuk selamanya.</p>
-    <p class="story-line">Dan kami ingin merayakannya bersama kalian.</p>
+    <p data-en="Our journey has not been a short one." class="story-line">Perjalanan kami tidak singkat.</p>
+    <p data-en="There was laughter, there were tears, there was distance, there was longing." class="story-line">Ada tawa, ada tangis, ada jarak, ada rindu.</p>
+    <p data-en="Through every season, we always chose each other." class="story-line">Di setiap musimnya, kami selalu memilih satu sama lain.</p>
+    <p data-en="Today, we choose each other forever." class="story-line">Hari ini, kami memilih untuk selamanya.</p>
+    <p data-en="And we want to celebrate it with all of you." class="story-line">Dan kami ingin merayakannya bersama kalian.</p>
   </div>
 </section>
 
 <!-- music control: spinning disc, hidden until opened -->
-<button id="musicToggle" class="music-toggle" type="button" aria-label="Putar / jeda musik" hidden>
+<button data-en-aria-label="Play / pause music" id="musicToggle" class="music-toggle" type="button" aria-label="Putar / jeda musik" hidden>
   <span class="music-icon playing"></span>
 </button>
 <!-- "Tenderness in the Air" (Final Fantasy V), classical guitar, as on the original invitation -->
@@ -331,7 +333,7 @@
      full-width layout (no side panel), with landscape photos.
      ================================================================ -->
 <!-- closes the 2D invitation when it is opened from its frame in the lobby -->
-<button id="inviteClose" class="invite-close" type="button" aria-label="Tutup undangan 2D" hidden>
+<button id="inviteClose" class="invite-close" type="button" aria-label="Tutup undangan 2D" data-en-aria-label="Close the 2D invitation" data-en="&lt;span aria-hidden=&quot;true&quot;&gt;&amp;times;&lt;/span&gt; Back to the Venue" hidden>
   <span aria-hidden="true">&times;</span> Kembali ke Venue
 </button>
 
@@ -343,13 +345,14 @@
     <section class="inv-sec inv-hero">
       <!-- the invited guest, at the top of the photo (name from ?to=) -->
       <div class="inv-hero-guest anim-up">
-        <p class="inv-hero-dear">Dear, <span class="inv-hero-guest-name" data-guest>Tamu Undangan</span></p>
+        <p data-en="Dear, <span class=&quot;inv-hero-guest-name&quot; data-guest>Honoured Guest</span>" class="inv-hero-dear">Dear, <span class="inv-hero-guest-name" data-guest>Tamu Undangan</span></p>
         <p class="inv-hero-invite">We would like to invite you to :</p>
+        <button class="lang-toggle inv-lang" type="button">English</button>
       </div>
       <div class="inv-row">
         <p class="inv-hero-of anim-up">The Wedding of</p>
         <p class="inv-hero-names anim-up">Adam &amp; Elsa</p>
-        <p class="inv-hero-date anim-up">24 Oktober 2026</p>
+        <p data-en="24 October 2026" class="inv-hero-date anim-up">24 Oktober 2026</p>
       </div>
       <!-- "Scroll" hint down the left edge: arrows sliding down a line from under the greeting to
            the word "Scroll"; only a hint (taps go through it), it fades once the guest scrolls -->
@@ -364,7 +367,7 @@
     <section class="inv-sec inv-verse">
       <div class="inv-row inv-verse-card">
         <div class="inv-verse-text anim-up">
-          <p>“Dan segala sesuatu Kami ciptakan berpasang-pasangan agar kamu mengingat (kebesaran Allah).”</p>
+          <p data-en="“And We created pairs of all things, so that you may remember (the greatness of Allah).”">“Dan segala sesuatu Kami ciptakan berpasang-pasangan agar kamu mengingat (kebesaran Allah).”</p>
           <p><strong>(QS. Az-Zariyat: 49)</strong></p>
         </div>
       </div>
@@ -378,7 +381,7 @@
     <section class="inv-sec inv-story">
       <div class="inv-row">
         <div class="inv-double-rule anim-left"></div>
-        <p class="inv-story-text anim-up">Perjalanan kami tidak singkat. <br>Ada tawa, ada tangis, ada jarak, ada rindu. Di setiap musimnya, kami selalu memilih satu sama lain. <br>Hari ini, kami memilih untuk selamanya. Dan kami ingin merayakannya bersama kalian.</p>
+        <p data-en="Our journey has not been a short one. <br>There was laughter, there were tears, there was distance, there was longing. Through every season, we always chose each other. <br>Today, we choose each other forever. And we want to celebrate it with all of you." class="inv-story-text anim-up">Perjalanan kami tidak singkat. <br>Ada tawa, ada tangis, ada jarak, ada rindu. Di setiap musimnya, kami selalu memilih satu sama lain. <br>Hari ini, kami memilih untuk selamanya. Dan kami ingin merayakannya bersama kalian.</p>
       </div>
     </section>
 
@@ -396,7 +399,7 @@
           <img class="inv-sprig inv-sprig-left" src="assets/img/inv/sprig-left.webp" alt="" width="121" height="390" aria-hidden="true">
           <div class="inv-couple-text anim-up">
             <h4 class="inv-couple-name">Adam</h4>
-            <p>Putra dari<br>Bapak Badru Kamal<br>&amp; Ibu Ika Kurniaputri</p>
+            <p data-en="Son of<br>Mr. Badru Kamal<br>&amp;amp; Mrs. Ika Kurniaputri">Putra dari<br>Bapak Badru Kamal<br>&amp; Ibu Ika Kurniaputri</p>
           </div>
           <a class="inv-ig anim-up" href="https://instagram.com/adamtechtips" target="_blank" rel="noopener" aria-label="Instagram Adam">
             <svg viewBox="0 0 448 512" aria-hidden="true"><path fill="currentColor" d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg>
@@ -414,7 +417,7 @@
           <img class="inv-sprig inv-sprig-right" src="assets/img/inv/sprig-right.webp" alt="" width="87" height="407" aria-hidden="true">
           <div class="inv-couple-text anim-up">
             <h4 class="inv-couple-name">Elsa</h4>
-            <p>Putri dari<br>Bapak Lim Han San<br>&amp; Ibu Damini</p>
+            <p data-en="Daughter of<br>Mr. Lim Han San<br>&amp;amp; Mrs. Damini">Putri dari<br>Bapak Lim Han San<br>&amp; Ibu Damini</p>
           </div>
           <a class="inv-ig anim-up" href="https://instagram.com/scar.let" target="_blank" rel="noopener" aria-label="Instagram Elsa">
             <svg viewBox="0 0 448 512" aria-hidden="true"><path fill="currentColor" d="M224.1 141c-63.6 0-114.9 51.3-114.9 114.9s51.3 114.9 114.9 114.9S339 319.5 339 255.9 287.7 141 224.1 141zm0 189.6c-41.1 0-74.7-33.5-74.7-74.7s33.5-74.7 74.7-74.7 74.7 33.5 74.7 74.7-33.6 74.7-74.7 74.7zm146.4-194.3c0 14.9-12 26.8-26.8 26.8-14.9 0-26.8-12-26.8-26.8s12-26.8 26.8-26.8 26.8 12 26.8 26.8zm76.1 27.2c-1.7-35.9-9.9-67.7-36.2-93.9-26.2-26.2-58-34.4-93.9-36.2-37-2.1-147.9-2.1-184.9 0-35.8 1.7-67.6 9.9-93.9 36.1s-34.4 58-36.2 93.9c-2.1 37-2.1 147.9 0 184.9 1.7 35.9 9.9 67.7 36.2 93.9s58 34.4 93.9 36.2c37 2.1 147.9 2.1 184.9 0 35.9-1.7 67.7-9.9 93.9-36.2 26.2-26.2 34.4-58 36.2-93.9 2.1-37 2.1-147.8 0-184.8zM398.8 388c-7.8 19.6-22.9 34.7-42.6 42.6-29.5 11.7-99.5 9-132.1 9s-102.7 2.6-132.1-9c-19.6-7.8-34.7-22.9-42.6-42.6-11.7-29.5-9-99.5-9-132.1s-2.6-102.7 9-132.1c7.8-19.6 22.9-34.7 42.6-42.6 29.5-11.7 99.5-9 132.1-9s102.7-2.6 132.1 9c19.6 7.8 34.7 22.9 42.6 42.6 11.7 29.5 9 99.5 9 132.1s2.7 102.7-9 132.1z"/></svg>
@@ -427,14 +430,14 @@
     <section class="inv-sec inv-events">
       <div class="inv-divider-top"></div>
       <div class="inv-row inv-events-date">
-        <p class="anim-up">Sabtu, 24 Oktober 2026</p>
+        <p data-en="Saturday, 24 October 2026" class="anim-up">Sabtu, 24 Oktober 2026</p>
       </div>
       <div class="inv-row inv-events-body">
         <svg class="inv-line-icon anim-draw" viewBox="0 0 841.9 841.9" aria-hidden="true"><g fill="none" stroke="#000" stroke-width="8"><path d="M332.1,38.6c-0.4-0.2-1-0.5-1.3-0.7c-18-11.2-39.3-14.5-59.9-9.6c-1.5,0.4-3.1,1-4.5,1.5c-18.3,5.5-33.9,17-44.3,33.7c-8.2,13.3-12.2,28.2-12,43.4c0.2,5.7,0.8,11.5,2,17.1c5,20.5,17.6,38.1,35.7,49.2c10,6.1,20.8,9.9,31.9,11.1c0.5,0.2,1.2,0.1,1.7,0.2c2.1,0.2,4.5,0,6.7-0.7c10.2-3,16.1-13.6,13.2-23.9c-2.2-7.7-8.7-12.9-15.9-13.9c-0.3-0.1-0.5,0-0.6,0c-16.6-1.9-31-14-35.1-31.1c-1.6-6.8-1.3-13.4,0.3-19.7c3.4-13.2,13.4-24.2,27.2-28.7l2.8-0.8c11.1-2.7,22.3-0.5,31.4,5.2c4.6,3,10,3.7,15.4,2.1c11-3.2,16-14.6,13.2-24.2C338.6,45,336.1,41.3,332.1,38.6z"/><path d="M625.3,38.6c-0.4-0.2-1-0.5-1.3-0.7c-18-11.2-39.3-14.5-59.9-9.6c-1.5,0.4-3.1,1-4.5,1.5c-18.3,5.5-33.9,17-44.3,33.7c-8.2,13.3-12.2,28.2-12,43.4c0.2,5.7,0.8,11.5,2,17.1c5,20.5,17.6,38.1,35.7,49.2c10,6.1,20.8,9.9,31.9,11.1c0.5,0.2,1.2,0.1,1.7,0.2c2.1,0.2,4.5,0,6.7-0.7c10.2-3,16.1-13.6,13.2-23.9c-2.2-7.7-8.7-12.9-15.9-13.9c-0.3-0.1-0.5,0-0.6,0c-16.6-1.9-31-14-35.1-31.1c-1.6-6.8-1.3-13.4,0.3-19.7c3.4-13.2,13.4-24.2,27.2-28.7l2.8-0.8c11.1-2.7,22.3-0.5,31.4,5.2c4.6,3,10,3.7,15.4,2.1c11-3.2,16-14.6,13.2-24.2C631.8,45,629.3,41.3,625.3,38.6z"/><path d="M579.3,111h76.8c9.6,0,17.4,7.8,17.4,17.4v576.1c0,9.6-7.8,17.4-17.4,17.4H77.3c-9.6,0-17.4-7.8-17.4-17.4V128.4c0-9.6,7.8-17.4,17.4-17.4h106.6"/><line x1="288.6" y1="111" x2="475.5" y2="111"/><path d="M657.7,111.1L657.7,111.1l0.3,0c9.7-0.9,18,6.2,18.9,15.9l48.9,574c0.8,9.7-6.3,18-15.9,18.9l-538.3,45.9l-38.3,3.2c-9.7,0.8-18.1-6.3-18.9-15.9l-2.7-31.2"/><path d="M171.7,765.8l6.5,35.6c1.7,9.6,10.8,15.8,20.3,14.1l569.2-104.7c9.4-1.7,15.8-10.8,14-20.3L677.6,123.9c-1.7-9.4-10.8-15.7-20.3-14l-5.8,1.1l0-0.1"/><line x1="59.9" y1="238" x2="489.3" y2="238"/><line x1="586" y1="238" x2="673.5" y2="238"/><path d="M364.5,641.2l148.9-140.9l-1.8,0c17.7-18.9,28.7-44.1,28.7-72c0-58.3-47.3-105.6-105.6-105.6c-26,0-49.5,9.7-67.9,25.3c-18.4-15.6-41.9-25.3-67.9-25.3c-58.3,0-105.6,47.3-105.6,105.6c0,24.2,8.5,46.3,22.2,64.1l0,0L364.5,641.2"/></g></svg>
-        <p class="inv-event-name anim-up">Akad Nikah</p>
-        <p class="inv-event-time anim-up">12.30 WIB</p>
-        <p class="inv-event-name anim-up">Resepsi Pernikahan</p>
-        <p class="inv-event-time anim-up">16.00 WIB</p>
+        <p data-en="Akad Nikah (Marriage Ceremony)" class="inv-event-name anim-up">Akad Nikah</p>
+        <p data-en="12.30 WIB · 1.30 PM Malaysia time" class="inv-event-time anim-up">12.30 WIB</p>
+        <p data-en="Wedding Reception" class="inv-event-name anim-up">Resepsi Pernikahan</p>
+        <p data-en="16.00 WIB · 5.00 PM Malaysia time" class="inv-event-time anim-up">16.00 WIB</p>
         <svg class="inv-line-icon inv-line-icon-pin anim-draw" viewBox="0 0 841.9 841.9" aria-hidden="true"><g fill="none" stroke="#000" stroke-width="8"><path d="M607.2,259.9c0,95.7-163.3,316-186.3,346.4C398,575.9,234.7,355.6,234.7,259.9c0-102.7,83.6-186.3,186.3-186.3C523.7,73.6,607.2,157.2,607.2,259.9z M515.9,259.9c0,52.4-42.6,95-94.9,95c-52.4,0-95-42.6-95-95c0-52.4,42.6-95,95-95C473.3,164.9,515.9,207.5,515.9,259.9z"/><path d="M474.7,714.6c0,29.6-24.1,53.7-53.7,53.7c-29.6,0-53.7-24.1-53.7-53.7c0-29.6,24.1-53.7,53.7-53.7C450.6,660.8,474.7,684.9,474.7,714.6z"/></g></svg>
         <div class="inv-venue anim-up">
           <h3>Golden Boutique Hotel Kemayoran</h3>
@@ -442,7 +445,7 @@
         </div>
         <a class="inv-btn inv-btn-map anim-up" href="https://maps.app.goo.gl/CVXyH9ZxdrndSdp88" target="_blank" rel="noopener">
           <svg viewBox="0 0 384 512" aria-hidden="true"><path fill="currentColor" d="M172.268 501.67C26.97 291.031 0 269.413 0 192 0 85.961 85.961 0 192 0s192 85.961 192 192c0 77.413-26.97 99.031-172.268 309.67-9.535 13.774-29.93 13.773-39.464 0zM192 272c44.183 0 80-35.817 80-80s-35.817-80-80-80-80 35.817-80 80 35.817 80 80 80z"/></svg>
-          Lihat Lokasi
+          <span data-en="View Location">Lihat Lokasi</span>
         </a>
       </div>
       <div class="inv-divider-bottom"></div>
@@ -451,7 +454,7 @@
     <!-- ============ COUNTDOWN ============ -->
     <section class="inv-sec inv-countdown">
       <div class="inv-row">
-        <p class="inv-countdown-title anim-up">Hari yang ditunggu</p>
+        <p data-en="The day we've been waiting for" class="inv-countdown-title anim-up">Hari yang ditunggu</p>
         <div class="inv-clock anim-up" id="countdown">
           <div class="inv-face"><div class="inv-time" id="cd-days">0</div><div class="inv-label">Day</div></div>
           <div class="inv-face"><div class="inv-time" id="cd-hours">00</div><div class="inv-label">Hours</div></div>
@@ -477,21 +480,21 @@
     <section class="inv-sec inv-rsvp">
       <div class="inv-row">
         <p class="inv-title-25 anim-up">RSVP</p>
-        <p class="inv-rsvp-intro anim-up">Kami tidak sabar menunggu hari pernikahan kami bersama Bapak/Ibu/Saudara/i, mohon konfirmasi kehadiran Bapak/Ibu/Saudara/i. Terima kasih.</p>
+        <p data-en="We can't wait to celebrate our wedding day with you. Please let us know if you can come. Thank you." class="inv-rsvp-intro anim-up">Kami tidak sabar menunggu hari pernikahan kami bersama Bapak/Ibu/Saudara/i, mohon konfirmasi kehadiran Bapak/Ibu/Saudara/i. Terima kasih.</p>
         <form id="rsvpForm" class="inv-rsvp-form anim-up" novalidate>
           <div class="ff-group">
-            <label for="rsvpName">Nama</label>
+            <label data-en="Name" for="rsvpName">Nama</label>
             <input type="text" id="rsvpName" name="name" required autocomplete="name">
           </div>
           <div class="ff-group">
-            <span class="ff-label" id="rsvpAttendLabel">Kehadiran?</span>
+            <span data-en="Attending?" class="ff-label" id="rsvpAttendLabel">Kehadiran?</span>
             <div class="ff-buttons" role="radiogroup" aria-labelledby="rsvpAttendLabel">
-              <label class="ff-choice"><input type="radio" name="attendance" value="Hadir" checked><span>Saya akan hadir</span></label>
-              <label class="ff-choice"><input type="radio" name="attendance" value="Tidak Hadir"><span>Maaf tidak hadir</span></label>
+              <label class="ff-choice"><input type="radio" name="attendance" value="Hadir" checked><span data-en="I&#39;ll be there">Saya akan hadir</span></label>
+              <label class="ff-choice"><input type="radio" name="attendance" value="Tidak Hadir"><span data-en="Sorry, I can&#39;t make it">Maaf tidak hadir</span></label>
             </div>
           </div>
           <div class="ff-group ff-guests">
-            <label for="rsvpGuests">Jumlah Tamu</label>
+            <label data-en="Number of Guests" for="rsvpGuests">Jumlah Tamu</label>
             <select id="rsvpGuests" name="guests">
               <option value="1">1</option>
               <option value="2">2</option>
@@ -502,7 +505,7 @@
             </select>
           </div>
           <div class="ff-submit">
-            <button type="submit" class="ff-btn">Kirim</button>
+            <button data-en="Send" type="submit" class="ff-btn">Kirim</button>
           </div>
           <p class="rsvp-status" role="status"></p>
         </form>
@@ -514,9 +517,9 @@
     <section class="inv-sec inv-gift">
       <div class="inv-row">
         <svg class="inv-gift-icon anim-up" viewBox="2 3 28 27" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"><rect x="3" y="10" width="26" height="6"/><path d="M5 16v13h22V16M16 10v19"/><path d="M16 10c-1.5-4-7-6.5-8.5-3.5S12 10 16 10zM16 10c1.5-4 7-6.5 8.5-3.5S20 10 16 10z"/></g></svg>
-        <p class="inv-gift-title anim-up">Amplop Digital</p>
-        <p class="inv-gift-text anim-up">Bagi keluarga dan sahabat yang ingin mengirimkan hadiah, silakan mengirimkannya melalui tautan berikut:</p>
-        <button class="inv-btn inv-btn-bank anim-up" id="openGift" type="button" aria-haspopup="dialog" aria-controls="giftPopup">
+        <p data-en="Digital Gift" class="inv-gift-title anim-up">Amplop Digital</p>
+        <p data-en="For family and friends who would like to send a gift, you can do so through the following:" class="inv-gift-text anim-up">Bagi keluarga dan sahabat yang ingin mengirimkan hadiah, silakan mengirimkannya melalui tautan berikut:</p>
+        <button data-en="Bank Transfer" class="inv-btn inv-btn-bank anim-up" id="openGift" type="button" aria-haspopup="dialog" aria-controls="giftPopup">
           <svg viewBox="0 0 576 512" aria-hidden="true"><path fill="currentColor" d="M0 432c0 26.5 21.5 48 48 48h480c26.5 0 48-21.5 48-48V256H0v176zm192-68c0-6.6 5.4-12 12-12h136c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12H204c-6.6 0-12-5.4-12-12v-40zm-128 0c0-6.6 5.4-12 12-12h72c6.6 0 12 5.4 12 12v40c0 6.6-5.4 12-12 12H76c-6.6 0-12-5.4-12-12v-40zM576 80v48H0V80c0-26.5 21.5-48 48-48h480c26.5 0 48 21.5 48 48z"/></svg>
           Transfer Bank
         </button>
@@ -527,8 +530,8 @@
     <!-- ============ GALLERY ============ -->
     <section class="inv-sec inv-gallery">
       <div class="inv-row">
-        <p class="inv-gallery-kicker anim-up">GALERI</p>
-        <p class="inv-gallery-title anim-up">Momen Kami</p>
+        <p data-en="GALLERY" class="inv-gallery-kicker anim-up">GALERI</p>
+        <p data-en="Our Moments" class="inv-gallery-title anim-up">Momen Kami</p>
       </div>
       <div class="inv-row inv-gallery-grid">
         <div class="inv-gallery-col">
@@ -549,12 +552,12 @@
     <!-- ============ GUESTBOOK ============ -->
     <section class="inv-sec inv-wishes">
       <div class="inv-row inv-wishes-card">
-        <p class="inv-wishes-title anim-up">Tinggalkan pesan/doa untuk kami <img src="assets/img/inv/envelope.svg" width="32" height="29" alt=""></p>
+        <p data-en="Leave us a message or prayer <img src=&quot;assets/img/inv/envelope.svg&quot; width=&quot;32&quot; height=&quot;29&quot; alt=&quot;&quot;>" class="inv-wishes-title anim-up">Tinggalkan pesan/doa untuk kami <img src="assets/img/inv/envelope.svg" width="32" height="29" alt=""></p>
         <div class="inv-wishes-body">
           <form id="wishForm" class="inv-wish-form">
-            <input type="text" name="name" placeholder="Nama" required autocomplete="name" aria-label="Nama">
-            <textarea name="message" placeholder="Tulis pesan" required minlength="2" maxlength="500" aria-label="Tulis pesan"></textarea>
-            <div class="inv-wish-submit"><button type="submit">Kirim</button></div>
+            <input data-en-placeholder="Name" data-en-aria-label="Name" type="text" name="name" placeholder="Nama" required autocomplete="name" aria-label="Nama">
+            <textarea data-en-placeholder="Write a message" data-en-aria-label="Write a message" name="message" placeholder="Tulis pesan" required minlength="2" maxlength="500" aria-label="Tulis pesan"></textarea>
+            <div class="inv-wish-submit"><button type="submit" data-en="Send">Kirim</button></div>
             <p class="rsvp-status" role="status"></p>
           </form>
           <ul id="wishesList" class="inv-wishes-list"></ul>
@@ -585,8 +588,8 @@
   <!-- ============ BANK TRANSFER POPUP ============ -->
   <div id="giftPopup" class="inv-popup" role="dialog" aria-modal="true" aria-labelledby="giftPopupTitle" hidden>
     <div class="inv-popup-box">
-      <button class="inv-popup-close" type="button" aria-label="Tutup">×</button>
-      <p class="inv-popup-title" id="giftPopupTitle">Nomor Rekening</p>
+      <button data-en-aria-label="Close" class="inv-popup-close" type="button" aria-label="Tutup">×</button>
+      <p data-en="Account Number" class="inv-popup-title" id="giftPopupTitle">Nomor Rekening</p>
       <div class="inv-bank-card">
         <img class="inv-bank-logo" src="assets/img/inv/bank-bca.png" alt="BCA" width="320" height="100">
         <p class="inv-bank-number" id="giftNumber">8691241238</p>
@@ -601,12 +604,13 @@
 
   <!-- gallery lightbox -->
   <div id="lightbox" class="inv-lightbox" hidden>
-    <button class="inv-lightbox-close" type="button" aria-label="Tutup">×</button>
+    <button data-en-aria-label="Close" class="inv-lightbox-close" type="button" aria-label="Tutup">×</button>
     <img alt="">
   </div>
 
 </main>
 
+<script src="lang.js"></script>
 <script src="script.js"></script>
 <script type="importmap">
 { "imports": {

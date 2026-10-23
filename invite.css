@@ -110,6 +110,8 @@
 .inv-hero-dear.is-wrapping{white-space:normal;}
 .inv-hero-dear.is-wrapping .inv-hero-guest-name{overflow-wrap:anywhere;}
 .inv-hero-invite{margin-top:8px;font-family:var(--font-body);font-size:14px;letter-spacing:1px;}
+/* the language switch, under the greeting (lang.js; base look in styles.css) */
+.inv-lang{color:#383838;text-shadow:none;margin-top:6px;pointer-events:auto;}
 .inv-hero .inv-row > *{margin-bottom:10px;}
 .inv-hero .inv-row > *:last-child{margin-bottom:0;}
 .inv-hero p{color:#ffffff;}

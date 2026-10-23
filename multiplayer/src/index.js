@@ -39,9 +39,18 @@ export default {
   async fetch(request, env) {
     const url = new URL(request.url);
     if (url.pathname === '/') return new Response('Adam & Elsa venue relay', { status: 200 });
-    if (url.pathname !== '/ws') return new Response('not found', { status: 404 });
     const origin = request.headers.get('Origin') || '';
-    if (!ORIGINS.some((re) => re.test(origin))) return new Response('forbidden', { status: 403 });
+    const allowed = ORIGINS.some((re) => re.test(origin));
+    // which country the guest is in (Cloudflare knows it from their IP), so the site can greet
+    // guests from Malaysia in English (lang.js); only the country goes back, nothing is kept
+    if (url.pathname === '/geo') {
+      if (!allowed) return new Response('forbidden', { status: 403 });
+      return new Response(JSON.stringify({ country: (request.cf && request.cf.country) || null }), {
+        headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': origin, 'Cache-Control': 'no-store', Vary: 'Origin' },
+      });
+    }
+    if (url.pathname !== '/ws') return new Response('not found', { status: 404 });
+    if (!allowed) return new Response('forbidden', { status: 403 });
     if (request.headers.get('Upgrade') !== 'websocket') return new Response('expected a websocket', { status: 426 });
     const room = env.VENUE.get(env.VENUE.idFromName('wedding'));
     return room.fetch(request);

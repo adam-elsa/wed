@@ -1,6 +1,9 @@
 (() => {
   'use strict';
 
+  // Indonesian, or English for guests from Malaysia (lang.js)
+  const L = window.L || ((id) => id);
+
   // ---------- CONFIG ----------
   // TODO: paste your deployed Google Apps Script Web App URL here (see gas/rsvp-endpoint.gs + README).
   const RSVP_ENDPOINT_URL = '';
@@ -196,7 +199,7 @@
     if (days < 7) return `${plural(days, 'day')}, ${plural(hours % 24, 'hour')} ago`;
     const weeks = Math.floor(days / 7);
     if (days < 30) return `${plural(weeks, 'week')}, ${plural(days % 7, 'day')} ago`;
-    return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+    return date.toLocaleDateString(L('id-ID', 'en-GB'), { day: 'numeric', month: 'long', year: 'numeric' });
   }
 
   function renderWish(name, message, time, toTop) {
@@ -207,7 +210,7 @@
     head.className = 'inv-wish-head';
     const nameEl = document.createElement('span');
     nameEl.className = 'inv-wish-name';
-    nameEl.textContent = name || 'Tamu';
+    nameEl.textContent = name || L('Tamu', 'Guest');
     head.appendChild(nameEl);
     const when = time ? new Date(time) : null;
     if (when && !isNaN(when)) {
@@ -381,7 +384,7 @@
     const status = rsvpForm.querySelector('.rsvp-status');
     const name = rsvpForm.elements.name.value.trim();
     if (!name) {
-      status.textContent = 'Mohon isi nama Anda.';
+      status.textContent = L('Mohon isi nama Anda.', 'Please fill in your name.');
       status.className = 'rsvp-status err';
       rsvpForm.elements.name.focus();
       return;
@@ -397,11 +400,11 @@
     try {
       const [toSheet] = await Promise.all([send(rsvp), sendToNstory(rsvp)]);
       status.textContent = toSheet === 'preview' && !NSTORY_AJAX_URL
-        ? 'Terima kasih! (mode pratinjau — belum tersambung ke Google Sheet)'
-        : 'Terima kasih atas konfirmasinya!';
+        ? L('Terima kasih! (mode pratinjau — belum tersambung ke Google Sheet)', 'Thank you! (preview mode — not connected to the Google Sheet yet)')
+        : L('Terima kasih atas konfirmasinya!', 'Thank you for letting us know!');
       status.className = 'rsvp-status ok';
     } catch (err) {
-      status.textContent = 'Gagal mengirim. Silakan coba lagi.';
+      status.textContent = L('Gagal mengirim. Silakan coba lagi.', 'Could not send. Please try again.');
       status.className = 'rsvp-status err';
     }
   });
@@ -431,10 +434,10 @@
         renderWish(mine.name, mine.message, mine.time, true);
       }
       wishForm.elements.message.value = '';
-      status.textContent = toSheet === 'preview' && !NSTORY_COMMENTS_URL ? 'Terima kasih! (mode pratinjau)' : '';
+      status.textContent = toSheet === 'preview' && !NSTORY_COMMENTS_URL ? L('Terima kasih! (mode pratinjau)', 'Thank you! (preview mode)') : '';
       status.className = 'rsvp-status ok';
     } catch (err) {
-      status.textContent = 'Gagal mengirim. Silakan coba lagi.';
+      status.textContent = L('Gagal mengirim. Silakan coba lagi.', 'Could not send. Please try again.');
       status.className = 'rsvp-status err';
     }
   });
@@ -470,7 +473,7 @@
       const status = lobbyBook.querySelector('.rsvp-status');
       const name = lobbyBook.elements.name.value.trim();
       if (!name) {
-        status.textContent = 'Mohon isi nama Anda.';
+        status.textContent = L('Mohon isi nama Anda.', 'Please fill in your name.');
         status.className = 'rsvp-status err';
         lobbyBook.elements.name.focus();
         return;
@@ -480,12 +483,12 @@
       try {
         const toSheet = await sendGuestbook(name);
         status.textContent = toSheet === 'preview'
-          ? 'Terima kasih! (mode pratinjau — belum tersambung ke Google Sheet)'
-          : 'Terima kasih, nama Anda sudah tercatat!';
+          ? L('Terima kasih! (mode pratinjau — belum tersambung ke Google Sheet)', 'Thank you! (preview mode — not connected to the Google Sheet yet)')
+          : L('Terima kasih, nama Anda sudah tercatat!', 'Thank you, your name is in the guest book!');
         status.className = 'rsvp-status ok';
         window.dispatchEvent(new CustomEvent('guestbook:signed', { detail: { name } }));
       } catch (err) {
-        status.textContent = 'Gagal mengirim. Silakan coba lagi.';
+        status.textContent = L('Gagal mengirim. Silakan coba lagi.', 'Could not send. Please try again.');
         status.className = 'rsvp-status err';
       }
     });
@@ -496,8 +499,8 @@
     lobbyCopy.addEventListener('click', async () => {
       try {
         await navigator.clipboard.writeText(document.getElementById('lobbyGiftNumber').textContent.trim());
-        lobbyCopy.textContent = 'Tersalin!';
-        setTimeout(() => (lobbyCopy.textContent = 'Salin Nomor Rekening'), 1800);
+        lobbyCopy.textContent = L('Tersalin!', 'Copied!');
+        setTimeout(() => (lobbyCopy.textContent = L('Salin Nomor Rekening', 'Copy Account Number')), 1800);
       } catch (err) {
         // clipboard blocked — no-op
       }

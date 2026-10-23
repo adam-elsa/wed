@@ -455,6 +455,7 @@ a{color:inherit;}
 .card-times div{flex:1;border:1px solid var(--line);border-radius:12px;padding:10px 6px;}
 .card-times span{display:block;font-size:11px;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);}
 .card-times strong{display:block;font-family:var(--font-display);font-weight:500;font-size:22px;color:var(--ink);margin-top:2px;}
+.card-times small{display:block;font-size:11px;color:var(--ink-dim);margin-top:2px;} /* the same time in Malaysia (English) */
 .card-btn{display:inline-block;}
 /* RSVP: centred on screen, over the door */
 .lobby-card.is-center{
@@ -580,6 +581,23 @@ a{color:inherit;}
 }
 .gate-guest{color:var(--ink-dim);font-weight:300;line-height:1.8;margin:0 0 18px;font-size:15px;}
 .gate-guest strong{color:var(--gold-soft);font-weight:500;font-size:17px;}
+/* English / Bahasa Indonesia: a quiet link under the button (lang.js) */
+.lang-toggle{
+  display:block;
+  margin:14px auto 0;
+  padding:4px 10px;
+  font-family:var(--font-sans);
+  font-size:12px;
+  letter-spacing:0.08em;
+  color:var(--ink-dim);
+  background:none;
+  border:none;
+  text-decoration:underline;
+  text-underline-offset:3px;
+  cursor:pointer;
+  text-shadow:0 0 6px rgba(0,0,0,0.6);
+}
+.lang-toggle:hover, .lang-toggle:focus-visible{color:var(--gold-soft);}
 .btn-open{
   font-family:var(--font-sans);
   background:linear-gradient(135deg,var(--gold-soft),var(--gold));

@@ -10,6 +10,9 @@ import { createControls, hasGyro } from './fps.js';
 import { createThirdPerson } from './thirdperson3d.js';
 import { createNet, savedName, saveName } from './net3d.js';
 
+// Indonesian, or English for guests from Malaysia (lang.js)
+const L = window.L || ((id) => id);
+
 const gate = document.getElementById('gate');
 const canvas = document.getElementById('gateCanvas');
 if (gate && canvas) init();
@@ -423,7 +426,7 @@ function init() {
     if (!onlineEl) return;
     onlineEl.hidden = !n;
     const t = onlineEl.querySelector('.online-n');
-    if (t) t.textContent = `${n} tamu online`;
+    if (t) t.textContent = L(`${n} tamu online`, `${n} online`);
   });
   const crosshair = document.getElementById('crosshair');
   const hint = document.getElementById('motionHint');
@@ -617,7 +620,7 @@ function init() {
       e.preventDefault();
       const name = input.value.replace(/\s+/g, ' ').trim();
       if (name.length < 2) {
-        if (err) { err.textContent = 'Mohon tulis namamu dulu.'; err.className = 'rsvp-status name-err err'; }
+        if (err) { err.textContent = L('Mohon tulis namamu dulu.', 'Please write your name first.'); err.className = 'rsvp-status name-err err'; }
         input.focus();
         return;
       }
@@ -745,9 +748,9 @@ function init() {
     const skipLabel = document.getElementById('charSkipLabel');
     const copy = document.getElementById('charCopy');
     if (made) {
-      if (makeLabel) makeLabel.textContent = 'Ubah Karakter';
-      if (skipLabel) skipLabel.textContent = 'Pakai yang Tersimpan';
-      if (copy) copy.textContent = 'Karaktermu sudah tersimpan dari kunjungan sebelumnya.';
+      if (makeLabel) makeLabel.textContent = L('Ubah Karakter', 'Change Character');
+      if (skipLabel) skipLabel.textContent = L('Pakai yang Tersimpan', 'Use My Saved One');
+      if (copy) copy.textContent = L('Karaktermu sudah tersimpan dari kunjungan sebelumnya.', 'Your character is saved from your last visit.');
     }
     const make = document.getElementById('charMake');
     const skip = document.getElementById('charSkip');
@@ -791,10 +794,12 @@ function init() {
     viewToggle.dataset.mode = has ? 'view' : 'make';
     viewToggle.setAttribute('aria-pressed', has && tp.on() ? 'true' : 'false');
     // a keyboard can do it with V; say so (a phone has only the button)
-    const [a, b] = !has ? ['Buat Karakter', 'Create Character']
-      : tp.on() ? ['Orang ketiga', '3rd Person View'] : ['Orang pertama', '1st Person View'];
-    const key = isTouch ? '' : '<span class="view-key">tekan "V"</span>';
-    if (viewState) viewState.innerHTML = `<span>${a}</span><span>/ ${b}</span>${key}`;
+    // two short lines: Indonesian over English, or just English for guests reading it
+    const [a, b] = window.LANG === 'en'
+      ? (!has ? ['Create', 'Character'] : tp.on() ? ['3rd Person', 'View'] : ['1st Person', 'View'])
+      : (!has ? ['Buat Karakter', '/ Create Character'] : tp.on() ? ['Orang ketiga', '/ 3rd Person View'] : ['Orang pertama', '/ 1st Person View']);
+    const key = isTouch ? '' : `<span class="view-key">${L('tekan "V"', 'press "V"')}</span>`;
+    if (viewState) viewState.innerHTML = `<span>${a}</span><span>${b}</span>${key}`;
   }
   // "Langsung Masuk", then changed their mind: the creator over the room, and in as the character
   let creating = false;
@@ -846,7 +851,7 @@ function init() {
   if (venueChat && !isTouch) {
     const k = document.createElement('span');
     k.className = 'venue-chat-key';
-    k.textContent = ' · tekan "J"';
+    k.textContent = L(' · tekan "J"', ' · press "J"');
     (venueChat.querySelector('.venue-chat-sub') || venueChat).append(k);
   }
   // First a word on what's coming: it's our Discord, which asks two questions on the way in (what to
@@ -866,13 +871,13 @@ function init() {
     controls.unlock();
     controls.stop(); // the keys and the thumbstick rest while it's up
     chatAsk.classList.remove('is-blocked');
-    if (chatGo) chatGo.textContent = 'Buka Sekarang';
+    if (chatGo) chatGo.textContent = L('Buka Sekarang', 'Open Now');
     chatAsk.hidden = false;
     const start = performance.now();
     const tick = () => {
       const s = (performance.now() - start) / 1000;
       if (s >= CHAT_OPEN) return goChat(true);
-      if (chatCount) chatCount.innerHTML = `Membuka Discord dalam <b>${Math.ceil(CHAT_WAIT - s)}</b>…`;
+      if (chatCount) chatCount.innerHTML = L('Membuka Discord dalam', 'Opening Discord in') + ` <b>${Math.ceil(CHAT_WAIT - s)}</b>…`;
       chatTimer = setTimeout(tick, 100);
     };
     tick();
@@ -890,8 +895,8 @@ function init() {
     // the browser held the tab back: it has to be a tap
     if (!byItself) { window.location.href = venueChat.href; return; }
     chatAsk.classList.add('is-blocked');
-    if (chatCount) chatCount.textContent = 'Ketuk tombol di bawah untuk membuka Discord';
-    if (chatGo) chatGo.textContent = 'Buka Discord';
+    if (chatCount) chatCount.textContent = L('Ketuk tombol di bawah untuk membuka Discord', 'Tap the button below to open Discord');
+    if (chatGo) chatGo.textContent = L('Buka Discord', 'Open Discord');
   }
   if (venueChat) venueChat.addEventListener('click', (e) => { e.preventDefault(); openChat(); });
   if (chatGo) chatGo.addEventListener('click', () => goChat(false));
@@ -932,7 +937,7 @@ function init() {
     if (!motionToggle || !gyroThere) return; // nothing to turn on: no toggle to offer
     motionToggle.hidden = false;
     motionToggle.setAttribute('aria-pressed', on ? 'true' : 'false');
-    if (motionState) motionState.textContent = on ? 'Gerak ponsel: aktif' : 'Gerak ponsel: mati';
+    if (motionState) motionState.textContent = on ? L('Gerak ponsel: aktif', 'Phone motion: on') : L('Gerak ponsel: mati', 'Phone motion: off');
   }
   function setMotion(on) {
     return controls.setGyro(on).then((got) => {
@@ -949,11 +954,11 @@ function init() {
     coach.dataset.mode = isTouch ? 'touch' : 'desk';
     const [move, look] = coach.querySelectorAll('.coach-text');
     if (isTouch) {
-      move.textContent = 'Tuas untuk berjalan';
-      look.textContent = 'Geser layar untuk melihat';
+      move.textContent = L('Tuas untuk berjalan', 'Joystick to walk');
+      look.textContent = L('Geser layar untuk melihat', 'Swipe to look around');
     } else {
-      move.textContent = 'WASD untuk berjalan';
-      look.textContent = 'Gerakkan mouse untuk melihat';
+      move.textContent = L('WASD untuk berjalan', 'WASD to walk');
+      look.textContent = L('Gerakkan mouse untuk melihat', 'Move the mouse to look around');
     }
     coach.hidden = false;
     coach.classList.remove('is-going');
@@ -1043,8 +1048,8 @@ function init() {
   const tags = [...document.querySelectorAll('.lobby-tag')];
   if (lobbyHint) {
     lobbyHint.textContent = isTouch
-      ? 'Gunakan tuas untuk berjalan · geser layar untuk melihat · ketuk foto untuk membuka'
-      : 'WASD untuk berjalan · gerakkan mouse untuk melihat · klik foto untuk membuka';
+      ? L('Gunakan tuas untuk berjalan · geser layar untuk melihat · ketuk foto untuk membuka', 'Use the joystick to walk · swipe to look around · tap a photo to open it')
+      : L('WASD untuk berjalan · gerakkan mouse untuk melihat · klik foto untuk membuka', 'WASD to walk · move the mouse to look around · click a photo to open it');
   }
 
   let view = { name: 'rest' };
@@ -1351,13 +1356,15 @@ function init() {
     const days = today ? Math.round((Date.parse('2026-10-24') - Date.parse(today)) / 86400000) : 1;
     if (days < 0) venueNotice.hidden = true;
     else {
-      const when = days === 0 ? 'hari ini' : days === 1 ? 'besok' : 'pada Sabtu, 24 Oktober 2026';
-      venueNotice.textContent = `Pernikahan kami akan diadakan ${when}: akad pada jam 12.30 WIB dan pesta pada jam 16.00 WIB. Silakan datang lagi pada waktu tersebut.`;
+      const when = days === 0 ? L('hari ini', 'today') : days === 1 ? L('besok', 'tomorrow') : L('pada Sabtu, 24 Oktober 2026', 'on Saturday, 24 October 2026');
+      venueNotice.textContent = L(
+        `Pernikahan kami akan diadakan ${when}: akad pada jam 12.30 WIB dan pesta pada jam 16.00 WIB. Silakan datang lagi pada waktu tersebut.`,
+        `Our wedding is ${when}: the akad (ceremony) at 1.30 PM and the reception at 5.00 PM, Malaysia time. Please come back then!`);
     }
   }
   const VENUE_HINT = isTouch
-    ? 'Gunakan tuas untuk berjalan · geser layar untuk melihat · ketuk label untuk ke sana'
-    : 'WASD untuk berjalan · gerakkan mouse untuk melihat · klik label untuk ke sana';
+    ? L('Gunakan tuas untuk berjalan · geser layar untuk melihat · ketuk label untuk ke sana', 'Use the joystick to walk · swipe to look around · tap a label to go there')
+    : L('WASD untuk berjalan · gerakkan mouse untuk melihat · klik label untuk ke sana', 'WASD to walk · move the mouse to look around · click a label to go there');
   const venueTags = []; // { id, tag } for every spot with a label
   let venue = null;
   let hop = null;       // the walk between lobby and ballroom under way: { start, ... }
@@ -1505,7 +1512,7 @@ function init() {
     if (arrived && here !== shownSpot) {
       shownSpot = here;
       // walking around freely, between the named spots: the room's own name instead
-      if (venueTitle) venueTitle.textContent = here ? SPOTS[here].title : 'Selamat Datang di Hari Bahagia Kami';
+      if (venueTitle) venueTitle.textContent = here ? SPOTS[here].title : L('Selamat Datang di Hari Bahagia Kami', 'Welcome to Our Happy Day');
       if (venueHint) venueHint.textContent = (here && SPOTS[here].desc) || VENUE_HINT;
     }
     // float each spot's label over it: nearest first, dropping any that would overlap

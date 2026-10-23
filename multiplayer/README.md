@@ -40,6 +40,11 @@ drops and reconnects by themselves a second later.
 An alarm looks round every 15 seconds while anyone is connected. The pings are answered by
 Cloudflare itself (`setWebSocketAutoResponse`), without waking the relay.
 
+## /geo
+
+`GET /geo` answers `{"country": "MY"}` (the visitor's country, from Cloudflare) to pages from the
+site, so `lang.js` can greet guests from Malaysia in English. Nothing is stored.
+
 Only pages from `adam-elsa.github.io` and `localhost` may connect (`ORIGINS` in `src/index.js`).
 
 ## Try it on this computer first
