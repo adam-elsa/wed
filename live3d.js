@@ -1,9 +1,9 @@
 // The wedding day in the ballroom, as it happens. On Saturday 24 October 2026 (by the clock in
 // Jakarta) the room follows the real day, moment by moment, from the rundown Adam approved
-// (rundown.js, from adam-elsa/wedding-rundown): set for the akad in the morning while everyone
-// gets ready upstairs; Adam walking in with his parents at 12.30; the serah terima, Elsa walked
-// in, the ijab kabul and "Sah!"; sungkeman, photos and everyone out to the lobby; the room turned
-// round for the reception; guests coming in at 16.00, the grand entrance, the speech and doa, the
+// (rundown.js, from adam-elsa/wedding-rundown), keeping to what happens in this room: set for the
+// akad and empty until Adam walks in with his parents at 12.30; the serah terima, Elsa walked in,
+// the ijab kabul and "Sah!"; sungkeman, photos and everyone out to the lobby; a break while the
+// room is turned round; guests coming in at 16.00, the grand entrance, the speech and doa, the
 // cake, the two of us walking the room, the congratulations line, the photos and the close.
 //
 // The rundown is written in "story seconds" (the whole day in three minutes, as in the video).
@@ -16,13 +16,14 @@
 //
 // The people are the creator's parts (avatar3d.js), dressed as the rundown says. Everyone but the
 // two of us is one merged mesh per person, like guests3d.js's crowd, to keep a hundred of them
-// cheap; Adam and Elsa are full avatars, at the reception in what they wear in our photos
-// (couple3d.js). On screen: a card with the time and what is happening, name tags, and what
+// cheap; Adam and Elsa are full avatars, all day in what they wear in our photos
+// (couple3d.js). Everyone seated sits up straight, legs together. On screen: a card with the time and what is happening, name tags, and what
 // people say, in Indonesian or English.
 import * as THREE from 'three';
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { loadManifest, loadKit, createAvatar, tintable } from './avatar3d.js';
-import { makeGroom, makeBride, glasses } from './couple3d.js';
+import { makeGroom, makeBride } from './couple3d.js';
+import { posture, sitUp } from './guests3d.js';
 import * as R from './rundown.js';
 
 const L = window.L || ((id) => id);
@@ -30,7 +31,27 @@ const DAY = '2026-10-24';
 const WIB = 7 * 60;          // Jakarta: UTC+7, all year
 const FAR = 16;              // metres: further than this, animate every third frame
 const KEEP = ['position', 'normal', 'uv', 'skinIndex', 'skinWeight'];
-const RECEPTION = 90;        // story seconds: from here the couple wear their reception clothes
+
+// ---------- the day, in this room ----------
+// Only what happens in the ballroom: the morning (getting ready upstairs, and the video's
+// overview before it) is left out, as are the beats that happen elsewhere.
+const ELSEWHERE = new Set(['Intan & Nisa welcome them in the lobby, with souvenirs', 'Parents pray ashar in between']);
+const MOMENTS = R.MOMENTS.filter((m) => m.t >= 22).map((m) => ({ ...m, beats: m.beats.filter((b) => !ELSEWHERE.has(b[2])) }));
+const momentAt = (t) => MOMENTS.reduce((m, x) => (t >= x.t ? x : m), MOMENTS[0]);
+// Everyone seated sits up properly, legs together and hands on the knees (the pack's skirt
+// poses, which suit anyone), not slumped back with a knee crossed.
+const FORMAL = { Sit: 'Sit_Skirt', Sit_M: 'Sit_Skirt', Sit_F: 'Sit_Skirt', SitTalk_M: 'SitTalk_Skirt', SitTalk_F: 'SitTalk_Skirt' };
+const formal = (clip) => (clip && FORMAL[clip]) || clip;
+const main = (p) => (p.prev && p.w < 0.5 ? p.prev : p.clip);
+const seated = (p) => /^Sit/.test(main(p));
+// That pose was made on the women's figure: on anyone the right arm swings out from the lap.
+// Sitting quietly, the right arm copies the left (mirrored), so the hands rest together.
+function mirrorArms(bones) {
+  for (const n of ['Shoulder', 'Arm', 'ForeArm', 'Hand']) {
+    const l = bones[`Left${n}`], r = bones[`Right${n}`];
+    if (l && r) r.quaternion.set(l.quaternion.x, -l.quaternion.y, -l.quaternion.z, l.quaternion.w);
+  }
+}
 
 // ---------- the clock ----------
 const toMin = (s) => Number(s.slice(0, 2)) * 60 + Number(s.slice(3, 5));
@@ -61,14 +82,14 @@ function anchors() {
     }
     out.push({ real, story });
   };
-  R.MOMENTS.forEach((m, i) => {
+  MOMENTS.forEach((m, i) => {
     const r0 = toMin(m.clock[0]);
-    const r1 = i + 1 < R.MOMENTS.length ? toMin(R.MOMENTS[i + 1].clock[0]) : toMin(m.clock[1]);
+    const r1 = i + 1 < MOMENTS.length ? toMin(MOMENTS[i + 1].clock[0]) : toMin(m.clock[1]);
     push(r0, m.t);
     for (const [s, c] of m.beats) push(c ? toMin(c) : r0 + ((s - m.t) / (m.end - m.t)) * (r1 - r0), s);
   });
   // the end: everyone still there (at DURATION itself the rundown has popped them all away)
-  push(toMin(R.MOMENTS[R.MOMENTS.length - 1].clock[1]), R.DURATION - 0.4);
+  push(toMin(MOMENTS[MOMENTS.length - 1].clock[1]), R.DURATION - 0.4);
   return out;
 }
 
@@ -159,7 +180,7 @@ const ID = {
   'Elsa enters': 'Elsa memasuki ruangan',
   'Sungkeman & photos': 'Sungkeman & foto',
   'The akad ends': 'Akad selesai',
-  Changeover: 'Persiapan resepsi',
+  Changeover: 'Jeda',
   'Doors open': 'Pintu dibuka',
   'Speech & doa': 'Sambutan & doa',
   'Cake moment': 'Potong kue',
@@ -246,6 +267,7 @@ const ID = {
   'Ustaz (family)': 'Ustaz (keluarga)',
 };
 const EN = {
+  Changeover: 'Break',
   '2 companions (still to be confirmed)': 'Walked in by two companions',
   'Guests arrive (300 pax, standing party)': 'Guests arrive',
   'Companions (TBC)': 'Companions',
@@ -354,6 +376,7 @@ function mergedPerson(K, look) {
   mesh.userData.noBlock = true;
   root.add(mesh);
   mesh.bind(new THREE.Skeleton(K.boneNames.map((n) => bones[n]), K.boneInverses), new THREE.Matrix4());
+  const sat = { root, posture: posture(root, bones) };
   const mixer = new THREE.AnimationMixer(root);
   const acts = new Map();
   const act = (name) => {
@@ -386,47 +409,30 @@ function mergedPerson(K, look) {
       if (b) set(b, prevTime, 1 - w);
       mixer.update(0);
     },
+    sitUp() { if (sat.posture) sitUp(sat); },
   };
 }
 
-// Adam or Elsa: the rundown's akad clothes, then (from the reception) the ones in our photos
+// Adam or Elsa, all day in what they wear in our photos (couple3d.js)
 function couplePerson(id, kits, M) {
   const male = id === 'adam';
-  const kit = male ? kits.male : kits.female;
+  const av = male ? makeGroom(kits.male, M) : makeBride(kits.female, M);
   const root = new THREE.Group();
-  const akad = createAvatar(kit, M);
-  const look = { ...(male ? R.LOOKS.adamAkad : R.LOOKS.elsaAkad) };
-  look.parts = { ...look.parts, Skin: male ? 'Body_M_light' : 'Body_F_light' }; // as in the photos
-  akad.wear(look);
-  if (male) {
-    let body = null;
-    akad.root.traverse((o) => { if (!body && o.name === 'Body_M_light') body = o; });
-    glasses(body);
-  }
-  const rec = male ? makeGroom(kit, M) : makeBride(kit, M);
-  root.add(akad.root, rec.root);
-  for (const a of [akad, rec]) a.root.traverse((o) => { o.userData.noBlock = true; });
-  const bones = (a) => {
-    const out = {};
-    a.root.traverse((o) => { if (o.isBone && !out[o.name]) out[o.name] = o; });
-    return out;
-  };
-  const B = [bones(akad), bones(rec)];
-  let on = akad;
+  root.add(av.root);
+  av.root.traverse((o) => { o.userData.noBlock = true; });
+  const bones = {};
+  av.root.traverse((o) => { if (o.isBone && !bones[o.name]) bones[o.name] = o; });
+  const sat = { root, posture: posture(root, bones) };
   return {
     root,
-    get bones() { return on === akad ? B[0] : B[1]; },
-    wearAt(t) {
-      on = t < RECEPTION ? akad : rec;
-      akad.root.visible = on === akad;
-      rec.root.visible = on === rec;
-    },
+    bones,
     wear() {},
-    pose(clip, time, prev, prevTime, w) { on.pose(clip, time, prev, prevTime, w); },
+    pose(clip, time, prev, prevTime, w) { av.pose(clip, time, prev, prevTime, w); },
+    sitUp() { if (sat.posture) sitUp(sat); },
   };
 }
 
-// the melati garland (Adam, at the akad) and the veil (Elsa, at the akad)
+// the melati garland Mama Elsa places on Adam at the serah terima
 function garlandMesh() {
   const g = new THREE.Group();
   const jasmine = new THREE.MeshLambertMaterial({ color: 0xfffdf2, emissive: 0x2a2a20 });
@@ -447,17 +453,6 @@ function garlandMesh() {
   }
   return g;
 }
-function veilMesh() {
-  const m = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.1, 0.34, 1.1, 20, 1, true, Math.PI * 0.5, Math.PI),
-    new THREE.MeshLambertMaterial({ color: 0xffffff, transparent: true, opacity: 0.55, side: THREE.DoubleSide, depthWrite: false }),
-  );
-  m.position.y = -0.55;
-  const g = new THREE.Group();
-  g.add(m);
-  return g;
-}
-
 // ---------- the room's extra things ----------
 const lam = (color, extra = {}) => new THREE.MeshLambertMaterial({ color, ...extra });
 const PM = {
@@ -601,8 +596,7 @@ export function addLive(scene, crowd) {
     st.group.name = 'live-people';
     scene.add(st.group);
     st.garland = garlandMesh();
-    st.veil = veilMesh();
-    scene.add(st.garland, st.veil);
+    scene.add(st.garland);
     st.ready = Promise.all([loadManifest(), loadKit('male'), loadKit('female')]).then(([M, male, female]) => {
       st.kits = { M, male, female, K: { male: prepareKit(male, M, 'male'), female: prepareKit(female, M, 'female') } };
     });
@@ -653,8 +647,7 @@ export function addLive(scene, crowd) {
           if (!on) { if (who) who.root.visible = false; return; }
           const me = person(st, k, p.look);
           me.root.visible = true;
-          if (me.wearAt) me.wearAt(ta);
-          else me.wear(p.look);
+          me.wear(p.look);
           me.root.position.set(p.x, p.y, p.z);
           me.root.rotation.y = p.yaw;
           me.root.scale.setScalar(p.scale);
@@ -662,26 +655,30 @@ export function addLive(scene, crowd) {
           ball.center.set(p.x, p.y + 0.9, p.z);
           const seen = !camera || frustum.intersectsSphere(ball);
           const far = camera && ball.center.distanceTo(camera.position) > FAR;
-          if (seen && (!far || (st.frame + k) % 3 === 0)) me.pose(p.clip, p.time, p.prev, p.prevTime, p.w);
+          if (seen && (!far || (st.frame + k) % 3 === 0)) {
+            // the named people talk as the rundown has them; the guests sit quietly
+            if (!a.label) {
+              if (/^SitTalk/.test(p.clip)) p.clip = 'Sit';
+              if (/^SitTalk/.test(p.prev)) p.prev = 'Sit';
+            }
+            me.pose(formal(p.clip), p.time, formal(p.prev), p.prevTime, p.w);
+            if (seated(p)) {
+              me.sitUp();
+              if (formal(main(p)) === 'Sit_Skirt') mirrorArms(me.bones);
+            }
+          }
           if (seen) heads[a.id] = { p, me, a };
         });
-        // the garland and the veil, on whoever wears them
-        st.garland.visible = st.veil.visible = false;
-        for (const [id, mesh, key, bone] of [['adam', st.garland, 'garland', 'Neck'], ['elsa', st.veil, 'veil', 'Head']]) {
-          const h = heads[id];
-          if (!h || !within(h.a[key], day.at(st.cast.indexOf(h.a)))) continue;
-          const b = h.me.bones[bone];
-          if (!b) continue;
+        // the garland, on Adam from the serah terima to the end of the akad
+        st.garland.visible = false;
+        const h = heads.adam;
+        if (h && within(h.a.garland, day.at(st.cast.indexOf(h.a))) && h.me.bones.Neck) {
           h.me.root.updateMatrixWorld(true);
-          b.getWorldPosition(v3);
-          const fx = Math.sin(h.p.yaw), fz = Math.cos(h.p.yaw);
-          if (key === 'garland') mesh.position.set(v3.x + fx * 0.05, v3.y - 0.07, v3.z + fz * 0.05);
-          else {
-            mesh.position.set(v3.x - fx * 0.06, v3.y + 0.12, v3.z - fz * 0.06);
-            mesh.scale.set(h.p.scale, h.p.scale * Math.min(1, (v3.y + 0.12 - h.p.y) / 1.25), h.p.scale);
-          }
-          mesh.rotation.y = h.p.yaw;
-          mesh.visible = true;
+          h.me.bones.Neck.getWorldPosition(v3);
+          st.garland.position.set(v3.x + Math.sin(h.p.yaw) * 0.05, v3.y - 0.07, v3.z + Math.cos(h.p.yaw) * 0.05);
+          st.garland.rotation.y = h.p.yaw;
+          st.garland.scale.setScalar(h.p.scale);
+          st.garland.visible = true;
         }
       }
 
@@ -756,17 +753,20 @@ function overlay() {
   };
   const card = (real, t) => {
     if (!box) return;
-    const before = real < toMin(R.MOMENTS[0].clock[0]);
-    const m = R.momentAt(t);
-    const i = R.MOMENTS.indexOf(m);
-    const next = before ? R.MOMENTS[0] : R.MOMENTS[i + 1];
+    const before = real < toMin(MOMENTS[0].clock[0]);
+    const m = momentAt(t);
+    const i = MOMENTS.indexOf(m);
+    const next = before ? MOMENTS[0] : MOMENTS[i + 1];
     const over = !before && !next && real >= toMin(m.clock[1]) + 1;
     let beat = null;
     for (const b of m.beats) if (b[0] <= t + 0.05) beat = b;
     const text = [
       `${L('LANGSUNG', 'LIVE')} · ${hm(real)}`,
       before ? L('Hari pernikahan kami', 'Our wedding day') : say(m.title),
-      before ? L('Akad pukul 12.30 WIB · resepsi pukul 16.00 WIB', 'Akad at 1.30 PM · reception at 5.00 PM, Malaysia time') : say(m.sub),
+      before ? L(`Akad pukul ${hm(toMin('12:30'))} · resepsi pukul ${hm(toMin('16:00'))}`, `The akad at ${hm(toMin('12:30'))} · the reception at ${hm(toMin('16:00'))}`)
+        // the break: nothing happens here but the room being turned round
+        : m.title === 'Changeover' ? L(`Resepsi dimulai pukul ${hm(toMin('16:00'))}`, `The reception starts at ${hm(toMin('16:00'))}`)
+        : say(m.sub),
       over ? L('Terima kasih atas kehadiran dan doanya', 'Thank you for coming, and for your prayers') : beat ? say(beat[2]) : '',
       next ? `${L('Berikutnya', 'Next')}, ${hm(toMin(next.clock[0]))}: ${say(next.title)}` : '',
     ];
@@ -816,8 +816,8 @@ function overlay() {
       for (const it of items) {
         // nearest first; one that would land on another is lifted above it (twice at most),
         // else left out
-        const half = Math.max(it.label.length * 4.5, Math.min(say(it.line).length * 4, 130)) + 12;
-        const tall = it.line ? 64 : 30;
+        const half = Math.max(it.label.length * 5.2, Math.min(say(it.line).length * 4, 130)) + 12;
+        const tall = it.line ? 66 : 32;
         let r = null;
         for (let k = 0; k < 3 && !r; k++) {
           const c = [it.x - half, it.y - tall, it.x + half, it.y];
