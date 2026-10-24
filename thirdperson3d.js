@@ -6,9 +6,12 @@
 // under those eyes and moves the camera back behind them, and before the next frame restore()
 // puts the camera back at the eyes, so the rooms' own smoothing never sees the difference.
 // The character faces the way it is walking (so walking back turns it round), plays Walk
-// while moving (quicker when hurrying) and Idle when still.
+// while moving (quicker when hurrying) and Idle when still. It can also sit on a chair, or do an
+// emote (emotes3d.js); for an emote, or in photo mode, the camera steps out behind even in first
+// person, so the guest sees what they're doing.
 import * as THREE from 'three';
 import { loadManifest, loadKit, createAvatar, tidyLook } from './avatar3d.js';
+import { poser, poseEmote, emoteOffset, emoteById, poseSit, SIT_CLIP, disposePoser } from './emotes3d.js';
 
 const DIST = 3.1;          // metres behind the eyes
 const SHOULDER = 0.42;     // to the right, so the crosshair in the middle stays clear of the character
@@ -20,7 +23,10 @@ const BLEND = 0.45;        // seconds for the camera to swing out behind (or bac
 const STRIDE = 1.35;       // m/s that the Walk clip looks right at
 
 export function createThirdPerson() {
-  let avatar = null, loading = null;
+  let avatar = null, loading = null, P = null;
+  let seat = null;                           // sitting: { x, z, y, yaw, lounge }
+  let emote = null;                          // { id, t } while one plays
+  let clip = 'Idle';
   let on = false;                            // the guest has chosen third person (and has a character)
   const eye = { pos: new THREE.Vector3(), q: new THREE.Quaternion() };
   let applied = false;                       // the camera is out behind: restore() owes it back
@@ -34,10 +40,12 @@ export function createThirdPerson() {
     loading = loadManifest().then((M) => {
       const tidy = tidyLook(M, look);
       return loadKit(tidy.gender).then((kit) => {
-        if (avatar) avatar.dispose();
+        if (avatar) { avatar.dispose(); disposePoser(P); }
         avatar = createAvatar(kit, M);
         avatar.wear(tidy);
+        P = poser(avatar.root); // (in the bind pose still)
         avatar.play('Idle', 0);
+        clip = 'Idle';
         // something walking about: not furniture to stop against, nor anything to click
         avatar.root.traverse((o) => { o.userData.noBlock = true; });
         avatar.root.visible = false;
@@ -57,6 +65,14 @@ export function createThirdPerson() {
     available: () => !!loading,
     on: () => on,
     set(next) { on = !!next && !!loading; return on; },
+    // sit on a seat ({ x, z, y, yaw, lounge }), or null to stand
+    sit(s) { seat = s || null; emote = null; },
+    seated: () => seat,
+    // play an emote (an id from emotes3d.js), or null to stop
+    emote(id) { emote = id && emoteById(id) ? { id, t: 0 } : null; },
+    emoting: () => (emote ? emote.id : null),
+    // what the others should see: 'sit', an emote's id, or ''
+    pose: () => (seat ? (seat.lounge ? 'sitl' : 'sit') : emote ? emote.id : ''),
 
     // put the camera back at the eyes before the room moves it on
     restore(camera) {
@@ -67,9 +83,10 @@ export function createThirdPerson() {
     },
 
     // after the room has placed the camera at the eyes: stand the character there and step back.
-    // `show` is false while the room has the camera on rails (a tour, a door), or in first person.
-    place(camera, scene, bounds, dt, show) {
-      const want1 = show && on && avatar;
+    // `show` is false while the room has the camera on rails (a tour, a door). `force`: out
+    // behind even in first person (an emote playing, or photo mode).
+    place(camera, scene, bounds, dt, show, force) {
+      const want1 = show && (on || force || !!emote) && avatar;
       k = THREE.MathUtils.clamp(k + (want1 ? dt : -dt) / BLEND, 0, 1);
       if (!avatar) return;
       if (avatar.root.parent !== scene) scene.add(avatar.root);
@@ -88,12 +105,28 @@ export function createThirdPerson() {
         }
       }
       prevX = x; prevZ = z;
-      const moving = speed > 0.25 && speed < 12; // (a jump between rooms is not a stride)
-      if (moving !== walking) { walking = moving; avatar.play(moving ? 'Walk' : 'Idle', 0.25); }
+      const moving = !seat && speed > 0.25 && speed < 12; // (a jump between rooms is not a stride)
+      if (moving && emote) emote = null; // walking off ends it
+      if (emote) {
+        emote.t += dt;
+        if (emote.t >= emoteById(emote.id).dur) emote = null;
+      }
+      const next = seat ? SIT_CLIP : moving ? 'Walk' : (emote && emoteById(emote.id).clip) || 'Idle';
+      if (next !== clip) { clip = next; avatar.play(next, 0.25); }
+      walking = moving;
       if (moving) avatar.setSpeed(THREE.MathUtils.clamp(speed / STRIDE, 0.6, 1.8));
-      avatar.root.position.set(x, 0, z);
-      avatar.root.rotation.y = yaw;
+      if (seat) {
+        avatar.root.position.set(seat.x, seat.y, seat.z);
+        avatar.root.rotation.y = yaw = seat.yaw;
+      } else {
+        const off = emote ? emoteOffset(emote.id, emote.t) : { dy: 0, yaw: 0 };
+        avatar.root.position.set(x, off.dy, z);
+        avatar.root.rotation.y = yaw + off.yaw;
+      }
       avatar.update(dt);
+      if (seat) poseSit(P, seat.lounge);
+      else if (emote) poseEmote(P, emote.id, emote.t);
+      else if (P && P.glass) P.glass.visible = false;
 
       const e = k * k * (3 - 2 * k);
       // fully at the eyes it would be looking out through its own head

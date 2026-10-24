@@ -717,6 +717,13 @@ export function createBallroom() {
   crowd.push({ x: -8.9, z: 1.4, to: [-8.9, 9.4], pose: 'walk' }, { x: 3.8, z: -1.6, to: [10.2, -1.6], pose: 'walk' });
   const guests = addGuests(scene, crowd, 11);
   guests.ready.then(() => { blockers = null; }); // rebuilt once they're in (they don't block, but their meshes are new)
+  // the chairs a guest can sit on (F, or the button): every one nobody in the crowd is sitting on
+  const sat = crowd.filter((c) => c.pose === 'sit');
+  const freeSeats = [];
+  for (const [x, z, yaw] of seats) {
+    const sx = x + Math.sin(yaw) * 0.03, sz = z + Math.cos(yaw) * 0.03;
+    if (!sat.some((c) => Math.hypot(c.x - sx, c.z - sz) < 0.2)) freeSeats.push({ x: sx, z: sz, y: SIT_Y, yaw, lounge: false });
+  }
   // and the two of us, standing on the pelaminan in front of our sofa to greet everyone (couple3d.js)
   const couple = addCouple(scene, { x: 0, y: STAGE.h, z: NORTH + 3.15, gap: 0.42 });
   couple.ready.then(() => { blockers = null; });
@@ -924,6 +931,7 @@ export function createBallroom() {
     spot() { return nav.spot; },
     // the room's walls, floor to ceiling (for the third-person camera to stay inside)
     bounds: { ...BOUNDS, h: H },
+    seats: freeSeats,
     arrived() { return !nav.walk; },
     // look around: dx, dy as fractions of the screen dragged across
     drag(camera, dx, dy) {

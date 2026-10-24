@@ -474,6 +474,8 @@ export function createLobby() {
     { x: 5.2, z: 3.1, yaw: Math.atan2(-0.9, 0.5), pose: 'stand', anim: 'Listen' },
   ];
   const guests = addGuests(scene, crowd, 5);
+  // where a guest can sit (F, or the button): the sofa's other cushion
+  const seats = [{ ...lounge(-9.3, -2 - 0.78, Math.PI / 2, 0.265, 0.06), lounge: true }];
   guests.ready.then(() => { blockers = null; });
 
   // ---------- camera ----------
@@ -760,6 +762,7 @@ export function createLobby() {
     roam(camera) { startRoam(camera); },
     roaming() { return roam.on; },
     // the room's walls, floor to ceiling (for the third-person camera to stay inside)
+    seats,
     bounds: { ...BOUNDS, h: H },
     // where the guest is standing and facing, for the walk through to the ballroom
     where() { return { x: roam.pos.x, z: roam.pos.z, yaw: roam.yaw }; },

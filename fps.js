@@ -67,6 +67,7 @@ export function createControls(canvas, stick) {
   let releasing = false;    // the lock is being let go: the mouse is on its way to the page, not looking
   let gyro = false;
   let gyroAt = 0;
+  let held = false;         // sitting: walking does nothing (pushing to walk stands the guest up: pushed())
 
   const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 
@@ -215,6 +216,7 @@ export function createControls(canvas, stick) {
   const KEYS = {
     KeyW: 'f', ArrowUp: 'f', KeyS: 'b', ArrowDown: 'b',
     KeyA: 'l', ArrowLeft: 'l', KeyD: 'r', ArrowRight: 'r',
+    Space: 'u', KeyC: 'd',
   };
   function typing(el) {
     return el && (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT' || el.isContentEditable);
@@ -291,7 +293,7 @@ export function createControls(canvas, stick) {
     gyroOn: () => gyro,
     // how far the finger has travelled in the current touch-look, in pixels
     dragged: () => (lookAt ? lookAt[2] : 0),
-    // move vector for this frame, keys folded in with the thumbstick
+    // move vector for this frame, keys folded in with the thumbstick (nothing while held)
     axes() {
       let x = move.x, y = move.y;
       if (keys.size) {
@@ -300,8 +302,18 @@ export function createControls(canvas, stick) {
       }
       const len = Math.hypot(x, y);
       if (len > 1) { x /= len; y /= len; }
+      if (held) return { x: 0, y: 0, speed: 0 };
       return { x, y, speed: SPEED * (run ? RUN : 1) };
     },
+    // walking off while held (sitting): the stick or the keys pushed past a nudge
+    pushed() {
+      const x = move.x + (keys.has('r') ? 1 : 0) - (keys.has('l') ? 1 : 0);
+      const y = move.y + (keys.has('f') ? 1 : 0) - (keys.has('b') ? 1 : 0);
+      return Math.hypot(x, y) > 0.3;
+    },
+    hold(on) { held = !!on; },
+    // up and down for photo mode's flying camera: space and C
+    rise: () => (keys.has('u') ? 1 : 0) - (keys.has('d') ? 1 : 0),
     // look accumulated since the last frame, then reset
     takeLook() {
       const out = { yaw: look.yaw, pitch: look.pitch };

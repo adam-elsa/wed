@@ -907,6 +907,101 @@ body.invitation-overlay .gate{pointer-events:none;}
 .view-toggle, .view-toggle[hidden]{display:none;}
 .gate.in-lobby .view-toggle:not([hidden]), .gate.in-venue .view-toggle:not([hidden]){display:flex;}
 body.is-creating .view-toggle{display:none !important;}
+/* emotes and photo mode: over the first/third-person switch, in the same column */
+.act-emote{bottom:calc(max(18px, env(safe-area-inset-bottom)) + 120px);}
+.act-photo{bottom:calc(max(18px, env(safe-area-inset-bottom)) + 174px);}
+.gate.in-venue .act-emote{bottom:calc(max(18px, env(safe-area-inset-bottom)) + 174px);}
+.gate.in-venue .act-photo{bottom:calc(max(18px, env(safe-area-inset-bottom)) + 228px);}
+.act-icon{font-size:16px;line-height:1;width:18px;text-align:center;}
+/* near a free chair: sit down (and while sitting, stand up), above the bottom buttons */
+.sit-btn{
+  position:fixed;
+  left:50%;
+  transform:translateX(-50%);
+  bottom:calc(max(5vh, env(safe-area-inset-bottom)) + 62px);
+  z-index:58;
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  font-family:var(--font-sans);
+  font-size:12px;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  line-height:1.35;
+  padding:9px 22px;
+  border-radius:999px;
+  border:none;
+  color:#211a10;
+  background:linear-gradient(135deg,var(--gold-soft),var(--gold));
+  box-shadow:0 8px 22px rgba(0,0,0,0.3);
+  cursor:pointer;
+}
+.sit-btn .view-key{font-size:9.5px;letter-spacing:0.04em;text-transform:none;opacity:0.75;}
+.gate.in-lobby .sit-btn:not([hidden]), .gate.in-venue .sit-btn:not([hidden]){display:flex;}
+/* the list of emotes */
+.emote-menu{
+  position:fixed;
+  left:50%;
+  transform:translateX(-50%);
+  bottom:calc(max(5vh, env(safe-area-inset-bottom)) + 62px);
+  z-index:60;
+  width:min(440px, calc(100% - 32px));
+  padding:14px 14px 12px;
+  text-align:center;
+  background:rgba(18,14,11,0.9);
+  border:1px solid var(--line);
+  border-radius:18px;
+  backdrop-filter:blur(8px);
+}
+.emote-menu[hidden]{display:none;}
+.emote-menu .eyebrow{margin:0 0 10px;}
+.emote-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
+.emote-choice{
+  position:relative;
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  font-family:var(--font-sans);
+  font-size:11px;
+  letter-spacing:0.06em;
+  color:var(--ink);
+  background:rgba(255,255,255,0.06);
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:10px 6px 8px;
+  cursor:pointer;
+}
+.emote-choice:hover{border-color:var(--gold);background:rgba(60,45,22,0.6);}
+.emote-icon{font-size:24px;line-height:1;}
+.emote-num{position:absolute;top:4px;left:7px;font-size:9px;color:var(--ink-dim);}
+.emote-close{margin-top:10px;}
+/* photo mode: everything else on screen is put away (the thumbstick stays, to fly with) */
+body.is-photo .venue-ui, body.is-photo .lobby-ui, body.is-photo .view-toggle, body.is-photo .online-count,
+body.is-photo .motion-toggle, body.is-photo .music-toggle, body.is-photo .crosshair, body.is-photo .coach,
+body.is-photo .sit-btn{display:none !important;}
+body.is-photo-clean .photo-ui, body.is-photo-clean .stick{opacity:0;pointer-events:none;}
+.photo-ui{
+  position:fixed;
+  left:50%;
+  transform:translateX(-50%);
+  top:max(14px, env(safe-area-inset-top));
+  z-index:60;
+  width:min(680px, calc(100% - 24px));
+  padding:12px 14px;
+  text-align:center;
+  color:var(--ink);
+  background:rgba(18,14,11,0.82);
+  border:1px solid var(--line);
+  border-radius:18px;
+  backdrop-filter:blur(8px);
+  transition:opacity .3s ease;
+}
+.photo-ui[hidden]{display:none;}
+.photo-ui .eyebrow{margin:0 0 4px;}
+.photo-help{margin:0 0 10px;font-size:12px;line-height:1.5;color:var(--ink-dim);}
+.photo-emotes{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px;}
+.photo-emotes::-webkit-scrollbar{display:none;}
+.photo-emotes .emote-choice{flex:0 0 auto;min-width:64px;padding:7px 8px 6px;}
+.photo-emotes .emote-icon{font-size:18px;}
+.photo-actions{display:flex;gap:8px;justify-content:center;margin-top:10px;}
 /* the guests online, top left (the top right has the phone-motion switch) */
 .online-count{
   position:fixed;

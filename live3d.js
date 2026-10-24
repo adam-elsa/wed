@@ -28,6 +28,7 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 import { loadManifest, loadKit, createAvatar, tintable } from './avatar3d.js';
 import { makeGroom, makeBride } from './couple3d.js';
 import { posture, sitUp } from './guests3d.js';
+import { mirrorArms } from './emotes3d.js';
 import * as R from './rundown.js';
 
 const L = window.L || ((id) => id);
@@ -48,14 +49,6 @@ const FORMAL = { Sit: 'Sit_Skirt', Sit_M: 'Sit_Skirt', Sit_F: 'Sit_Skirt', SitTa
 const formal = (clip) => (clip && FORMAL[clip]) || clip;
 const main = (p) => (p.prev && p.w < 0.5 ? p.prev : p.clip);
 const seated = (p) => /^Sit/.test(main(p));
-// That pose was made on the women's figure: on anyone the right arm swings out from the lap.
-// Sitting quietly, the right arm copies the left (mirrored), so the hands rest together.
-function mirrorArms(bones) {
-  for (const n of ['Shoulder', 'Arm', 'ForeArm', 'Hand']) {
-    const l = bones[`Left${n}`], r = bones[`Right${n}`];
-    if (l && r) r.quaternion.set(l.quaternion.x, -l.quaternion.y, -l.quaternion.z, l.quaternion.w);
-  }
-}
 
 // ---------- the clock ----------
 const toMin = (s) => Number(s.slice(0, 2)) * 60 + Number(s.slice(3, 5));

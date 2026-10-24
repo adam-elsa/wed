@@ -301,6 +301,32 @@
     <svg class="view-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4.4 3.6-7 8-7s8 2.6 8 7"/></svg>
     <span class="view-state">Orang ketiga</span>
   </button>
+  <!-- over it: emotes (E) and photo mode (P), and at the bottom near a free chair, sitting (F);
+       actions3d.js fills them in -->
+  <button class="view-toggle act-btn act-emote" id="emoteButton" type="button" hidden>
+    <span class="act-icon" aria-hidden="true">🙌</span>
+    <span class="view-state">Emote</span>
+  </button>
+  <button class="view-toggle act-btn act-photo" id="photoButton" type="button" hidden>
+    <svg class="view-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>
+    <span class="view-state">Mode Foto</span>
+  </button>
+  <button class="sit-btn" id="sitButton" type="button" hidden>Duduk</button>
+  <div class="emote-menu" id="emoteMenu" hidden>
+    <p class="eyebrow">Emote</p>
+    <div class="emote-grid"></div>
+    <button data-en="× Close" class="btn-outline emote-close" id="emoteClose" type="button">× Tutup</button>
+  </div>
+  <!-- photo mode: the camera flies free; everything else on screen is put away -->
+  <div class="photo-ui" id="photoUi" hidden>
+    <p data-en="Photo Mode" class="eyebrow">Mode Foto</p>
+    <p class="photo-help"></p>
+    <div class="photo-emotes"></div>
+    <div class="photo-actions">
+      <button data-en="Hide panel" class="btn-outline" id="photoTuck" type="button">Sembunyikan panel</button>
+      <button data-en="× Exit" class="btn-solid" id="photoExit" type="button">× Keluar</button>
+    </div>
+  </div>
   <!-- how many guests are in the venue right now (only with the multiplayer relay) -->
   <p class="online-count" id="onlineCount" hidden><span class="online-dot" aria-hidden="true"></span><span class="online-n"></span></p>
   <!-- flips the phone-motion look on and off once the choice is made -->
