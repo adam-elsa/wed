@@ -401,8 +401,11 @@ a{color:inherit;}
   cursor:pointer;
 }
 .relive-btn{color:var(--gold-soft);}
-/* phones: while reliving, the card keeps to the moment and the controls */
+/* phones: the card at half size, so it keeps out of the way of the room (the relive buttons
+   stay their own size, to be easy to tap); while reliving, it keeps to the moment and the controls */
 @media (max-aspect-ratio:1/1), (max-width:760px){
+  .venue-live{zoom:0.5;}
+  .venue-live-replay, .venue-relive{zoom:2;}
   .venue-live.is-reliving .venue-live-next{display:none;}
 }
 .relive-chip.is-on{color:#211a10;background:linear-gradient(135deg,var(--gold-soft),var(--gold));border-color:transparent;}
