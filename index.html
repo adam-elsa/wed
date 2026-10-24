@@ -144,6 +144,24 @@
       <p class="venue-live-sub" id="venueLiveSub"></p>
       <p class="venue-live-now" id="venueLiveNow"></p>
       <p class="venue-live-next" id="venueLiveNext"></p>
+      <!-- once the day is over: watch it again -->
+      <button data-en="▶ Relive the Day" class="btn-solid venue-live-replay" id="venueReplay" type="button" hidden>▶ Saksikan Ulang</button>
+      <!-- while reliving the day: how far along (tap to jump), its big moments, pause, and done -->
+      <div class="venue-relive" id="venueRelive" hidden>
+        <div class="relive-track" id="reliveTrack"><span id="reliveBar"></span></div>
+        <div class="relive-row">
+          <button class="relive-btn" id="reliveToggle" type="button" aria-label="Jeda">❚❚</button>
+          <button class="relive-chip" data-at="22" type="button">Akad</button>
+          <button class="relive-chip" data-at="57.8" type="button">Sah!</button>
+          <button class="relive-chip" data-at="68" type="button">Sungkeman</button>
+          <button class="relive-chip" data-at="100" type="button">Grand Entrance</button>
+          <button data-en="Cake" class="relive-chip" data-at="130" type="button">Potong Kue</button>
+          <button data-en="Congratulations" class="relive-chip" data-at="150" type="button">Ucapan Selamat</button>
+          <button data-en="Photos" class="relive-chip" data-at="161" type="button">Sesi Foto</button>
+          <button data-en="Closing" class="relive-chip" data-at="171" type="button">Penutup</button>
+          <button data-en="× Done" class="relive-btn" id="reliveClose" type="button">× Selesai</button>
+        </div>
+      </div>
     </div>
     <div class="venue-plan" id="venuePlan"></div>
     <div class="lobby-bottom">

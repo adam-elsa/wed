@@ -375,6 +375,37 @@ a{color:inherit;}
   .venue-live{padding:16px 30px 18px;max-width:min(720px,100%);}
   .venue-live-now{font-size:18px;}
 }
+/* after the day: the button to relive it, and its controls along the bottom */
+.venue-live.is-replay .venue-live-dot{display:none;}
+.venue-live-replay{margin-top:12px;pointer-events:auto;}
+.venue-live-replay[hidden]{display:none;}
+.venue-relive{margin:10px 0 -2px;pointer-events:auto;}
+.venue-relive[hidden]{display:none;}
+.relive-track{position:relative;height:14px;display:flex;align-items:center;cursor:pointer;margin:0 4px 6px;}
+.relive-track::before{content:'';position:absolute;left:0;right:0;height:3px;border-radius:2px;background:rgba(255,255,255,0.18);}
+.relive-track span{position:relative;display:block;width:100%;height:3px;border-radius:2px;background:var(--gold);transform-origin:left;transform:scaleX(0);}
+.relive-row{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;}
+.relive-row::-webkit-scrollbar{display:none;}
+.relive-chip, .relive-btn{
+  flex:0 0 auto;
+  font-family:var(--font-sans);
+  font-size:11px;
+  letter-spacing:0.08em;
+  text-transform:uppercase;
+  white-space:nowrap;
+  color:var(--ink);
+  background:rgba(255,255,255,0.06);
+  border:1px solid var(--line);
+  border-radius:999px;
+  padding:8px 12px;
+  cursor:pointer;
+}
+.relive-btn{color:var(--gold-soft);}
+/* phones: while reliving, the card keeps to the moment and the controls */
+@media (max-aspect-ratio:1/1), (max-width:760px){
+  .venue-live.is-reliving .venue-live-next{display:none;}
+}
+.relive-chip.is-on{color:#211a10;background:linear-gradient(135deg,var(--gold-soft),var(--gold));border-color:transparent;}
 /* over people's heads: their names, and what they are saying */
 .live-tag, .live-bubble{
   position:absolute;

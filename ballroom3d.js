@@ -723,7 +723,8 @@ export function createBallroom() {
   // On the wedding day itself the room follows the day instead, moment by moment by the clock in
   // Jakarta (live3d.js): the guests above and the two of us are put away, and the rundown's people
   // take their places, the crowd walking in at 16.00 to the same seats and huddles.
-  const live = addLive(scene, crowd);
+  // reliving the day afterwards starts from the pelaminan spot, where the akad table is in view
+  const live = addLive(scene, crowd, { watch: () => go('stage') });
 
   // ---------- what can be clicked: a box around each spot's subject ----------
   const proxies = [];
