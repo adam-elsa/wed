@@ -24,6 +24,10 @@
   const NSTORY_WISHES_URL = 'https://inv.nstory.id/wp-json/wp/v2/comments?post=' + NSTORY_POST_ID
     + '&per_page=100&_fields=id,author_name,date_gmt,content';
   const WEDDING_DATE = new Date('2026-10-24T12:30:00+07:00'); // Akad time, used for countdown
+  // Visits are counted by the venue's relay (multiplayer/): every page opened, and (gate3d.js)
+  // going into the 3D venue, with a random id this browser keeps to tell visitors apart. Totals
+  // only, no names; see /stats there. Set to '' to stop.
+  const COUNT_URL = 'https://adam-elsa-venue.adam-ramdhan71.workers.dev/hit';
 
   // ---------- guest name from URL ----------
   // Spaces can be "+" (?to=Budi+Santoso) or, shorter to share, left out with each word
@@ -310,6 +314,36 @@
     });
     return 'sent';
   }
+
+  // A message left for the two of us at the pelaminan in the 3D venue (actions3d.js): to the
+  // same Sheet as the guest book, in its Pesan column
+  async function sendStageMessage(name, message) {
+    if (!GUESTBOOK_ENDPOINT_URL) return 'preview';
+    await fetch(GUESTBOOK_ENDPOINT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ name, invited: guest || '', message }),
+    });
+    return 'sent';
+  }
+  window.sendStageMessage = sendStageMessage;
+
+  // one visit counted (kind: 'page' | 'venue'), fire and forget
+  function countVisit(kind) {
+    if (!COUNT_URL) return;
+    let id = '';
+    try {
+      id = localStorage.getItem('ae-visitor') || '';
+      if (!id) { id = Math.random().toString(36).slice(2, 12) + Date.now().toString(36); localStorage.setItem('ae-visitor', id); }
+    } catch (err) { /* private mode: counted, not told apart */ }
+    const body = JSON.stringify({ k: kind, id });
+    try {
+      if (!(navigator.sendBeacon && navigator.sendBeacon(COUNT_URL, body))) fetch(COUNT_URL, { method: 'POST', mode: 'no-cors', body, keepalive: true });
+    } catch (err) { /* not counted */ }
+  }
+  window.countVisit = countVisit;
+  countVisit('page');
 
   async function send(payload) {
     if (!RSVP_ENDPOINT_URL) return 'preview';

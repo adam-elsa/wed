@@ -12,9 +12,12 @@
 // drag on a phone; WASD, the mouse, space and C on a computer), hides everything else on the
 // screen, and keeps the emotes to hand. The photo itself is a screenshot; the panel says how, and
 // can tuck itself away for a few seconds (H on a keyboard) to take a clean one.
+// A message for the couple: in front of the pelaminan (the ballroom's `stage`), "Tinggalkan
+// Pesan" (M) opens a short form, sent to the guest book's Sheet (script.js's sendStageMessage).
 // Others see the sitting and the emotes through net3d.js, with a relay that passes them on.
 import * as THREE from 'three';
 import { EMOTES } from './emotes3d.js';
+import { savedName } from './net3d.js';
 
 const L = window.L || ((id) => id);
 const REACH = 1.25;      // metres from a seat that "Duduk" offers it
@@ -28,6 +31,7 @@ export function createActions({ controls, tp, isTouch, hasCharacter, makeCharact
   const $ = (id) => document.getElementById(id);
   const sitBtn = $('sitButton'), emoteBtn = $('emoteButton'), photoBtn = $('photoButton');
   const menu = $('emoteMenu'), photoUi = $('photoUi');
+  const msgBtn = $('msgButton'), msgForm = $('stageMsg');
   const key = (k) => (isTouch ? '' : `<span class="view-key">${L(`tekan "${k}"`, `press "${k}"`)}</span>`);
 
   // the emote buttons: in the menu, and along photo mode's panel
@@ -129,6 +133,50 @@ export function createActions({ controls, tp, isTouch, hasCharacter, makeCharact
   if (photoExit) photoExit.addEventListener('click', () => setPhoto(false));
   if (photoTuck) photoTuck.addEventListener('click', () => tuck(true));
 
+  // ---------- a message for the couple ----------
+  let atStage = false;
+  function openMessage(open) {
+    if (!msgForm) return;
+    msgForm.hidden = !open;
+    if (!open) return;
+    openMenu(false);
+    controls.unlock(); // the mouse is wanted for the form
+    const status = msgForm.querySelector('.rsvp-status');
+    status.textContent = '';
+    status.className = 'rsvp-status';
+    if (!msgForm.elements.name.value) msgForm.elements.name.value = savedName() || '';
+    setTimeout(() => (msgForm.elements.name.value ? msgForm.elements.message : msgForm.elements.name).focus(), 50);
+  }
+  if (msgBtn) msgBtn.addEventListener('click', () => openMessage(true));
+  const msgCancel = $('stageMsgCancel');
+  if (msgCancel) msgCancel.addEventListener('click', () => openMessage(false));
+  if (msgForm) {
+    msgForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const status = msgForm.querySelector('.rsvp-status');
+      const name = msgForm.elements.name.value.trim(), message = msgForm.elements.message.value.trim();
+      if (!name || message.length < 2) {
+        status.textContent = L('Mohon isi nama dan pesanmu.', 'Please fill in your name and your message.');
+        status.className = 'rsvp-status err';
+        return;
+      }
+      status.textContent = L('Mengirim...', 'Sending...');
+      status.className = 'rsvp-status';
+      try {
+        const sent = window.sendStageMessage ? await window.sendStageMessage(name, message) : 'preview';
+        status.textContent = sent === 'preview'
+          ? L('Terima kasih! (mode pratinjau, belum tersambung ke Google Sheet)', 'Thank you! (preview mode, not connected to the Google Sheet yet)')
+          : L('Terima kasih! Pesanmu sudah kami terima 🤍', 'Thank you! We got your message 🤍');
+        status.className = 'rsvp-status ok';
+        msgForm.elements.message.value = '';
+        setTimeout(() => openMessage(false), 2200);
+      } catch (err) {
+        status.textContent = L('Gagal mengirim. Silakan coba lagi.', 'Could not send. Please try again.');
+        status.className = 'rsvp-status err';
+      }
+    });
+  }
+
   // ---------- keys ----------
   window.addEventListener('keydown', (e) => {
     if (!room || e.repeat || e.metaKey || e.ctrlKey || e.altKey) return;
@@ -139,7 +187,8 @@ export function createActions({ controls, tp, isTouch, hasCharacter, makeCharact
     else if (e.code === 'KeyE') openMenu(menu ? menu.hidden : false);
     else if (e.code === 'KeyP' && lastCamera) setPhoto(!photo, lastCamera);
     else if (e.code === 'KeyH' && photo) tuck(!tucked);
-    else if (e.code === 'Escape') { if (menu && !menu.hidden) openMenu(false); else if (photo) setPhoto(false); }
+    else if (e.code === 'KeyM' && atStage && !photo) openMessage(true);
+    else if (e.code === 'Escape') { if (msgForm && !msgForm.hidden) openMessage(false); else if (menu && !menu.hidden) openMenu(false); else if (photo) setPhoto(false); }
     else if (/^Digit[1-9]$/.test(e.code) && ((menu && !menu.hidden) || photo)) {
       const em = EMOTES[Number(e.code.slice(5)) - 1];
       if (em) play(em.id);
@@ -162,10 +211,10 @@ export function createActions({ controls, tp, isTouch, hasCharacter, makeCharact
     // the way through a door, or not in a room at all).
     afterRoom(camera, dt, r) {
       lastCamera = camera;
-      if (r !== room) { stand(); room = r; if (!r) { setPhoto(false); openMenu(false); } }
+      if (r !== room) { stand(); room = r; if (!r) { setPhoto(false); openMenu(false); openMessage(false); } }
       show(emoteBtn, !!r);
       show(photoBtn, !!r);
-      if (!r) { show(sitBtn, false); return; }
+      if (!r) { show(sitBtn, false); show(msgBtn, false); atStage = false; return; }
       // the nearest free seat in reach, if not sitting
       eyeAt.copy(camera.position);
       near = null;
@@ -179,6 +228,14 @@ export function createActions({ controls, tp, isTouch, hasCharacter, makeCharact
       // pushing to walk gets up
       if (seat && !photo && controls.pushed()) stand();
       show(sitBtn, !photo && (!!near || !!seat));
+      // in front of the pelaminan: a message for the couple
+      const z = r.stage;
+      atStage = !!z && !photo && eyeAt.x > z.x0 && eyeAt.x < z.x1 && eyeAt.z > z.z0 && eyeAt.z < z.z1;
+      show(msgBtn, atStage);
+      if (msgBtn && !msgBtn.dataset.done) {
+        msgBtn.dataset.done = '1';
+        msgBtn.innerHTML = `<span>💌 ${L('Tinggalkan Pesan', 'Leave a Message')}</span>${key('M')}`;
+      }
       if (sitBtn) {
         const label = seat ? L('Berdiri', 'Stand Up') : L('Duduk', 'Sit Down');
         const html = `<span>${label}</span>${key('F')}`;

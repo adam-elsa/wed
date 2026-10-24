@@ -25,6 +25,11 @@
 // relay -> guest:
 //   { t: 'welcome', id, peers: [{ id, name, look, s }] }   (s: their last 's', or null)
 //   { t: 'join', id, name, look } / { t: 'leave', id } / { t: 's', id, ... } / { t: 'look', id, look } / { t: 'name', id, name }
+//
+// It also counts visits, and nothing else about them: POST /hit { k: 'page' | 'venue', id } from
+// the site (script.js: every page opened; gate3d.js: going into the 3D venue), id being a random
+// one the browser keeps, to tell visitors apart. Kept per day (Jakarta time) as totals and as how
+// many different visitors; GET /stats shows them as JSON. No names, no addresses.
 
 import { DurableObject } from 'cloudflare:workers';
 
@@ -50,6 +55,10 @@ export default {
       return new Response(JSON.stringify({ country: (request.cf && request.cf.country) || null }), {
         headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': origin, 'Cache-Control': 'no-store', Vary: 'Origin' },
       });
+    }
+    if (url.pathname === '/hit' || url.pathname === '/stats') {
+      if (url.pathname === '/hit' && (!allowed || request.method !== 'POST')) return new Response('forbidden', { status: 403 });
+      return env.VENUE.get(env.VENUE.idFromName('wedding')).fetch(request);
     }
     if (url.pathname !== '/ws') return new Response('not found', { status: 404 });
     if (!allowed) return new Response('forbidden', { status: 403 });
@@ -78,6 +87,9 @@ export class Venue extends DurableObject {
   }
 
   async fetch(request) {
+    const path = new URL(request.url).pathname;
+    if (path === '/hit') return this.hit(request);
+    if (path === '/stats') return this.stats();
     if (this.here().length >= MAX_GUESTS) return new Response('the venue is full', { status: 503 });
     const pair = new WebSocketPair();
     const [client, server] = Object.values(pair);
@@ -85,6 +97,37 @@ export class Venue extends DurableObject {
     server.serializeAttachment({ id: crypto.randomUUID().slice(0, 8), name: '', look: null, s: null, hi: false, win: 0, n: 0, seen: Date.now(), at: Date.now() });
     if (!(await this.ctx.storage.getAlarm())) await this.ctx.storage.setAlarm(Date.now() + SWEEP);
     return new Response(null, { status: 101, webSocket: client });
+  }
+
+  // one visit: the day's total, and whether this visitor is new today (and new at all)
+  async hit(request) {
+    let m = {};
+    try { m = JSON.parse(await request.text()); } catch (err) { /* counted as a page */ }
+    const kind = m && m.k === 'venue' ? 'venue' : 'page';
+    const id = m && typeof m.id === 'string' ? m.id.replace(/[^a-z0-9]/gi, '').slice(0, 24) : '';
+    const day = new Date(Date.now() + 7 * 3600 * 1000).toISOString().slice(0, 10);
+    const s = this.ctx.storage;
+    const d = (await s.get(`d:${day}`)) || { page: 0, venue: 0, pageVisitors: 0, venueVisitors: 0 };
+    const all = (await s.get('all')) || { since: day, page: 0, venue: 0, pageVisitors: 0, venueVisitors: 0 };
+    d[kind]++;
+    all[kind]++;
+    if (id) {
+      if (!(await s.get(`u:${day}:${kind}:${id}`))) { await s.put(`u:${day}:${kind}:${id}`, 1); d[`${kind}Visitors`]++; }
+      if (!(await s.get(`a:${kind}:${id}`))) { await s.put(`a:${kind}:${id}`, 1); all[`${kind}Visitors`]++; }
+    }
+    await s.put({ [`d:${day}`]: d, all });
+    return new Response(null, { status: 204 });
+  }
+
+  // the counts so far: page = the invitation opened, venue = the 3D venue gone into;
+  // ...Visitors = how many different browsers did
+  async stats() {
+    const days = {};
+    for (const [k, v] of await this.ctx.storage.list({ prefix: 'd:' })) days[k.slice(2)] = v;
+    const all = (await this.ctx.storage.get('all')) || null;
+    return new Response(JSON.stringify({ total: all, days, online: this.here().length }, null, 2), {
+      headers: { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'no-store' },
+    });
   }
 
   // look round for guests gone quiet (the browser closed without saying so), or still connected
