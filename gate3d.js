@@ -1503,6 +1503,13 @@ function init() {
     if (ms < 650) return;
     getVenue();
     arriveVenue();
+    // what the lobby would have asked: a character, or straight in. It is also what brings the
+    // guest in with the others and puts the first/third-person switch (V) in the corner.
+    controls.stop();
+    askCharacter(() => {
+      controls.start(isTouch);
+      askMotion();
+    });
   }
 
   // called every frame while in the ballroom
