@@ -14,6 +14,7 @@
 // in on its own as soon as the guest is walking again.
 import * as THREE from 'three';
 import { loadManifest, loadKit, createAvatar, tidyLook, defaultLook } from './avatar3d.js';
+import { poser, poseEmote, emoteOffset, emoteById, poseSit, SIT_CLIP, disposePoser } from './emotes3d.js';
 
 // the deployed relay (multiplayer/, on Adam's Cloudflare account); '' turns multiplayer off
 export const RELAY_URL = 'wss://adam-elsa-venue.adam-ramdhan71.workers.dev/ws';
@@ -69,6 +70,7 @@ function nameTag(text) {
 }
 
 const hash = (s) => [...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) >>> 0, 7);
+const num = (v) => (Number.isFinite(v) ? Math.min(1, Math.max(0, v)) : 0);
 
 // start({ name, look }) once the guest has chosen; update() every frame with where they are.
 export function createNet(onCount) {
@@ -76,7 +78,7 @@ export function createNet(onCount) {
   const peers = new Map(); // id -> { name, look, s, avatar, tag, pos, yaw, walking, loading }
   let ws = null, myId = null, me = null, retry = 1, timer = 0, closed = false, idle = false, pinger = 0;
   let sendAcc = 0, sinceSent = 0, last = null;
-  const track = { x: null, z: null, yaw: 0, walking: false };
+  const track = { x: null, z: null, yaw: 0, walking: false, p: '', h: 0 };
 
   // how many are here, me included (0 while not connected)
   const count = () => { if (onCount) onCount(ws && ws.readyState === 1 && myId ? 1 + peers.size : 0); };
@@ -126,12 +128,13 @@ export function createNet(onCount) {
 
   function add(p) {
     if (p.id === myId || peers.has(p.id)) return;
-    const peer = { id: p.id, name: p.name || 'Tamu', look: p.look, s: p.s || null, avatar: null, tag: null, pos: null, yaw: 0, walking: false };
+    const peer = { id: p.id, name: p.name || 'Tamu', look: p.look, s: p.s || null, avatar: null, tag: null, pos: null, yaw: 0, walking: false, P: null, clip: '', pose: '', poseT: 0 };
     peers.set(p.id, peer);
     dress(peer);
   }
   function drop(p) {
     if (p.avatar) p.avatar.dispose();
+    disposePoser(p.P);
     if (p.tag) { p.tag.material.map.dispose(); p.tag.material.dispose(); }
     p.avatar = null; p.gone = true;
   }
@@ -151,7 +154,10 @@ export function createNet(onCount) {
         const old = p.avatar;
         p.avatar = createAvatar(kit, Mf);
         p.avatar.wear(look);
-        p.avatar.play(p.walking ? 'Walk' : 'Idle', 0);
+        disposePoser(p.P);
+        p.P = poser(p.avatar.root); // (in the bind pose still)
+        p.clip = p.walking ? 'Walk' : 'Idle';
+        p.avatar.play(p.clip, 0);
         // you walk through each other, as through the crowd of extras
         p.avatar.root.traverse((o) => { o.userData.noBlock = true; });
         p.avatar.root.visible = false;
@@ -184,7 +190,10 @@ export function createNet(onCount) {
     // every frame. room: 'lobby' | 'ballroom' | null (on the way through a door); eye: where the
     // guest is (the camera before third person steps it back); mine: whether they're walking
     // under their own steam (not riding a photo tour, so their spot is where they left it).
-    update(dt, room, scene, eye, mine) {
+    // pose: what they're doing, for the others to see: { p: 'sit' | 'sitl' | an emote's id | '',
+    // h: how high they sit, yaw: which way they face while they do }.
+    update(dt, room, scene, eye, mine, pose) {
+      if (pose && Number.isFinite(pose.x)) eye = { x: pose.x, z: pose.z }; // sitting: on the chair itself
       // my own whereabouts: facing the way I walk, as my character does
       if (eye && mine) {
         if (track.x !== null && dt > 0) {
@@ -194,13 +203,16 @@ export function createNet(onCount) {
         }
         track.x = eye.x; track.z = eye.z;
       } else { track.walking = false; }
+      track.p = (pose && pose.p) || '';
+      track.h = (pose && pose.h) || 0;
+      if (pose && pose.p && Number.isFinite(pose.yaw)) track.yaw = pose.yaw;
       sendAcc += dt; sinceSent += dt;
       // let go for standing outside the venue: back in now there's somewhere to say I am
       if (idle && room && track.x !== null) { idle = false; retry = 1; connect(); }
       if (ws && ws.readyState === 1 && room && track.x !== null && sendAcc >= 1 / SEND_HZ) {
         sendAcc = 0;
-        const s = { r: room, x: +track.x.toFixed(2), z: +track.z.toFixed(2), y: +track.yaw.toFixed(2), a: track.walking ? 1 : 0 };
-        const changed = !last || s.r !== last.r || Math.abs(s.x - last.x) > 0.03 || Math.abs(s.z - last.z) > 0.03 || Math.abs(s.y - last.y) > 0.05 || s.a !== last.a;
+        const s = { r: room, x: +track.x.toFixed(2), z: +track.z.toFixed(2), y: +track.yaw.toFixed(2), a: track.walking ? 1 : 0, p: track.p, h: +track.h.toFixed(2) };
+        const changed = !last || s.r !== last.r || Math.abs(s.x - last.x) > 0.03 || Math.abs(s.z - last.z) > 0.03 || Math.abs(s.y - last.y) > 0.05 || s.a !== last.a || s.p !== last.p;
         if (changed || sinceSent > KEEPALIVE) {
           ws.send(JSON.stringify({ t: 's', ...s }));
           last = s; sinceSent = 0;
@@ -222,12 +234,24 @@ export function createNet(onCount) {
           p.pos.x += (tx - p.pos.x) * k; p.pos.y += (tz - p.pos.y) * k;
           p.yaw += Math.atan2(Math.sin(p.s.y - p.yaw), Math.cos(p.s.y - p.yaw)) * k;
         }
-        const walking = !!p.s.a;
-        if (walking !== p.walking) { p.walking = walking; a.play(walking ? 'Walk' : 'Idle', 0.25); }
-        a.root.position.set(p.pos.x, 0, p.pos.y);
-        a.root.rotation.y = p.yaw;
+        // sitting, or an emote (from a relay that passes them on: p, h); else walking or standing
+        const pose = typeof p.s.p === 'string' ? p.s.p : '';
+        if (pose !== p.pose) { p.pose = pose; p.poseT = 0; } else p.poseT += dt;
+        const sitting = pose === 'sit' || pose === 'sitl';
+        const em = !sitting && emoteById(pose) && p.poseT < emoteById(pose).dur ? emoteById(pose) : null;
+        p.walking = !!p.s.a;
+        const want = sitting ? SIT_CLIP : p.walking ? 'Walk' : (em && em.clip) || 'Idle';
+        if (want !== p.clip) { p.clip = want; a.play(want, 0.25); }
+        const off = em ? emoteOffset(em.id, p.poseT) : { dy: 0, yaw: 0 };
+        a.root.position.set(p.pos.x, sitting ? num(p.s.h) : off.dy, p.pos.y);
+        a.root.rotation.y = p.yaw + off.yaw;
         a.root.visible = true;
         a.update(dt);
+        if (p.P) {
+          if (sitting) poseSit(p.P, pose === 'sitl');
+          else if (em) poseEmote(p.P, em.id, p.poseT);
+          else if (p.P.glass) p.P.glass.visible = false;
+        }
       }
     },
     dispose() {

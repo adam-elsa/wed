@@ -9,6 +9,7 @@ import { createBallroom, planSvg, SPOTS } from './ballroom3d.js';
 import { createControls, hasGyro } from './fps.js';
 import { createThirdPerson } from './thirdperson3d.js';
 import { createNet, savedName, saveName } from './net3d.js';
+import { createActions } from './actions3d.js';
 
 // Indonesian, or English for guests from Malaysia (lang.js)
 const L = window.L || ((id) => id);
@@ -420,6 +421,9 @@ function init() {
   // walking around the lobby and the ballroom: thumbstick + drag on phones, WASD + mouse on computers
   const controls = createControls(canvas, document.getElementById('stick'));
   const tp = createThirdPerson();
+  // sitting on a free chair (F), emotes (E) and photo mode (P): see actions3d.js. Without a
+  // character, the emotes make one first.
+  const actions = createActions({ controls, tp, isTouch, hasCharacter: () => tp.available(), makeCharacter: () => makeCharacterNow() });
   // the other guests here right now (only with a relay to talk to; see net3d.js)
   const onlineEl = document.getElementById('onlineCount');
   const net = createNet((n) => {
@@ -533,8 +537,10 @@ function init() {
     }
     const driving = state === 'lobby' || state === 'venue';
     if (driving && controls.took()) takeWheel();
-    if (active === lobby.scene) lobby.update(camera, t, dt, pointer, state === 'lobby' ? controls : null);
-    else if (venue && active === venue.scene) venue.update(camera, t, dt, pointer, state === 'venue' ? controls : null);
+    // (in photo mode the guest stays put: the controls fly the camera instead)
+    const walker = actions.photo() ? null : controls;
+    if (active === lobby.scene) lobby.update(camera, t, dt, pointer, state === 'lobby' ? walker : null);
+    else if (venue && active === venue.scene) venue.update(camera, t, dt, pointer, state === 'venue' ? walker : null);
     // third person: the guest's character under their eyes, the camera behind it (not while the
     // lobby has the camera on rails for a tour or a card, nor on the way through a door)
     const inLobby = active === lobby.scene, inVenue = !!venue && active === venue.scene;
@@ -542,9 +548,12 @@ function init() {
       const show = (state === 'lobby' && lobby.roaming()) || state === 'venue';
       // the camera is still at the guest's eyes here: tell the others where they are, and show them
       const room = state === 'lobby' ? 'lobby' : state === 'venue' ? 'ballroom' : null;
-      net.update(dt, room, active, camera.position, show);
-      tp.place(camera, active, inLobby ? lobby.bounds : venue.bounds, dt, show);
-    }
+      // sitting drops the eyes into the chair's view; then everyone hears where the guest is
+      actions.afterRoom(camera, dt, show && room ? (inLobby ? lobby : venue) : null);
+      net.update(dt, room, active, camera.position, show, actions.pose());
+      tp.place(camera, active, inLobby ? lobby.bounds : venue.bounds, dt, show, actions.photo());
+      actions.afterThird(camera, dt);
+    } else actions.afterRoom(camera, dt, null);
     if (crosshair) {
       const aiming = driving && controls.locked();
       crosshair.hidden = !aiming;

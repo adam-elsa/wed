@@ -17,7 +17,9 @@
 //
 // Messages, as JSON, guest -> relay:
 //   { t: 'hi', name, look }        on connecting (look as in avatar3d.js, or null)
-//   { t: 's', r, x, z, y, a }      where I am: room ('lobby' | 'ballroom'), position, facing, walking (0/1)
+//   { t: 's', r, x, z, y, a, p, h } where I am: room ('lobby' | 'ballroom'), position, facing, walking (0/1),
+//                                  and what I'm doing: p 'sit' | 'sitl' | an emote's id (emotes3d.js) | '',
+//                                  h how high I sit
 //   { t: 'look', look }            changed my character
 //   { t: 'name', name }            wrote my name in the guest book
 // relay -> guest:
@@ -126,7 +128,7 @@ export class Venue extends DurableObject {
     }
     if (!me.hi) return;
     if (m.t === 's') {
-      const s = { r: m.r === 'ballroom' ? 'ballroom' : 'lobby', x: num(m.x, -30, 30), z: num(m.z, -30, 30), y: num(m.y, -10, 10), a: m.a ? 1 : 0 };
+      const s = { r: m.r === 'ballroom' ? 'ballroom' : 'lobby', x: num(m.x, -30, 30), z: num(m.z, -30, 30), y: num(m.y, -10, 10), a: m.a ? 1 : 0, p: typeof m.p === 'string' && /^[a-z]{1,8}$/.test(m.p) ? m.p : '', h: num(m.h, 0, 1) };
       me.s = s; me.at = Date.now(); ws.serializeAttachment(me);
       this.tell(ws, { t: 's', id: me.id, ...s });
     } else if (m.t === 'name') {
