@@ -846,6 +846,7 @@ function init() {
     net.start({ name: savedName() || (invited && invited.value.trim()) || 'Tamu', look: look || null });
     net.setLook(look || null); // (a character made later, the others see it change)
     tp.setLook(look || null);
+    if (!viewShown && window.countVisit) window.countVisit('venue'); // into the venue: counted once (script.js)
     viewShown = true;
     if (!look) { tp.set(false); showView(); return; }
     let pref = null;

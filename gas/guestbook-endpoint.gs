@@ -16,13 +16,17 @@
 //
 // The "Buku Tamu" tab and its header row are created on the first entry. There is no doGet:
 // the names are never served back to the public.
+//
+// Messages left for the couple at the pelaminan in the ballroom come here too, in the Pesan
+// column (a guest book signing leaves it empty). A sheet made before that column existed gets
+// its header on the next entry.
 
 const SHEET_NAME = 'Buku Tamu';
-const HEADER = ['Waktu', 'Nama', 'Nama di Undangan'];
+const HEADER = ['Waktu', 'Nama', 'Nama di Undangan', 'Pesan'];
 
 // Stop guest input like "=HYPERLINK(...)" from being run as a Sheet formula.
-function safeCell(value) {
-  const s = String(value == null ? '' : value).slice(0, 200);
+function safeCell(value, max) {
+  const s = String(value == null ? '' : value).slice(0, max || 200);
   return /^[=+\-@]/.test(s) ? "'" + s : s;
 }
 
@@ -34,9 +38,10 @@ function doPost(e) {
     sheet.appendRow(HEADER);
     sheet.setFrozenRows(1);
   }
+  if (sheet.getRange(1, 4).getValue() !== 'Pesan') sheet.getRange(1, 4).setValue('Pesan');
   const data = JSON.parse(e.postData.contents);
   if (!data.name) return reply('empty');
-  sheet.appendRow([new Date(), safeCell(data.name), safeCell(data.invited)]);
+  sheet.appendRow([new Date(), safeCell(data.name), safeCell(data.invited), safeCell(data.message, 1000)]);
   return reply('success');
 }
 

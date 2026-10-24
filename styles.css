@@ -938,6 +938,12 @@ body.is-creating .view-toggle{display:none !important;}
 }
 .sit-btn .view-key{font-size:9.5px;letter-spacing:0.04em;text-transform:none;opacity:0.75;}
 .gate.in-lobby .sit-btn:not([hidden]), .gate.in-venue .sit-btn:not([hidden]){display:flex;}
+/* in front of the pelaminan: a message for the couple (above "Duduk", should both show) */
+.msg-btn{bottom:calc(max(5vh, env(safe-area-inset-bottom)) + 118px);}
+.stage-msg{z-index:63;}
+.stage-msg textarea{font-size:16px;} /* 16px: phones don't zoom into it */
+.stage-msg-actions{display:flex;gap:10px;justify-content:center;}
+.stage-msg-actions .btn-solid{margin-top:0;}
 /* the list of emotes */
 .emote-menu{
   position:fixed;

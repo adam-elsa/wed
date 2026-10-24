@@ -312,6 +312,19 @@
     <span class="view-state">Mode Foto</span>
   </button>
   <button class="sit-btn" id="sitButton" type="button" hidden>Duduk</button>
+  <!-- in front of the pelaminan: leave the two of us a message, to the guest book's Sheet (M) -->
+  <button class="sit-btn msg-btn" id="msgButton" type="button" hidden>Tinggalkan Pesan</button>
+  <form class="motion-ask card-form stage-msg" id="stageMsg" novalidate hidden>
+    <p data-en="For the Bride &amp;amp; Groom" class="eyebrow">Untuk Kedua Mempelai</p>
+    <h3 data-en="Leave a Message" class="motion-title">Tinggalkan Pesan</h3>
+    <input data-en-placeholder="Your name" data-en-aria-label="Your name" type="text" name="name" placeholder="Nama kamu" aria-label="Nama kamu" maxlength="40" autocomplete="name" required>
+    <textarea data-en-placeholder="Your message for Adam &amp; Elsa" data-en-aria-label="Message" name="message" rows="4" maxlength="1000" placeholder="Pesan dan doamu untuk Adam &amp; Elsa" aria-label="Pesan" required></textarea>
+    <p class="rsvp-status" role="status"></p>
+    <div class="stage-msg-actions">
+      <button data-en="Cancel" type="button" class="btn-outline" id="stageMsgCancel">Batal</button>
+      <button data-en="Send" type="submit" class="btn-solid">Kirim</button>
+    </div>
+  </form>
   <div class="emote-menu" id="emoteMenu" hidden>
     <p class="eyebrow">Emote</p>
     <div class="emote-grid"></div>

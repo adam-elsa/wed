@@ -932,6 +932,8 @@ export function createBallroom() {
     // the room's walls, floor to ceiling (for the third-person camera to stay inside)
     bounds: { ...BOUNDS, h: H },
     seats: freeSeats,
+    // in front of the pelaminan: where a guest can leave the two of us a message (actions3d.js)
+    stage: { x0: -6, x1: 6, z0: NORTH, z1: -4.5 }, // (the Pelaminan spot stands at -7.5, -4.9 on phones)
     arrived() { return !nav.walk; },
     // look around: dx, dy as fractions of the screen dragged across
     drag(camera, dx, dy) {
